@@ -33,8 +33,8 @@ static const uint16_t scale = 6;
 static const uint16_t font_width = 5;
 static const uint16_t font_height = 8;
 
-static const uint16_t start_x_peripheral_1 = 16;
-static const uint16_t start_x_peripheral_2 = 134;
+static const uint16_t start_x_peripheral_1 = 12;
+static const uint16_t start_x_peripheral_2 = 132;
 static const uint16_t start_y = 176;
 
 struct peripheral_battery_state {
@@ -60,9 +60,9 @@ void print_percentage(uint8_t digit, uint16_t x, uint16_t y, uint16_t scale, uin
     }
 
     if (digit > 99) {
-        print_bitmap(scaled_bitmap_1, CHAR_F, first_x,  y, scale, num_color, bg_color, FONT_SIZE_5x8);
-        print_bitmap(scaled_bitmap_1, CHAR_U, second_x, y, scale, num_color, bg_color, FONT_SIZE_5x8);
-        print_bitmap(scaled_bitmap_1, CHAR_L, third_x, y, scale, num_color, bg_color, FONT_SIZE_5x8);
+        print_bitmap(scaled_bitmap_1, 1, first_x,  y, scale, num_color, bg_color, FONT_SIZE_5x8);
+        print_bitmap(scaled_bitmap_1, 0, second_x, y, scale, num_color, bg_color, FONT_SIZE_5x8);
+        print_bitmap(scaled_bitmap_1, 0, third_x + 2, y, scale, num_color, bg_color, FONT_SIZE_5x8);
         return;
     }
 
@@ -71,7 +71,7 @@ void print_percentage(uint8_t digit, uint16_t x, uint16_t y, uint16_t scale, uin
 
     print_bitmap(scaled_bitmap_1, first_num, first_x, y, scale, num_color, bg_color, FONT_SIZE_5x8);
     print_bitmap(scaled_bitmap_1, second_num, second_x, y, scale, num_color, bg_color, FONT_SIZE_5x8);
-    print_bitmap(scaled_bitmap_1, CHAR_PERCENTAGE, third_x, y, scale, percentage_color, bg_color, FONT_SIZE_5x8);
+    print_bitmap(scaled_bitmap_1, CHAR_PERCENTAGE, third_x + 2, y, scale, percentage_color, bg_color, FONT_SIZE_5x8);
 }
 
 void set_battery_symbol() {

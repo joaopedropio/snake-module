@@ -103,23 +103,23 @@ static uint16_t font_height_snake = 7;
 //     print_bitmap(scaled_bitmap_snake, CHAR_COLON, x + 33, y, scale_snake, get_snake_font_color(), get_snake_bg_color(), FONT_SIZE_5x7);
 // }
 
-void print_number_snake(uint8_t digit, uint16_t x, uint16_t y, DecimalPlaces decimalPlaces) {
-    uint16_t left_num = digit / 100;
-    if (left_num != 0) {
-        digit = digit - (left_num * 100);
-    }
-    uint16_t first_num = digit / 10;
-    uint16_t second_num = digit % 10;
+// void print_number_snake(uint8_t digit, uint16_t x, uint16_t y, DecimalPlaces decimalPlaces) {
+//     uint16_t left_num = digit / 100;
+//     if (left_num != 0) {
+//         digit = digit - (left_num * 100);
+//     }
+//     uint16_t first_num = digit / 10;
+//     uint16_t second_num = digit % 10;
      
-    if (decimalPlaces == DECIMAL_PLACES_2) {
-        print_bitmap(scaled_bitmap_snake, first_num, x + 0, y,   scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
-        print_bitmap(scaled_bitmap_snake, second_num, x + 11, y, scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
-    } else if(decimalPlaces == DECIMAL_PLACES_3) {
-        print_bitmap(scaled_bitmap_snake, left_num, x + 0, y,    scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
-        print_bitmap(scaled_bitmap_snake, first_num, x + 11, y,  scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
-        print_bitmap(scaled_bitmap_snake, second_num, x + 22, y, scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
-    }
-}
+//     if (decimalPlaces == DECIMAL_PLACES_2) {
+//         print_bitmap(scaled_bitmap_snake, first_num, x + 0, y,   scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
+//         print_bitmap(scaled_bitmap_snake, second_num, x + 11, y, scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
+//     } else if(decimalPlaces == DECIMAL_PLACES_3) {
+//         print_bitmap(scaled_bitmap_snake, left_num, x + 0, y,    scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
+//         print_bitmap(scaled_bitmap_snake, first_num, x + 11, y,  scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
+//         print_bitmap(scaled_bitmap_snake, second_num, x + 22, y, scale_snake, get_snake_num_color(), get_snake_bg_color(), FONT_SIZE_5x7);
+//     }
+// }
 
 // black buffer
 static uint8_t *buf;
@@ -549,26 +549,31 @@ static uint8_t random_start_x(void) {
     return random_number(SNAKE_BOARD_WIDTH);
 }
 
+static uint8_t random_start_y(void) {
+    return random_number(SNAKE_BOARD_HEIGHT - 4);
+}
+
 static void initialize_snake(void) {
     uint8_t random_x = random_start_x();
+    uint8_t random_y = random_start_y();
     clear_board();
     destroy_snake();
     current_number = inside_board_number + 1;
-    snake_board[random_x][random_x] = next_number();
-    snake_board[random_x][random_x + 1] = next_number();
-    snake_board[random_x][random_x + 2] = next_number();
-    snake_render_pixel(random_x, random_x + 2, true);
-    snake_render_pixel(random_x, random_x + 1, true);
-    snake_render_pixel(random_x, random_x, true);
-    prepend_snake_part(random_x, random_x + 2);
-    prepend_snake_part(random_x, random_x + 1);
-    prepend_snake_part(random_x, random_x);
+    snake_board[random_x][random_y] = next_number();
+    snake_board[random_x][random_y + 1] = next_number();
+    snake_board[random_x][random_y + 2] = next_number();
+    snake_render_pixel(random_x, random_y + 2, true);
+    snake_render_pixel(random_x, random_y + 1, true);
+    snake_render_pixel(random_x, random_y, true);
+    prepend_snake_part(random_x, random_y + 2);
+    prepend_snake_part(random_x, random_y + 1);
+    prepend_snake_part(random_x, random_y);
     snake_len = 0;
     //set_snake_length();
     head_coordinate.x = random_x;
-    head_coordinate.y = random_x + 2;
+    head_coordinate.y = random_y + 2;
     tail_coordinate.x = random_x;
-    tail_coordinate.y = random_x;
+    tail_coordinate.y = random_y;
     draw_index = 0;
     walk_index = 0;
     walk_timer = 0;

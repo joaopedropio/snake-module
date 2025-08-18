@@ -56,9 +56,10 @@ typedef enum {
 } Status;
 
 typedef enum {
-    FONT_SIZE_4x6,
+    FONT_SIZE_3x5,
     FONT_SIZE_5x7,
     FONT_SIZE_5x8,
+    FONT_SIZE_3x6,
 } FontSize;
 
 void fill_buffer_color(uint8_t *buf, size_t buf_size, uint32_t color);
@@ -67,8 +68,8 @@ void display_write_wrapper(uint16_t x, uint16_t y, struct display_buffer_descrip
 void print_bitmap(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size);
 void print_bitmap_status(uint16_t *scaled_bitmap, Status s, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color);
 void print_bitmap_transport(uint16_t *scaled_bitmap, Transport t, bool is_ready, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color);
-void print_frame(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y);
 void print_rectangle(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t color, uint16_t scale);
+void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
 void set_splash_num_color(uint32_t color);
 void set_splash_bg_color(uint32_t color);
@@ -125,6 +126,6 @@ uint16_t get_bt_bg_color(void);
 uint16_t get_frame_color(void);
 uint16_t get_frame_color_1(void);
 
-void clear_area(void);
+void clear_screen(void);
 void set_colors(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t black1, uint32_t black2);
 void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t strLen);

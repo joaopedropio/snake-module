@@ -32,23 +32,23 @@ static uint16_t *scaled_bitmap_bt_num;
 
 static const uint16_t status_height = 9;
 static const uint16_t status_width = 9;
-static const uint16_t status_scale = 5;
+static const uint16_t status_scale = 3;
 
-static const uint16_t symbol_scale = 4;
+static const uint16_t symbol_scale = 2;
 static const uint16_t symbol_width = 9;
 static const uint16_t symbol_height = 15;
 
-static const uint16_t bt_num_scale = 7;
+static const uint16_t bt_num_scale = 4;
 static const uint16_t bt_num_width = 5;
 static const uint16_t bt_num_height = 7;
 
-static const uint16_t bluetooth_profiles_x = 20;
-static const uint16_t bluetooth_profiles_y = 20;
-static const uint16_t bluetooth_status_x = 64;
-static const uint16_t bluetooth_status_y = 22;
-static const uint16_t usb_symbol_x = 18;
-static const uint16_t ble_symbol_x = 68;
-static const uint16_t output_symbols_y = 80;
+static const uint16_t bluetooth_profiles_x = 60;
+static const uint16_t bluetooth_profiles_y = 123;
+static const uint16_t bluetooth_status_x = 86;
+static const uint16_t bluetooth_status_y = 123;
+static const uint16_t symbol_usb_x = 14;
+static const uint16_t symbol_ble_x = 38;
+static const uint16_t symbols_y = 121;
 
 static const uint16_t usb_ready_bitmap[] = {
     0, 1, 1, 1, 1, 1, 1, 1, 0,
@@ -246,7 +246,7 @@ void print_symbols(uint16_t usb_x, uint16_t ble_x, uint16_t y, struct output_sta
 void set_status_symbol() {
     print_bluetooth_profiles(bluetooth_profiles_x, bluetooth_profiles_y, status_state);
     print_bluetooth_status(bluetooth_status_x, bluetooth_status_y, status_state);
-    print_symbols(usb_symbol_x, ble_symbol_x, output_symbols_y, status_state);
+    print_symbols(symbol_usb_x, symbol_ble_x, symbols_y, status_state);
 }
 
 void output_status_update_cb(struct output_status_state state) {
