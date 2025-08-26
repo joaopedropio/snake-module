@@ -2,34 +2,18 @@ config SNAKE_USE_CUSTOM_COLORSCHEME
     bool "Use custom colorscheme"
     default n
 
-config SNAKE_COLOR_1
-    int "Color 1"
-    default 50
+config THEME_COLOR_1
+    string "Color 1"
+    default "4aedff"
 
-config SNAKE_COLOR_2
-    int "Color 2"
-    default 50
+config THEME_COLOR_2
+    string "Color 2"
+    default "ff8acd"
 
-config SNAKE_COLOR_3
-    int "Color 3"
-    default 50
+config THEME_COLOR_3
+    string "Color 3"
+    default "b03e80"
     
-config SNAKE_COLOR_4
-    int "Color 4"
-    default 50
-
-config SNAKE_COLOR_FRAME
-    int "Color Frame"
-    default 50
-
-config SNAKE_COLOR_FRAME_1
-    int "Color Frame 1"
-    default 50
-
-config SNAKE_COLOR_BOARD
-    int "Color Board"
-    default 50
-
-config SNAKE_COLOR_BOARD_1
-    int "Color Board 1"
-    default 50
+config THEME_COLOR_4
+    string "Color 4"
+    default "ffffff"

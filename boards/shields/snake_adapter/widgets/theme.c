@@ -20,9 +20,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #define COLORS_PER_THEME 6
 
-static uint8_t themes_colors_len = 11;
+static uint8_t themes_colors_len = 12;
 static uint32_t themes_colors[][COLORS_PER_THEME] = {
     // back      primary    secondary
+    {0x222323u, 0xff4adcu, 0x3dff98u, 0xf0f6f0u, 0x000000u, 0xddddddu}, // custom https://lospec.com/palette-list/b4sement
     {0x405010u, 0xd0d058u, 0x708028u, 0xa0a840u, 0x000000u, 0xddddddu}, // https://lospec.com/palette-list/nostalgia
     {0x222323u, 0xff4adcu, 0x3dff98u, 0xf0f6f0u, 0x000000u, 0xddddddu}, // https://lospec.com/palette-list/b4sement
     {0x302387u, 0xff3796u, 0x00faacu, 0xfffdafu, 0x000000u, 0xddddddu}, // https://lospec.com/palette-list/fuzzyfour
@@ -70,11 +71,17 @@ void print_themes() {
         CHAR_N,
     };
 
-    uint8_t num = current_theme + 1;
+    uint8_t num = current_theme;
     uint16_t first_num = current_theme / 10;
     uint16_t second_num = current_theme % 10;
 
     uint16_t char_gap_pixels = 2;
+    if (num == 0) {
+        print_string(scaled_bitmap_theme_font, theme_template, theme_x, theme_y, theme_font_scale, get_symbol_unselected_color(), get_symbol_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 4);
+        print_bitmap(scaled_bitmap_theme_font, CHAR_C, theme_x + 62, theme_y, theme_font_scale, get_symbol_unselected_color(), get_symbol_bg_color(), FONT_SIZE_3x5);
+        print_bitmap(scaled_bitmap_theme_font, CHAR_NONE, theme_x + 76, theme_y, theme_font_scale, get_symbol_unselected_color(), get_symbol_bg_color(), FONT_SIZE_3x5);
+        return;
+    }
     print_string(scaled_bitmap_theme_font, theme_template, theme_x, theme_y, theme_font_scale, get_symbol_unselected_color(), get_symbol_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 4);
     print_bitmap(scaled_bitmap_theme_font, int_to_num_char(first_num), theme_x + 62, theme_y, theme_font_scale, get_symbol_unselected_color(), get_symbol_bg_color(), FONT_SIZE_3x5);
     print_bitmap(scaled_bitmap_theme_font, int_to_num_char(second_num), theme_x + 76, theme_y, theme_font_scale, get_symbol_unselected_color(), get_symbol_bg_color(), FONT_SIZE_3x5);

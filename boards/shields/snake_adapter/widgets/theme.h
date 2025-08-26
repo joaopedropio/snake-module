@@ -9,6 +9,8 @@
 #include <zephyr/kernel.h>
 #include <lvgl.h>
 
+extern uint32_t themes_colors[][6];
+
 void set_next_theme(void);
 void print_themes(void);
 void theme_init(void);
