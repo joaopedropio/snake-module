@@ -9,6 +9,7 @@
 #include <zephyr/kernel.h>
 #include <lvgl.h>
 
+void initialize_snake_game(void);
 void start_snake(void);
 void restart_snake(void);
 void stop_snake(void);

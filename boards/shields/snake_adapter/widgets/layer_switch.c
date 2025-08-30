@@ -29,12 +29,14 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "battery_status.h"
 #include "helpers/display.h"
 #include "helpers/buzzer.h"
+#include "helpers/settings.h"
 #include "theme.h"
 //#include "snake_image.h"
 #include "logo.h"
 
 static uint8_t *buf_frame;
-static uint16_t tapping_term_ms = 300;
+static uint16_t tapping_term_ms_theme = 300;
+static uint16_t tapping_term_ms_mute = 900;
 static int64_t pressed_timestamp = 0;
 static int64_t released_timestamp = 0;
 
@@ -47,6 +49,7 @@ static bool dongle_lock = false;
 static const uint8_t base_layer = 0;
 static const uint8_t menu_layer = 4;
 static const uint8_t theme_layer = 5;
+static const uint8_t mute_layer = 6;
 
 struct layer_status_state {
     uint8_t index;
@@ -86,6 +89,9 @@ void print_menu() {
 }
 
 void toggle_menu() {
+    #ifdef CONFIG_USE_BUZZER
+    play_coin_once();
+    #endif
     if (menu_on) {
         stop_output_status();
         stop_battery_status();
@@ -97,9 +103,6 @@ void toggle_menu() {
         print_menu();
         menu_on = true;
     }
-    #ifdef CONFIG_USE_BUZZER
-    play_coin_once();
-    #endif
 }
 
 void change_theme() {
@@ -131,6 +134,16 @@ void set_layer_symbol() {
     if (ls_state.index == theme_layer) {
         change_theme();
     }
+    if (ls_state.index == mute_layer) {
+        #ifdef CONFIG_USE_BUZZER
+        snake_settings_toggle_mute();
+        if (snake_settings_get_mute()) {
+            play_reversed_coin_once();
+        } else {
+            play_coin_once();
+        }
+        #endif
+    }
     dongle_lock = false;
 }
 
@@ -143,13 +156,17 @@ void dongle_action_update_cb(struct zmk_dongle_actioned state) {
         return;
     }
     if (!state.pressed) {
-        uint8_t index = theme_layer;
-        if (pressed_timestamp + tapping_term_ms > state.timestamp) {
+        uint8_t index;
+        int64_t elapsed_time = state.timestamp - pressed_timestamp;
+        if (elapsed_time < tapping_term_ms_theme) {
             index = menu_layer;
+        } else if (elapsed_time < tapping_term_ms_mute) {
+            index = theme_layer;
+        } else {
+            index = mute_layer;
         }
         ls_state = (struct layer_status_state) {
-            .index = index,
-            .label = zmk_keymap_layer_name(index)
+            .index = index
         };
         if (layer_switch_initialized) {
             set_layer_symbol();
@@ -178,6 +195,7 @@ void zmk_widget_layer_switch_init() {
     buf_frame = (uint8_t*)k_malloc(320 * 2 * sizeof(uint8_t));
 }
 
-void start_layer_switch() {
+void start_layer_switch(bool is_menu_on) {
+    menu_on = is_menu_on;
     layer_switch_initialized = true;
 }

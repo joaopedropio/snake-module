@@ -13,6 +13,7 @@ LOG_MODULE_REGISTER(app_buzzer, LOG_LEVEL_DBG);
 #include <zephyr/device.h>
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/kernel.h>
+#include "settings.h"
 
 #define FUNKYTOWN_NOTES 13
 #define MARIO_NOTES	37
@@ -20,6 +21,7 @@ LOG_MODULE_REGISTER(app_buzzer, LOG_LEVEL_DBG);
 #define MEGALOVANIA_NOTES 22
 #define ONEUP_NOTES 6
 #define COIN_NOTES 2
+#define COIN_CHORDS_NOTES 2
 
 #define BUZZER_MAX_FREQ 2500
 #define BUZZER_MIN_FREQ 75
@@ -89,7 +91,8 @@ enum song_choice {
 	oneup,
 	oneup_half,
 	coin,
-	reversed_coin
+	reversed_coin,
+	coin_polyphonic,
 };
 
 enum song_choice song = funkytown;
@@ -97,6 +100,20 @@ enum song_choice song = funkytown;
 struct note_duration {
 	int note;     /* hz */
 	int duration; /* msec */
+};
+
+struct chord {
+	const int *notes;
+	int note_count;
+	int duration;
+};
+
+static const int coin_chord1[] = { B6, E7 };
+static const int coin_chord2[] = { B5, E6 };
+
+static struct chord coin_chords[COIN_CHORDS_NOTES] = {
+	{.notes = coin_chord1, .note_count = 2, .duration = eigth},
+	{.notes = coin_chord2, .note_count = 2, .duration = half},
 };
 
 static struct note_duration coin_song[COIN_NOTES] = {
@@ -122,7 +139,7 @@ static struct note_duration megalovania_song[MEGALOVANIA_NOTES] = {
     {.note = D4, .duration = eigth},
     {.note = D4, .duration = eigth},
     {.note = A4, .duration = eigth},
-    {.note = D5, .duration = sixteenth + eigth}, // dotted eighth
+    {.note = D5, .duration = sixteenth + eigth}, // dotted eigth
     {.note = REST, .duration = sixteenth},
     {.note = Db5, .duration = sixteenth},
     {.note = C5, .duration = sixteenth},
@@ -135,7 +152,7 @@ static struct note_duration megalovania_song[MEGALOVANIA_NOTES] = {
     {.note = D4, .duration = eigth},
     {.note = D4, .duration = eigth},
     {.note = A4, .duration = eigth},
-    {.note = D5, .duration = sixteenth + eigth}, // dotted eighth
+    {.note = D5, .duration = sixteenth + eigth}, // dotted eigth
     {.note = REST, .duration = sixteenth},
     {.note = Db5, .duration = sixteenth},
     {.note = C5, .duration = sixteenth},
@@ -220,128 +237,153 @@ K_SEM_DEFINE(buzzer_initialized_sem, 0, 1); /* Wait until buzzer is ready */
 
 #define BUZZER_STACK 1024
 
+void play_chord(const int *notes, int note_count, int duration_ms) {
+	const int swicth_interval_ms = 5;
+	int cycles = duration_ms / swicth_interval_ms;
+
+	for (int i = 0; i < cycles; i++) {
+		int current_note = notes[i % note_count];
+
+		if (current_note == REST || current_note) {
+			pwm_set_pulse_dt(&sBuzzer, 0);
+		} else {
+			pwm_set_dt(&sBuzzer, PWM_HZ(current_note), PWM_HZ(current_note / 2));
+		}
+		k_msleep(swicth_interval_ms);
+	}
+	pwm_set_pulse_dt(&sBuzzer, 0);
+}
+
 extern void buzzer_thread(void *d0, void *d1, void *d2)
 {
 	/* Block until buzzer is available */
 	k_sem_take(&buzzer_initialized_sem, K_FOREVER);
 	while (1) {
-		switch (song) {
-		case beep:
-			LOG_DBG("beep");
-			pwm_set_dt(&sBuzzer, PWM_HZ(1000), PWM_HZ(1000) / 2);
-			k_msleep(100);
-			break;
-		case funkytown:
-			LOG_DBG("funkytown");
-			for (int i = 0; i < FUNKYTOWN_NOTES; i++) {
-				if (funkytown_song[i].note < 10) {
-					/* Low frequency notes represent a 'pause' */
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(funkytown_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(funkytown_song[i].note),
-						   PWM_HZ((funkytown_song[i].note)) / 2);
-					k_msleep(funkytown_song[i].duration);
+		if (!snake_settings_get_mute()) {
+			switch (song) {
+			case beep:
+				LOG_DBG("beep");
+				pwm_set_dt(&sBuzzer, PWM_HZ(1000), PWM_HZ(1000) / 2);
+				k_msleep(100);
+				break;
+			case funkytown:
+				LOG_DBG("funkytown");
+				for (int i = 0; i < FUNKYTOWN_NOTES; i++) {
+					if (funkytown_song[i].note < 10) {
+						/* Low frequency notes represent a 'pause' */
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(funkytown_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(funkytown_song[i].note),
+								PWM_HZ((funkytown_song[i].note)) / 2);
+						k_msleep(funkytown_song[i].duration);
+					}
 				}
-			}
-			break;
+				break;
 
-		case mario:
-			LOG_DBG("mario");
-			for (int i = 0; i < MARIO_NOTES; i++) {
-				if (mario_song[i].note < 10) {
-					/* Low frequency notes represent a 'pause' */
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(mario_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(mario_song[i].note),
-						   PWM_HZ((mario_song[i].note)) / 2);
-					k_msleep(mario_song[i].duration);
+			case mario:
+				LOG_DBG("mario");
+				for (int i = 0; i < MARIO_NOTES; i++) {
+					if (mario_song[i].note < 10) {
+						/* Low frequency notes represent a 'pause' */
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(mario_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(mario_song[i].note),
+								PWM_HZ((mario_song[i].note)) / 2);
+						k_msleep(mario_song[i].duration);
+					}
 				}
-			}
-			break;
-		case golioth:
-			LOG_DBG("golioth");
-			for (int i = 0; i < (sizeof(golioth_song) / sizeof(golioth_song[1])); i++) {
-				if (golioth_song[i].note < 10) {
-					/* Low frequency notes represent a 'pause' */
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(golioth_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(golioth_song[i].note),
-						   PWM_HZ((golioth_song[i].note)) / 2);
-					k_msleep(golioth_song[i].duration);
+				break;
+			case golioth:
+				LOG_DBG("golioth");
+				for (int i = 0; i < (sizeof(golioth_song) / sizeof(golioth_song[1])); i++) {
+					if (golioth_song[i].note < 10) {
+						/* Low frequency notes represent a 'pause' */
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(golioth_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(golioth_song[i].note),
+								PWM_HZ((golioth_song[i].note)) / 2);
+						k_msleep(golioth_song[i].duration);
+					}
 				}
-			}
-			break;
-		case megalovania:
-			LOG_DBG("megalovania");
-			for (int i = 0; i < MEGALOVANIA_NOTES; i++) {
-				if (megalovania_song[i].note < 10) {
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(megalovania_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(megalovania_song[i].note),
-							PWM_HZ(megalovania_song[i].note) / 2);
-					k_msleep(megalovania_song[i].duration);
+				break;
+			case megalovania:
+				LOG_DBG("megalovania");
+				for (int i = 0; i < MEGALOVANIA_NOTES; i++) {
+					if (megalovania_song[i].note < 10) {
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(megalovania_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(megalovania_song[i].note),
+								PWM_HZ(megalovania_song[i].note) / 2);
+						k_msleep(megalovania_song[i].duration);
+					}
 				}
-			}
-			break;
-		case oneup:
-			LOG_DBG("1up");
-			for (int i = 0; i < ONEUP_NOTES; i++) {
-				if (oneup_song[i].note < 10) {
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(oneup_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(oneup_song[i].note),
-							PWM_HZ(oneup_song[i].note) / 2);
-					k_msleep(oneup_song[i].duration);
+				break;
+			case oneup:
+				LOG_DBG("1up");
+				for (int i = 0; i < ONEUP_NOTES; i++) {
+					if (oneup_song[i].note < 10) {
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(oneup_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(oneup_song[i].note),
+								PWM_HZ(oneup_song[i].note) / 2);
+						k_msleep(oneup_song[i].duration);
+					}
 				}
-			}
-			break;
-		case oneup_half:
-			LOG_DBG("1up half");
-			for (int i = 0; i < ONEUP_NOTES; i++) {
-				if (oneup_song[i].note < 10) {
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(oneup_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(oneup_song[i].note),
-							PWM_HZ(oneup_song[i].note) / 10);
-					k_msleep(oneup_song[i].duration);
+				break;
+			case oneup_half:
+				LOG_DBG("1up half");
+				for (int i = 0; i < ONEUP_NOTES; i++) {
+					if (oneup_song[i].note < 10) {
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(oneup_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(oneup_song[i].note),
+								PWM_HZ(oneup_song[i].note) / 20);
+						k_msleep(oneup_song[i].duration);
+					}
 				}
-			}
-			break;
-		case coin:
-			LOG_DBG("coin");
-			for (int i = 0; i < COIN_NOTES; i++) {
-				if (coin_song[i].note < 10) {
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(coin_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(coin_song[i].note),
-							PWM_HZ(coin_song[i].note) / 2);
-					k_msleep(coin_song[i].duration);
+				break;
+			case coin:
+				LOG_DBG("coin");
+				for (int i = 0; i < COIN_NOTES; i++) {
+					if (coin_song[i].note < 10) {
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(coin_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(coin_song[i].note),
+								PWM_HZ(coin_song[i].note) / 2);
+						k_msleep(coin_song[i].duration);
+					}
 				}
-			}
-			break;
-		case reversed_coin:
-			LOG_DBG("reversed coin");
-			for (int i = 0; i < COIN_NOTES; i++) {
-				if (reversed_coin_song[i].note < 10) {
-					pwm_set_pulse_dt(&sBuzzer, 0);
-					k_msleep(reversed_coin_song[i].duration);
-				} else {
-					pwm_set_dt(&sBuzzer, PWM_HZ(reversed_coin_song[i].note),
-							PWM_HZ(reversed_coin_song[i].note) / 2);
-					k_msleep(reversed_coin_song[i].duration);
+				break;
+			case reversed_coin:
+				LOG_DBG("reversed coin");
+				for (int i = 0; i < COIN_NOTES; i++) {
+					if (reversed_coin_song[i].note < 10) {
+						pwm_set_pulse_dt(&sBuzzer, 0);
+						k_msleep(reversed_coin_song[i].duration);
+					} else {
+						pwm_set_dt(&sBuzzer, PWM_HZ(reversed_coin_song[i].note),
+								PWM_HZ(reversed_coin_song[i].note) / 2);
+						k_msleep(reversed_coin_song[i].duration);
+					}
 				}
+				break;
+			case coin_polyphonic:
+				LOG_DBG("coin polyphonic");
+				for (int i = 0; i < COIN_CHORDS_NOTES; i++) {
+					play_chord(coin_chords[i].notes, coin_chords[i].note_count, coin_chords[i].duration);
+				}
+				break;
+			default:
+				LOG_WRN("invalid switch state");
+				break;
 			}
-			break;
-		default:
-			LOG_WRN("invalid switch state");
-			break;
 		}
 
 		/* turn buzzer off (pulse duty to 0) */
@@ -415,6 +457,12 @@ void play_coin_once(void)
 void play_reversed_coin_once(void)
 {
     song = reversed_coin;
+    k_wakeup(buzzer_tid);
+}
+
+void play_coin_polyphonic_once(void)
+{
+    song = coin_polyphonic;
     k_wakeup(buzzer_tid);
 }
 

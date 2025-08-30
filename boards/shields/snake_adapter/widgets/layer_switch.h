@@ -10,4 +10,4 @@
 #include <lvgl.h>
 
 void zmk_widget_layer_switch_init(void);
-void start_layer_switch();
+void start_layer_switch(bool is_menu_on);

@@ -18,6 +18,7 @@
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include "widgets/helpers/buzzer.h"
+#include "widgets/helpers/settings.h"
 
 //static const uint8_t LOGO_ANIMATION_DURATION = 40;logo_animation_timer
 
@@ -32,14 +33,18 @@ void timer_splash(lv_timer_t * timer) {
     }
     if (splash_count >= SPLASH_FINAL_COUNT) {
         print_background();
-        start_layer_switch();
+        initialize_snake_game();
         initialize_battery_status();
         DefaultScreen screen = get_default_screen();
+        bool menu_on;
         if (screen == STATUS_SCREEN) {
             print_menu();
+            menu_on = true;
         } else {
             start_snake();
+            menu_on = false;
         }
+        start_layer_switch(menu_on);
 
         lv_timer_pause(timer);
         splash_finished = true;

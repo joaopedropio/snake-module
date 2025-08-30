@@ -62,6 +62,11 @@ typedef enum {
     FONT_SIZE_3x6,
 } FontSize;
 
+typedef enum {
+    SNAKE_SCREEN,
+    STATUS_SCREEN,
+} DefaultScreen;
+
 void fill_buffer_color(uint8_t *buf, size_t buf_size, uint32_t color);
 void init_display(void);
 void display_write_wrapper(uint16_t x, uint16_t y, struct display_buffer_descriptor *buf_desc, uint8_t *buf);
@@ -72,7 +77,8 @@ void print_rectangle(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint1
 void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
 void set_default_screen(DefaultScreen screen);
-void set_splash_num_color(uint32_t color);
+void set_splash_logo_color(uint32_t color);
+void set_splash_created_by_color(uint32_t color);
 void set_splash_bg_color(uint32_t color);
 void set_snake_font_color(uint32_t color);
 void set_snake_num_color(uint32_t color);
@@ -100,7 +106,8 @@ void set_bt_num_color(uint32_t color);
 void set_bt_bg_color(uint32_t color);
 
 DefaultScreen get_default_screen();
-uint16_t get_splash_num_color(void);
+uint16_t get_splash_logo_color(void);
+uint16_t get_splash_created_by_color(void);
 uint16_t get_splash_bg_color(void);
 uint16_t get_snake_font_color(void);
 uint16_t get_snake_num_color(void);

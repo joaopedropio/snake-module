@@ -12,6 +12,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 // Internal stored settings
 static settings_t current_settings = {
     .current_theme = 0,
+    .mute = false,
 };
 
 // SETTINGS HANDLER CALLBACKS
@@ -45,9 +46,22 @@ int snake_settings_save() {
         return rc;
     }
 
-    LOG_INF("Saved theme: %u", current_settings.current_theme);
+    LOG_INF("Saved theme: %u, mute: %d", current_settings.current_theme, current_settings.mute);
 
     return 0;
+}
+
+int snake_settings_toggle_mute(void) {
+    return snake_settings_save_mute(!current_settings.mute);
+}
+
+int snake_settings_save_mute(bool is_muted) {
+    current_settings.mute = is_muted;
+    return snake_settings_save();
+}
+
+bool snake_settings_get_mute(void) {
+    return current_settings.mute;
 }
 
 int snake_settings_save_current_theme(uint8_t current_theme) {

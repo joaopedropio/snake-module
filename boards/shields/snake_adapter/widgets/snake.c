@@ -725,10 +725,15 @@ void zmk_widget_snake_init() {
     widget_snake_init();
 }
 
-void start_snake() {
+void initialize_snake_game() {
     lv_timer_create(timer_snake, CONFIG_SNAKE_WALK_INTERVAL, NULL);
     
     snake_widget_initialized = true;
+    stopped = true;
+}
+
+void start_snake() {
+    stopped = true;
 }
 
 void stop_snake() {

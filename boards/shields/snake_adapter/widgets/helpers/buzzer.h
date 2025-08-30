@@ -16,4 +16,5 @@ void play_oneup_once(void);
 void play_oneup_half_once(void);
 void play_coin_once(void);
 void play_reversed_coin_once(void);
+void play_coin_polyphonic_once(void);
 #endif

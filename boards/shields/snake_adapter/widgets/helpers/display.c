@@ -12,7 +12,8 @@ static uint8_t screen_width;
 static uint8_t screen_height;
 static size_t buf_screen_size;
 
-static uint16_t splash_num_color;
+static uint16_t splash_logo_color;
+static uint16_t splash_created_by_color;
 static uint16_t splash_bg_color;
 
 static uint16_t snake_font_color;
@@ -49,16 +50,11 @@ static DefaultScreen default_screen = SNAKE_SCREEN;
 
 #define COLORS_PER_THEME 6
 
-typedef enum {
-    SNAKE_SCREEN,
-    STATUS_SCREEN,
-} DefaultScreen;
-
 static uint8_t themes_colors_len = 12;
 static uint32_t themes_colors[][COLORS_PER_THEME] = {
-    // primary   back       secondary
+    // primary  secondary  back1      back2
     {0x222323u, 0xff4adcu, 0x3dff98u, 0xf0f6f0u, 0xf0f6f0u, 0xddddddu}, // C  - custom https://lospec.com/palette-list/b4sement
-    {0xd0d058u, 0x405010u, 0x708028u, 0xa0a840u, 0xf0f6f0u, 0xddddddu}, // 01 - https://lospec.com/palette-list/nostalgia
+    {0xd0d058u, 0xa0a840u, 0x708028u, 0x405010u, 0xf0f6f0u, 0xddddddu}, // 01 - https://lospec.com/palette-list/nostalgia
     {0x222323u, 0xff4adcu, 0x3dff98u, 0xf0f6f0u, 0xf0f6f0u, 0xddddddu}, // 02 - https://lospec.com/palette-list/b4sement
     {0xff3796u, 0x302387u, 0x00faacu, 0xfffdafu, 0xf0f6f0u, 0xddddddu}, // 03 - https://lospec.com/palette-list/fuzzyfour
     {0x46878fu, 0x332c50u, 0x94e344u, 0xe2f3e4u, 0xf0f6f0u, 0xddddddu}, // 04 - https://lospec.com/palette-list/kirokaze-gameboy
@@ -815,8 +811,12 @@ void set_default_screen(DefaultScreen screen) {
     default_screen = screen;
 }
 
-void set_splash_num_color(uint32_t color) {
-    splash_num_color = rgb888_to_rgb565(color);
+void set_splash_logo_color(uint32_t color) {
+    splash_logo_color = rgb888_to_rgb565(color);
+}
+
+void set_splash_created_by_color(uint32_t color) {
+    splash_created_by_color = rgb888_to_rgb565(color);
 }
 
 void set_splash_bg_color(uint32_t color) {
@@ -923,8 +923,12 @@ DefaultScreen get_default_screen() {
     return default_screen;
 }
 
-uint16_t get_splash_num_color() {
-    return splash_num_color;
+uint16_t get_splash_created_by_color() {
+    return splash_created_by_color;
+}
+
+uint16_t get_splash_logo_color() {
+    return splash_logo_color;
 }
 
 uint16_t get_splash_bg_color() {
@@ -1025,6 +1029,32 @@ uint16_t get_frame_color() {
 
 uint16_t get_frame_color_1() {
     return frame_color_1;
+}
+
+// Clamp function to ensure values stay within 0-255
+int clamp(int value) {
+    if (value < 0) return 0;
+    if (value > 255) return 255;
+    return value;
+}
+
+// Function to darken RGB color
+uint32_t darkenColor(uint32_t rgb, float percentage) {
+    if (percentage < 0.0f) percentage = 0.0f;
+    if (percentage > 1.0f) percentage = 1.0f;
+
+    // Extract red, green, and blue components
+    uint32_t r = (rgb >> 16) & 0xFF;
+    uint32_t g = (rgb >> 8)  & 0xFF;
+    uint32_t b = rgb & 0xFF;
+
+    // Darken each component
+    r = clamp((uint32_t)(r * (1.0f - percentage)));
+    g = clamp((uint32_t)(g * (1.0f - percentage)));
+    b = clamp((uint32_t)(b * (1.0f - percentage)));
+
+    // Recombine into a single int
+    return (r << 16) | (g << 8) | b;
 }
 
 void display_write_wrapper(uint16_t x, uint16_t y, struct display_buffer_descriptor *buf_desc, uint8_t *buf) {
@@ -1233,44 +1263,46 @@ void clear_screen() {
     }
 }
 
-void set_colors(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6) {
-    set_splash_num_color(color2);
-    set_splash_bg_color(color1);
+void set_colors(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2, uint32_t color5, uint32_t color6) {
+    set_splash_logo_color(primary);
+    set_splash_created_by_color(background1);
+    set_splash_bg_color(background2);
     
-    set_snake_font_color(color2);
-    set_snake_num_color(color3);
-    set_snake_bg_color(color1);
+    // old snake version
+    // set_snake_font_color(color2);
+    // set_snake_num_color(color3);
+    // set_snake_bg_color(color1);
 
-    set_snake_default_color(color3);
-    set_snake_board_color(color1);
+    set_snake_default_color(primary);
+    set_snake_board_color(background2);
     #ifdef CONFIG_CHECKERED_BOARD
-        set_snake_board_1_color(color5);
+        set_snake_board_1_color(background1);
     #else
-        set_snake_board_1_color(color1);
+        set_snake_board_1_color(background2);
     #endif
 
-    set_food_color(color2);
-    set_snake_color_0(color2);
-    set_snake_color_1(color3);
-    set_snake_color_2(color4);
-    set_snake_color_3(color2);
-    set_snake_color_4(color3);
-    set_snake_color_5(color4);
-    set_snake_color_6(color2);
+    set_food_color(secondary);
+    set_snake_color_0(primary);
+    set_snake_color_1(secondary);
+    set_snake_color_2(background1);
+    set_snake_color_3(secondary);
+    set_snake_color_4(primary);
+    set_snake_color_5(secondary);
+    set_snake_color_6(background1);
 
-    set_battery_num_color(color3);
-    set_battery_percentage_color(color2);
-    set_battery_bg_color(color1);
+    set_battery_num_color(primary);
+    set_battery_percentage_color(background1);
+    set_battery_bg_color(background2);
 
-    set_symbol_selected_color(color3);
-    set_symbol_unselected_color(color2);
-    set_symbol_bg_color(color1);
+    set_symbol_selected_color(primary);
+    set_symbol_unselected_color(background1);
+    set_symbol_bg_color(background2);
 
-    set_bt_num_color(color4);
-    set_bt_bg_color(color1);
+    set_bt_num_color(background1);
+    set_bt_bg_color(background2);
 
-    set_frame_color(color5);
-    set_frame_color_1(color6);
+    set_frame_color(background1);
+    set_frame_color_1(background1);
 
     fill_buffer_color(buf_screen_area, buf_screen_size, get_splash_bg_color());
 }
