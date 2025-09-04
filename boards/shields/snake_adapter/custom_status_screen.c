@@ -20,8 +20,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "widgets/helpers/buzzer.h"
 #include "widgets/helpers/settings.h"
 
-//static const uint8_t LOGO_ANIMATION_DURATION = 40;logo_animation_timer
-
 static const uint8_t SPLASH_DURATION = 50;
 static const uint8_t SPLASH_FINAL_COUNT = 50;
 static uint8_t splash_count = 0;
