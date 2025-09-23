@@ -41,6 +41,9 @@ typedef enum {
     CHAR_Z,
     CHAR_COLON,
     CHAR_DASH,
+    CHAR_UNDERLINE,
+    CHAR_PIPE,
+    CHAR_PLUS,
     CHAR_PERCENTAGE,
     CHAR_NONE,
     CHAR_EMPTY
@@ -110,6 +113,8 @@ void set_symbol_unselected_color(uint32_t color);
 void set_symbol_bg_color(uint32_t color);
 void set_theme_bg_color(uint32_t color);
 void set_theme_font_color(uint32_t color);
+void set_layer_font_bg_color(uint32_t color);
+void set_layer_font_color(uint32_t color);
 void set_theme_font_color_1(uint32_t color);
 void set_logo_bg_color(uint32_t color);
 void set_logo_font_color(uint32_t color);
@@ -150,6 +155,8 @@ uint16_t get_symbol_selected_color(void);
 uint16_t get_symbol_unselected_color(void);
 uint16_t get_symbol_bg_color(void);
 uint16_t get_theme_bg_color(void);
+uint16_t get_layer_font_bg_color(void);
+uint16_t get_layer_font_color(void);
 uint16_t get_theme_font_color(void);
 uint16_t get_theme_font_color_1(void);
 uint16_t get_logo_bg_color(void);
@@ -167,7 +174,9 @@ uint16_t get_menu_bg_color(void);
 
 void clear_screen(void);
 void set_colorscheme(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6);
-void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t strLen);
+void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len);
+void print_char_array(uint16_t *scaled_bitmap, char *str, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len, uint8_t limit);
+void print_repeat_char(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len, uint8_t limit);
 
 uint8_t get_themes_colors_len(void);
 void set_custom_theme_colors(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6);

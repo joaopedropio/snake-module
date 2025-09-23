@@ -27,6 +27,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "snake.h"
 #include "output_status.h"
 #include "battery_status.h"
+#include "layer_status.h"
 #include "helpers/display.h"
 #include "helpers/buzzer.h"
 #include "helpers/settings.h"
@@ -95,7 +96,12 @@ void print_menu() {
     start_output_status();
     set_status_symbol();
     set_battery_symbol();
+    #ifdef CONFIG_SHOW_ACTIVE_LAYER
+    start_layer_status();
+    print_layer();
+    #else
     print_themes();
+    #endif
 }
 
 void toggle_menu() {
@@ -108,6 +114,9 @@ void toggle_menu() {
         stop_output_status();
         stop_battery_status();
         stop_animation();
+        #ifdef CONFIG_SHOW_ACTIVE_LAYER
+        stop_layer_status();
+        #endif
         start_snake();
         menu_on = false;
     } else {

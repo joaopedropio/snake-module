@@ -50,6 +50,8 @@ static uint16_t bt_status_not_ok_color;
 static uint16_t bt_status_open_color;
 static uint16_t bt_status_bg_color;
 
+static uint16_t layer_font_bg_color;
+static uint16_t layer_font_color;
 static uint16_t theme_bg_color;
 static uint16_t theme_font_color;
 static uint16_t theme_font_color_1;
@@ -115,6 +117,8 @@ void set_complete_colors_theme() {
     uint32_t theme_font_color = hex_string_to_uint(CONFIG_THEME_FONT_COLOR);
     uint32_t theme_font_color_1 = hex_string_to_uint(CONFIG_THEME_FONT_COLOR_1);
     uint32_t theme_bg_color = hex_string_to_uint(CONFIG_THEME_BG_COLOR);
+    uint32_t layer_font_color = hex_string_to_uint(CONFIG_LAYER_FONT_COLOR);
+    uint32_t layer_font_bg_color = hex_string_to_uint(CONFIG_LAYER_FONT_BG_COLOR);
     uint32_t logo_font_color = hex_string_to_uint(CONFIG_LOGO_FONT_COLOR);
     uint32_t logo_snake_color = hex_string_to_uint(CONFIG_LOGO_SNAKE_COLOR);
     uint32_t logo_bg_color = hex_string_to_uint(CONFIG_LOGO_BG_COLOR);
@@ -252,6 +256,14 @@ void set_complete_colors_theme() {
         theme_bg_color = 0xFFFFFF;
     }
 
+    if (layer_font_bg_color == HEX_PARSE_ERROR) {
+        layer_font_bg_color = 0xFFFFFF;
+    }
+
+    if (layer_font_color == HEX_PARSE_ERROR) {
+        layer_font_color = 0xFFFFFF;
+    }
+
     if (logo_font_color == HEX_PARSE_ERROR) {
         logo_font_color = 0xFFFFFF;
     }
@@ -309,6 +321,8 @@ void set_complete_colors_theme() {
         theme_font_color,
         theme_font_color_1,
         theme_bg_color,
+        layer_font_color,
+        layer_font_bg_color,
         logo_font_color,
         logo_snake_color,
         logo_bg_color,
@@ -862,6 +876,132 @@ const uint16_t colon_letter_3x5[] = {
     1, 0, 0,
     0, 0, 0,
 };
+const uint16_t dash_letter_3x5[] = {
+    0, 0, 0,
+    0, 0, 0,
+    1, 1, 1,
+    0, 0, 0,
+    0, 0, 0,
+};
+const uint16_t underline_letter_3x5[] = {
+    0, 0, 0,
+    0, 0, 0,
+    0, 0, 0,
+    0, 0, 0,
+    1, 1, 1,
+};
+const uint16_t pipe_letter_3x5[] = {
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+};
+const uint16_t plus_letter_3x5[] = {
+    0, 0, 0,
+    0, 1, 0,
+    1, 1, 1,
+    0, 1, 0,
+    0, 0, 0,
+};
+const uint16_t a_letter_3x5[] = {
+    1, 1, 1,
+    1, 0, 1,
+    1, 1, 1,
+    1, 0, 1,
+    1, 0, 1,
+};
+const uint16_t b_letter_3x5[] = {
+    1, 1, 0,
+    1, 0, 1,
+    1, 1, 0,
+    1, 0, 1,
+    1, 1, 1,
+};
+const uint16_t c_letter_3x5[] = {
+    1, 1, 1,
+    1, 0, 0,
+    1, 0, 0,
+    1, 0, 0,
+    1, 1, 1,
+};
+const uint16_t d_letter_3x5[] = {
+    1, 1, 0,
+    1, 0, 1,
+    1, 0, 1,
+    1, 0, 1,
+    1, 1, 0,
+};
+const uint16_t e_letter_3x5[] = {
+    1, 1, 1,
+    1, 0, 0,
+    1, 1, 1,
+    1, 0, 0,
+    1, 1, 1,
+};
+const uint16_t f_letter_3x5[] = {
+    1, 1, 1,
+    1, 0, 0,
+    1, 1, 1,
+    1, 0, 0,
+    1, 0, 0,
+};
+const uint16_t g_letter_3x5[] = {
+    1, 1, 1,
+    1, 0, 0,
+    1, 0, 1,
+    1, 0, 1,
+    1, 1, 1,
+};
+const uint16_t h_letter_3x5[] = {
+    1, 0, 1,
+    1, 0, 1,
+    1, 1, 1,
+    1, 0, 1,
+    1, 0, 1,
+};
+const uint16_t i_letter_3x5[] = {
+    1, 1, 1,
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+    1, 1, 1,
+};
+const uint16_t j_letter_3x5[] = {
+    0, 1, 1,
+    0, 0, 1,
+    0, 0, 1,
+    1, 0, 1,
+    1, 1, 1,
+};
+const uint16_t k_letter_3x5[] = {
+    1, 0, 1,
+    1, 0, 1,
+    1, 1, 0,
+    1, 0, 1,
+    1, 0, 1,
+};
+const uint16_t l_letter_3x5[] = {
+    1, 0, 0,
+    1, 0, 0,
+    1, 0, 0,
+    1, 0, 0,
+    1, 1, 1,
+};
+const uint16_t m_letter_3x5[] = {
+    1, 0, 1,
+    1, 1, 1,
+    1, 0, 1,
+    1, 0, 1,
+    1, 0, 1,
+};
+const uint16_t n_letter_3x5[] = {
+    1, 1, 1,
+    1, 0, 1,
+    1, 0, 1,
+    1, 0, 1,
+    1, 0, 1,
+};
 const uint16_t o_letter_3x5[] = {
     1, 1, 1,
     1, 0, 1,
@@ -876,33 +1016,12 @@ const uint16_t p_letter_3x5[] = {
     1, 0, 0,
     1, 0, 0,
 };
-const uint16_t y_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
+const uint16_t q_letter_3x5[] = {
     1, 1, 1,
+    1, 0, 1,
+    1, 0, 1,
+    1, 1, 0,
     0, 0, 1,
-    1, 1, 1,
-};
-const uint16_t b_letter_3x5[] = {
-    1, 1, 0,
-    1, 0, 1,
-    1, 1, 0,
-    1, 0, 1,
-    1, 1, 1,
-};
-const uint16_t d_letter_3x5[] = {
-    1, 1, 0,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 0,
-};
-const uint16_t t_letter_3x5[] = {
-    1, 1, 1,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
 };
 const uint16_t r_letter_3x5[] = {
     1, 1, 1,
@@ -911,13 +1030,6 @@ const uint16_t r_letter_3x5[] = {
     1, 0, 1,
     1, 0, 1,
 };
-const uint16_t c_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 0, 0,
-    1, 0, 0,
-    1, 1, 1,
-};
 const uint16_t s_letter_3x5[] = {
     1, 1, 1,
     1, 0, 0,
@@ -925,41 +1037,57 @@ const uint16_t s_letter_3x5[] = {
     0, 0, 1,
     1, 1, 1,
 };
-const uint16_t n_letter_3x5[] = {
+const uint16_t t_letter_3x5[] = {
     1, 1, 1,
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+    0, 1, 0,
+};
+const uint16_t u_letter_3x5[] = {
     1, 0, 1,
     1, 0, 1,
+    1, 0, 1,
+    1, 0, 1,
+    1, 1, 1,
+};
+const uint16_t v_letter_3x5[] = {
+    1, 0, 1,
+    1, 0, 1,
+    1, 0, 1,
+    1, 0, 1,
+    0, 1, 0,
+};
+const uint16_t w_letter_3x5[] = {
+    1, 0, 1,
+    1, 0, 1,
+    1, 1, 1,
+    1, 1, 1,
+    0, 1, 0,
+};
+const uint16_t x_letter_3x5[] = {
+    1, 0, 1,
+    1, 0, 1,
+    0, 1, 0,
     1, 0, 1,
     1, 0, 1,
 };
-const uint16_t a_letter_3x5[] = {
+const uint16_t y_letter_3x5[] = {
+    1, 0, 1,
+    1, 0, 1,
     1, 1, 1,
-    1, 0, 1,
+    0, 0, 1,
     1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
 };
-const uint16_t k_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 0,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t e_letter_3x5[] = {
+const uint16_t z_letter_3x5[] = {
     1, 1, 1,
+    0, 0, 1,
+    0, 1, 0,
     1, 0, 0,
     1, 1, 1,
-    1, 0, 0,
-    1, 1, 1,
 };
-const uint16_t i_letter_3x5[] = {
-    1, 1, 1,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    1, 1, 1,
-};
+
+// #######################################
 
 const uint16_t none_letter_3x6[] = {
     1, 1, 1,
@@ -1034,7 +1162,8 @@ void set_custom_theme_colors(uint32_t color1, uint32_t color2, uint32_t color3, 
 }
 
 void apply_current_theme(uint8_t current_theme) {
-    if (CONFIG_USE_COMPLETE_CUSTOM_THEME && current_theme == 0) {
+    #ifdef CONFIG_USE_COMPLETE_CUSTOM_THEME
+    if (current_theme == 0) {
         set_complete_colors_theme();
     } else {
         set_colorscheme(
@@ -1046,6 +1175,16 @@ void apply_current_theme(uint8_t current_theme) {
             themes_colors[current_theme][5]
         );
     }
+    #else
+    set_colorscheme(
+        themes_colors[current_theme][0],
+        themes_colors[current_theme][1],
+        themes_colors[current_theme][2],
+        themes_colors[current_theme][3],
+        themes_colors[current_theme][4],
+        themes_colors[current_theme][5]
+    );
+    #endif
 }
 
 uint16_t rgb888_to_rgb565(uint32_t color) {
@@ -1202,6 +1341,14 @@ void set_theme_font_color(uint32_t color) {
     theme_font_color = rgb888_to_rgb565(color);
 }
 
+void set_layer_font_bg_color(uint32_t color) {
+    layer_font_bg_color = rgb888_to_rgb565(color);
+}
+
+void set_layer_font_color(uint32_t color) {
+    layer_font_color = rgb888_to_rgb565(color);
+}
+
 void set_theme_font_color_1(uint32_t color) {
     theme_font_color_1 = rgb888_to_rgb565(color);
 }
@@ -1336,6 +1483,14 @@ uint16_t get_symbol_unselected_color() {
 
 uint16_t get_theme_bg_color() {
     return theme_bg_color;
+}
+
+uint16_t get_layer_font_bg_color() {
+    return layer_font_bg_color;
+}
+
+uint16_t get_layer_font_color() {
+    return layer_font_color;
 }
 
 uint16_t get_theme_font_color() {
@@ -1581,21 +1736,37 @@ void print_bitmap_3x5(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t
         return;
     }
     switch (c) {
-    case CHAR_P: render_bitmap(scaled_bitmap, p_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_O: render_bitmap(scaled_bitmap, o_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_C: render_bitmap(scaled_bitmap, c_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_B: render_bitmap(scaled_bitmap, b_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_Y: render_bitmap(scaled_bitmap, y_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_R: render_bitmap(scaled_bitmap, r_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_T: render_bitmap(scaled_bitmap, t_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_D: render_bitmap(scaled_bitmap, d_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_S: render_bitmap(scaled_bitmap, s_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_N: render_bitmap(scaled_bitmap, n_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
     case CHAR_A: render_bitmap(scaled_bitmap, a_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
-    case CHAR_K: render_bitmap(scaled_bitmap, k_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_B: render_bitmap(scaled_bitmap, b_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_C: render_bitmap(scaled_bitmap, c_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_D: render_bitmap(scaled_bitmap, d_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
     case CHAR_E: render_bitmap(scaled_bitmap, e_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_F: render_bitmap(scaled_bitmap, f_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_G: render_bitmap(scaled_bitmap, g_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_H: render_bitmap(scaled_bitmap, h_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
     case CHAR_I: render_bitmap(scaled_bitmap, i_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_J: render_bitmap(scaled_bitmap, j_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_K: render_bitmap(scaled_bitmap, k_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_L: render_bitmap(scaled_bitmap, l_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_M: render_bitmap(scaled_bitmap, m_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_N: render_bitmap(scaled_bitmap, n_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_O: render_bitmap(scaled_bitmap, o_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_P: render_bitmap(scaled_bitmap, p_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_Q: render_bitmap(scaled_bitmap, q_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_R: render_bitmap(scaled_bitmap, r_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_S: render_bitmap(scaled_bitmap, s_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_T: render_bitmap(scaled_bitmap, t_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_U: render_bitmap(scaled_bitmap, u_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_V: render_bitmap(scaled_bitmap, v_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_W: render_bitmap(scaled_bitmap, w_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_X: render_bitmap(scaled_bitmap, x_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_Y: render_bitmap(scaled_bitmap, y_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_Z: render_bitmap(scaled_bitmap, z_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
     case CHAR_COLON: render_bitmap(scaled_bitmap, colon_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_DASH: render_bitmap(scaled_bitmap, dash_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_UNDERLINE: render_bitmap(scaled_bitmap, underline_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_PIPE: render_bitmap(scaled_bitmap, pipe_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
+    case CHAR_PLUS: render_bitmap(scaled_bitmap, plus_letter_3x5, x, y, 3, 5, scale, color, bg_color); break;
     default: render_bitmap(scaled_bitmap, none_letter_3x5, x, y, 3, 5, scale, color, bg_color);
     }
 }
@@ -1710,6 +1881,8 @@ void set_all_colors(
     uint32_t theme_font_color,
     uint32_t theme_font_color_1,
     uint32_t theme_bg_color,
+    uint32_t layer_font_color,
+    uint32_t layer_font_bg_color,
     uint32_t logo_font_color,
     uint32_t logo_snake_color,
     uint32_t logo_bg_color,
@@ -1754,6 +1927,9 @@ void set_all_colors(
     set_theme_font_color(theme_font_color);
     set_theme_font_color_1(theme_font_color_1);
     set_theme_bg_color(theme_bg_color);
+
+    set_layer_font_color(layer_font_color);
+    set_layer_font_bg_color(layer_font_bg_color);
 
     set_logo_font_color(logo_font_color);
     set_logo_snake_color(logo_snake_color);
@@ -1807,6 +1983,9 @@ void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1,
     set_theme_font_color_1(primary);
     set_theme_bg_color(background2);
 
+    set_layer_font_color(primary);
+    set_layer_font_bg_color(background2);
+
     set_logo_font_color(primary);
     set_logo_snake_color(secondary);
     set_logo_bg_color(background2);
@@ -1816,7 +1995,7 @@ void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1,
     set_menu_bg_color(background2);
 }
 
-void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t strLen) {
+void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len) {
     uint16_t string_font_width_scaled = 0;
     if (font_size == FONT_SIZE_3x6 || font_size == FONT_SIZE_3x5) {
         string_font_width_scaled = 3 * scale;
@@ -1828,8 +2007,63 @@ void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t
         return ;
     }
 
-    for (uint8_t i = 0; i < strLen; i++) {
+    for (uint8_t i = 0; i < str_len; i++) {
         Character c = str[i];
+        uint16_t actual_x = x + (string_font_width_scaled * i) + (gap_pixels * i);
+        print_bitmap(scaled_bitmap, c, actual_x, y, scale, color, bg_color, font_size);
+    }
+}
+
+static Character char_to_enum(char ch) {
+    if (ch >= '0' && ch <= '9') {
+        return (Character)(CHAR_0 + (ch - '0'));
+    } else if (ch >= 'A' && ch <= 'Z') {
+        return (Character)(CHAR_A + (ch - 'A'));
+    } else if (ch >= 'a' && ch <= 'z') {
+        return (Character)(CHAR_A + (ch - 'a')); // convert lowercase to enum
+    } else if (ch == ':') {
+        return CHAR_COLON;
+    } else if (ch == '-') {
+        return CHAR_DASH;
+    } else if (ch == '%') {
+        return CHAR_PERCENTAGE;
+    } else {
+        return CHAR_NONE;  // fallback for unsupported characters
+    }
+}
+
+void print_char_array(uint16_t *scaled_bitmap, char *str, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len, uint8_t limit) {
+    uint16_t string_font_width_scaled = 0;
+    if (font_size == FONT_SIZE_3x6 || font_size == FONT_SIZE_3x5) {
+        string_font_width_scaled = 3 * scale;
+    }
+    if (font_size == FONT_SIZE_5x7 || font_size == FONT_SIZE_5x8) {
+        string_font_width_scaled = 5 * scale;
+    }
+    if (string_font_width_scaled == 0) {
+        return ;
+    }
+
+    for (uint8_t i = 0; i < str_len && i < limit; i++) {
+        Character c = char_to_enum(str[i]);
+        uint16_t actual_x = x + (string_font_width_scaled * i) + (gap_pixels * i);
+        print_bitmap(scaled_bitmap, c, actual_x, y, scale, color, bg_color, font_size);
+    }
+}
+
+void print_repeat_char(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len, uint8_t limit) {
+    uint16_t string_font_width_scaled = 0;
+    if (font_size == FONT_SIZE_3x6 || font_size == FONT_SIZE_3x5) {
+        string_font_width_scaled = 3 * scale;
+    }
+    if (font_size == FONT_SIZE_5x7 || font_size == FONT_SIZE_5x8) {
+        string_font_width_scaled = 5 * scale;
+    }
+    if (string_font_width_scaled == 0) {
+        return ;
+    }
+
+    for (uint8_t i = 0; i < str_len && i < limit; i++) {
         uint16_t actual_x = x + (string_font_width_scaled * i) + (gap_pixels * i);
         print_bitmap(scaled_bitmap, c, actual_x, y, scale, color, bg_color, font_size);
     }

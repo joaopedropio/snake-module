@@ -14,29 +14,21 @@ config THEME_THRESHOLD
     int "Theme threshold"
     default 300
 
-config THEME_COLOR_1
-    string "Color 1"
+config THEME_PRIMARY_COLOR
+    string "Theme primary color"
     default "4aedff"
 
-config THEME_COLOR_2
-    string "Color 2"
+config THEME_SECONDARY_COLOR
+    string "Theme secondary color"
     default "ff8acd"
 
-config THEME_COLOR_3
-    string "Color 3"
+config THEME_BG_COLOR
+    string "Theme background color"
     default "b03e80"
     
-config THEME_COLOR_4
-    string "Color 4"
+config THEME_BG_DARKER_COLOR
+    string "Theme background darker color"
     default "ffffff"
-    
-config THEME_COLOR_5
-    string "Color 5"
-    default "000000"
-
-config THEME_COLOR_6
-    string "Color 6"
-    default "dddddd"
 
 config SNAKE_FATNESS
     int "Snake fatness"
@@ -68,6 +60,10 @@ config USE_MENU_SOUND
 
 config USE_BUZZER
     bool "Use buzzer"
+    default y
+
+config SHOW_ACTIVE_LAYER
+    bool "Show active layer"
     default y
 
 config SNAKE_BOARD_SIZE
@@ -222,15 +218,23 @@ config BT_BG_COLOR
     string ""
     default "000000"
 
+config LAYER_FONT_COLOR
+    string ""
+    default "000000"
+
+config LAYER_FONT_BG_COLOR
+    string ""
+    default "000000"
+
+config THEME_BG_COLOR
+    string ""
+    default "000000"
+
 config THEME_FONT_COLOR
     string ""
     default "000000"
 
 config THEME_FONT_COLOR_1
-    string ""
-    default "000000"
-
-config THEME_BG_COLOR
     string ""
     default "000000"
 

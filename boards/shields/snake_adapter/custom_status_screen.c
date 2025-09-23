@@ -42,6 +42,7 @@ void timer_splash(lv_timer_t * timer) {
             start_snake();
             menu_on = false;
         }
+        start_layer_status();
         start_action_button(menu_on);
 
         lv_timer_pause(timer);
@@ -67,6 +68,7 @@ lv_obj_t* zmk_display_status_screen() {
     zmk_widget_snake_init();
     zmk_widget_output_status_init();
     zmk_widget_peripheral_battery_status_init();
+    zmk_widget_layer_init();
     zmk_widget_action_button_init();
 
 

@@ -60,21 +60,17 @@ void default_screen() {
 }
 
 void custom_theme() {
-    uint32_t color1 = hex_string_to_uint(CONFIG_THEME_COLOR_1);
-    uint32_t color2 = hex_string_to_uint(CONFIG_THEME_COLOR_2);
-    uint32_t color3 = hex_string_to_uint(CONFIG_THEME_COLOR_3);
-    uint32_t color4 = hex_string_to_uint(CONFIG_THEME_COLOR_4);
-    uint32_t color5 = hex_string_to_uint(CONFIG_THEME_COLOR_5);
-    uint32_t color6 = hex_string_to_uint(CONFIG_THEME_COLOR_6);
+    uint32_t color1 = hex_string_to_uint(CONFIG_THEME_PRIMARY_COLOR);
+    uint32_t color2 = hex_string_to_uint(CONFIG_THEME_SECONDARY_COLOR);
+    uint32_t color3 = hex_string_to_uint(CONFIG_THEME_BG_COLOR);
+    uint32_t color4 = hex_string_to_uint(CONFIG_THEME_BG_DARKER_COLOR);
     if (color1 == HEX_PARSE_ERROR ||
         color2 == HEX_PARSE_ERROR ||
         color3 == HEX_PARSE_ERROR ||
-        color4 == HEX_PARSE_ERROR ||
-        color5 == HEX_PARSE_ERROR ||
-        color6 == HEX_PARSE_ERROR) {
+        color4 == HEX_PARSE_ERROR) {
         set_custom_theme_colors(0x4aedffu, 0xff8acdu, 0xb03e80u, 0xFFFFFFu, 0x000000u, 0xddddddu);
     } else {
-        set_custom_theme_colors(color1, color2, color3, color4, color5, color6);
+        set_custom_theme_colors(color1, color2, color3, color4, 0x000000u, 0x000000u);
     }
 }
 
@@ -105,9 +101,7 @@ void action_button() {
 
 void configure(void) {
     set_display_brightness();
-    if (!CONFIG_USE_COMPLETE_CUSTOM_THEME) {
-        custom_theme();
-    }
+    custom_theme();
     board_size();
     default_screen();
     action_button();

@@ -151,6 +151,14 @@ void clean_up_splash() {
 
 #else
 
+static bool initialized_splash = false;
+
+static uint16_t snake_splash_font_x = 90;
+static uint16_t snake_splash_font_y = 210;
+static uint16_t snake_splash_font_width = 3;
+static uint16_t snake_splash_font_height = 6;
+static uint16_t snake_splash_font_scale = 1;
+
 static uint16_t snake_font_width = 3;
 static uint16_t snake_font_height = 6;
 static uint16_t snake_scale = 12;
@@ -201,6 +209,10 @@ void print_background(void) {
 }
 
 void print_splash(void) {
+    if (initialized_splash) {
+        return;
+    }
+
 	for (uint8_t x = 0; x < 4; x++) {
         for (uint8_t y = 0; y < 2; y++) {
             render_background_splash_pixel(x, y, 0, 0);
@@ -228,6 +240,29 @@ void print_splash(void) {
 	print_bitmap(buf_splash_snake, CHAR_A, 100, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
 	print_bitmap(buf_splash_snake, CHAR_K, 140, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
 	print_bitmap(buf_splash_snake, CHAR_E, 180, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
+
+    Character created_chars[] = {
+        CHAR_C,
+        CHAR_R,
+        CHAR_E,
+        CHAR_A,
+        CHAR_T,
+        CHAR_E,
+        CHAR_D,
+    };
+    Character by_chars[] = {
+        CHAR_B,
+        CHAR_Y,
+        CHAR_COLON,
+        CHAR_P,
+        CHAR_I,
+        CHAR_O,
+    };
+    uint16_t char_gap_pixels = 1;
+    print_string(buf_splash_snake, created_chars, snake_splash_font_x, snake_splash_font_y, snake_splash_font_scale, get_splash_created_by_color(), get_splash_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 7);
+    print_string(buf_splash_snake, by_chars, snake_splash_font_x + 30, snake_splash_font_y, snake_splash_font_scale, get_splash_created_by_color(), get_splash_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 6);
+    
+    initialized_splash = true;
 }
 
 // ############## Display setup ################
