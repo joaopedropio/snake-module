@@ -63,8 +63,14 @@ static uint16_t logo_snake_color;
 static uint16_t frame_color;
 static uint16_t frame_color_1;
 static uint16_t menu_bg_color;
+static uint16_t wpm_font_color;
+static uint16_t wpm_font_1_color;
+static uint16_t wpm_font_bg_color;
 
 static DefaultScreen default_screen = SNAKE_SCREEN;
+
+static InfoSlot left_slot;
+static InfoSlot right_slot;
 
 #define COLORS_PER_THEME 6
 
@@ -125,6 +131,9 @@ void set_complete_colors_theme() {
     uint32_t frame_color = hex_string_to_uint(CONFIG_FRAME_COLOR);
     uint32_t frame_color_1 = hex_string_to_uint(CONFIG_FRAME_COLOR_1);
     uint32_t menu_bg_color = hex_string_to_uint(CONFIG_MENU_BG_COLOR);
+    uint32_t wpm_font_color = hex_string_to_uint(CONFIG_WPM_FONT_COLOR);
+    uint32_t wpm_font_1_color = hex_string_to_uint(CONFIG_WPM_FONT_1_COLOR);
+    uint32_t wpm_font_bg_color = hex_string_to_uint(CONFIG_WPM_FONT_BG_COLOR);
 
     if (splash_logo_color == HEX_PARSE_ERROR) {
         splash_logo_color = 0xFFFFFF;
@@ -287,6 +296,18 @@ void set_complete_colors_theme() {
     if (menu_bg_color == HEX_PARSE_ERROR) {
         menu_bg_color = 0xFFFFFF;
     }
+    
+    if (wpm_font_color == HEX_PARSE_ERROR) {
+        wpm_font_color = 0xFFFFFF;
+    }
+    
+    if (wpm_font_1_color == HEX_PARSE_ERROR) {
+        wpm_font_1_color = 0xFFFFFF;
+    }
+    
+    if (wpm_font_bg_color == HEX_PARSE_ERROR) {
+        wpm_font_bg_color = 0xFFFFFF;
+    }
 
     set_all_colors(
         splash_logo_color,
@@ -328,7 +349,10 @@ void set_complete_colors_theme() {
         logo_bg_color,
         frame_color,
         frame_color_1,
-        menu_bg_color
+        menu_bg_color,
+        wpm_font_color,
+        wpm_font_1_color,
+        wpm_font_bg_color
     );
 }
 
@@ -1070,7 +1094,7 @@ const uint16_t w_letter_3x5[] = {
     1, 0, 1,
     1, 1, 1,
     1, 1, 1,
-    0, 1, 0,
+    1, 0, 1,
 };
 const uint16_t x_letter_3x5[] = {
     1, 0, 1,
@@ -1208,6 +1232,22 @@ uint16_t rgb888_to_rgb565(uint32_t color) {
     return red_shifted | green_shifted | blue;
 }
 
+void set_left_slot(InfoSlot slot) {
+    left_slot = slot;
+}
+
+InfoSlot get_left_slot() {
+    return left_slot;
+}
+
+void set_right_slot(InfoSlot slot) {
+    right_slot = slot;
+}
+
+InfoSlot get_right_slot() {
+    return right_slot;
+}
+
 void set_default_screen(DefaultScreen screen) {
     default_screen = screen;
 }
@@ -1310,6 +1350,18 @@ void set_frame_color(uint32_t color) {
 
 void set_frame_color_1(uint32_t color) {
     frame_color_1 = rgb888_to_rgb565(color);
+}
+
+void set_wpm_font_color(uint32_t color) {
+    wpm_font_color = rgb888_to_rgb565(color);
+}
+
+void set_wpm_font_1_color(uint32_t color) {
+    wpm_font_1_color = rgb888_to_rgb565(color);
+}
+
+void set_wpm_font_bg_color(uint32_t color) {
+    wpm_font_bg_color = rgb888_to_rgb565(color);
 }
 
 void set_menu_bg_color(uint32_t color) {
@@ -1554,6 +1606,18 @@ uint16_t get_frame_color() {
 
 uint16_t get_frame_color_1() {
     return frame_color_1;
+}
+
+uint16_t get_wpm_font_color() {
+    return wpm_font_color;
+}
+
+uint16_t get_wpm_font_1_color() {
+    return wpm_font_1_color;
+}
+
+uint16_t get_wpm_font_bg_color() {
+    return wpm_font_bg_color;
 }
 
 uint16_t get_menu_bg_color() {
@@ -1896,7 +1960,10 @@ void set_all_colors(
     uint32_t logo_bg_color,
     uint32_t frame_color,
     uint32_t frame_color_1,
-    uint32_t menu_bg_color
+    uint32_t menu_bg_color,
+    uint32_t wpm_font_color,
+    uint32_t wpm_font_1_color,
+    uint32_t wpm_font_bg_color
 ) {
     set_splash_logo_color(splash_logo_color);
     set_splash_created_by_color(splash_created_by_color);
@@ -1946,6 +2013,10 @@ void set_all_colors(
     set_frame_color(frame_color);
     set_frame_color_1(frame_color_1);
     set_menu_bg_color(menu_bg_color);
+
+    set_wpm_font_color(wpm_font_color);
+    set_wpm_font_1_color(wpm_font_1_color);
+    set_wpm_font_bg_color(wpm_font_bg_color);
 }
 
 void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2, uint32_t color5, uint32_t color6) {
@@ -2001,6 +2072,10 @@ void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1,
     set_frame_color(background1);
     set_frame_color_1(darken_color(background1, 0.2));
     set_menu_bg_color(background2);
+
+    set_wpm_font_color(primary);
+    set_wpm_font_1_color(primary);
+    set_wpm_font_bg_color(background2);
 }
 
 void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len) {
@@ -2075,4 +2150,14 @@ void print_repeat_char(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_
         uint16_t actual_x = x + (string_font_width_scaled * i) + (gap_pixels * i);
         print_bitmap(scaled_bitmap, c, actual_x, y, scale, color, bg_color, font_size);
     }
+}
+
+SlotSide get_slot_to_print(InfoSlot slot) {
+    if (slot == left_slot) {
+        return SLOT_SIDE_LEFT;
+    }
+    if (slot == right_slot) {
+        return SLOT_SIDE_RIGHT;
+    }
+    return SLOT_SIDE_NONE;
 }

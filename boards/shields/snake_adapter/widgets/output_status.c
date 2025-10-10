@@ -24,6 +24,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "output_status.h"
 #include "helpers/display.h"
 
+SlotSide connectivity_slot_side = SLOT_SIDE_NONE;
+
 static bool status_widget_initialized = false;
 static struct output_status_state status_state;
 static uint16_t *scaled_bitmap_status;
@@ -42,13 +44,13 @@ static const uint16_t bt_num_scale = 4;
 static const uint16_t bt_num_width = 5;
 static const uint16_t bt_num_height = 7;
 
-static const uint16_t bluetooth_profiles_x = 58;
-static const uint16_t bluetooth_profiles_y = 123;
-static const uint16_t bluetooth_status_x = 84;
-static const uint16_t bluetooth_status_y = 123;
-static const uint16_t symbol_usb_x = 12;
-static const uint16_t symbol_ble_x = 36;
-static const uint16_t symbols_y = 122;
+static uint16_t bluetooth_profiles_x = 58;
+static uint16_t bluetooth_profiles_y = 123;
+static uint16_t bluetooth_status_x = 84;
+static uint16_t bluetooth_status_y = 123;
+static uint16_t symbol_usb_x = 12;
+static uint16_t symbol_ble_x = 36;
+static uint16_t symbols_y = 122;
 
 static const uint16_t usb_ready_bitmap[] = {
     0, 1, 1, 1, 1, 1, 1, 1, 0,
@@ -244,6 +246,9 @@ void print_symbols(uint16_t usb_x, uint16_t ble_x, uint16_t y, struct output_sta
 }
 
 void set_status_symbol() {
+    if (connectivity_slot_side == SLOT_SIDE_NONE) {
+        return;
+    }
     print_bluetooth_profiles(bluetooth_profiles_x, bluetooth_profiles_y, status_state);
     print_bluetooth_status(bluetooth_status_x, bluetooth_status_y, status_state);
     print_symbols(symbol_usb_x, symbol_ble_x, symbols_y, status_state);
@@ -275,6 +280,14 @@ void zmk_widget_output_status_init() {
     uint16_t bitmap_size_status = (status_width * status_scale) * (status_height * status_scale);
 
     scaled_bitmap_status = k_malloc(bitmap_size_status * 2 * sizeof(uint16_t));
+
+    connectivity_slot_side = get_slot_to_print(INFO_SLOT_CONNECTIVITY);
+    if (connectivity_slot_side == SLOT_SIDE_RIGHT) {
+        bluetooth_profiles_x += 120;
+        bluetooth_status_x += 120;
+        symbol_usb_x += 120;
+        symbol_ble_x += 120;
+    }
 
     widget_output_status_init();
 }

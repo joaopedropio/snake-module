@@ -72,7 +72,7 @@ lv_obj_t* zmk_display_status_screen() {
     zmk_widget_peripheral_battery_status_init();
     zmk_widget_layer_init();
     zmk_widget_action_button_init();
-
+    zmk_widget_wpm_init();
 
     lv_timer_create(timer_splash, SPLASH_DURATION, NULL);
     lv_timer_create(logo_animation_timer, CONFIG_LOGO_WALK_INTERVAL, NULL);

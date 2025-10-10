@@ -71,11 +71,11 @@ void print_percentage(uint8_t digit, uint16_t x, uint16_t y, uint16_t scale, uin
         #ifdef CONFIG_USE_BATTERY_FONT_3X5
         print_bitmap(scaled_bitmap_1, CHAR_DASH, first_x, y, scale, num_color, bg_color, FONT_SIZE_3x5);
         print_bitmap(scaled_bitmap_1, CHAR_DASH, second_x, y, scale, num_color, bg_color, FONT_SIZE_3x5);
-        print_bitmap(scaled_bitmap_1, CHAR_PERCENTAGE, third_x, y, scale, percentage_color, bg_color, FONT_SIZE_3x5);
+        print_bitmap(scaled_bitmap_1, CHAR_PERCENTAGE, third_x + 2, y, scale, percentage_color, bg_color, FONT_SIZE_3x5);
         #else
         print_bitmap(scaled_bitmap_1, CHAR_DASH, first_x, y, scale, num_color, bg_color, FONT_SIZE_5x8);
         print_bitmap(scaled_bitmap_1, CHAR_DASH, second_x, y, scale, num_color, bg_color, FONT_SIZE_5x8);
-        print_bitmap(scaled_bitmap_1, CHAR_PERCENTAGE, third_x, y, scale, percentage_color, bg_color, FONT_SIZE_5x8);
+        print_bitmap(scaled_bitmap_1, CHAR_PERCENTAGE, third_x + 2, y, scale, percentage_color, bg_color, FONT_SIZE_5x8);
         #endif
         return;
     }
