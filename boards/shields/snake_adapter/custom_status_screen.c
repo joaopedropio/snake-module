@@ -13,6 +13,8 @@
 #include "widgets/action_button.h"
 #include "widgets/logo.h"
 #include "widgets/configuration.h"
+#include "widgets/wpm.h"
+#include "widgets/modifier.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
@@ -72,7 +74,8 @@ lv_obj_t* zmk_display_status_screen() {
     zmk_widget_peripheral_battery_status_init();
     zmk_widget_layer_init();
     zmk_widget_action_button_init();
-
+    zmk_widget_wpm_init();
+    zmk_widget_modifier_init();
 
     lv_timer_create(timer_splash, SPLASH_DURATION, NULL);
     lv_timer_create(logo_animation_timer, CONFIG_LOGO_WALK_INTERVAL, NULL);

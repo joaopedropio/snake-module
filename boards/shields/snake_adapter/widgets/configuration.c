@@ -11,6 +11,52 @@ LOG_MODULE_REGISTER(app_configuration, LOG_LEVEL_DBG);
 
 static const struct pwm_dt_spec pwm_backlight = PWM_DT_SPEC_GET(DT_CHOSEN(zephyr_backlight));
 
+void info_slots() {
+    const char *left_slot_str = CONFIG_INFO_LEFT_SLOT;
+    const char *right_slot_str = CONFIG_INFO_RIGHT_SLOT;
+
+    if (strcmp(left_slot_str, right_slot_str) == 0) {
+        set_left_slot(INFO_SLOT_CONNECTIVITY);
+        set_right_slot(INFO_SLOT_LAYER);
+        return;
+    }
+
+    // left
+    if (strcmp(left_slot_str, "modifiers") == 0) {
+        set_left_slot(INFO_SLOT_MODIFIERS);
+    } else if (strcmp(left_slot_str, "connectivity") == 0) {
+        set_left_slot(INFO_SLOT_CONNECTIVITY);
+    } else if (strcmp(left_slot_str, "layer") == 0) {
+        set_left_slot(INFO_SLOT_LAYER);
+    } else if (strcmp(left_slot_str, "theme") == 0) {
+        set_left_slot(INFO_SLOT_THEME);
+    } else if (strcmp(left_slot_str, "wpm") == 0) {
+        set_left_slot(INFO_SLOT_WPM);
+    } else {
+        set_left_slot(INFO_SLOT_CONNECTIVITY);
+    }
+
+    // right
+    if (strcmp(right_slot_str, "modifiers") == 0) {
+        set_right_slot(INFO_SLOT_MODIFIERS);
+    } else if (strcmp(right_slot_str, "connectivity") == 0) {
+        set_right_slot(INFO_SLOT_CONNECTIVITY);
+    } else if (strcmp(right_slot_str, "layer") == 0) {
+        set_right_slot(INFO_SLOT_LAYER);
+    } else if (strcmp(right_slot_str, "theme") == 0) {
+        set_right_slot(INFO_SLOT_THEME);
+    } else if (strcmp(right_slot_str, "wpm") == 0) {
+        set_right_slot(INFO_SLOT_WPM);
+    } else {
+        set_right_slot(INFO_SLOT_LAYER);
+    }
+
+    if (get_left_slot() == get_right_slot()) {
+        set_left_slot(INFO_SLOT_CONNECTIVITY);
+        set_right_slot(INFO_SLOT_LAYER);
+    }
+}
+
 void board_size() {
     const char *size_str = CONFIG_SNAKE_BOARD_SIZE;
     if (strcmp(size_str, "XXXL") == 0) {
@@ -101,6 +147,7 @@ void action_button() {
 }
 
 void configure(void) {
+    info_slots();
     set_display_brightness();
     custom_theme();
     board_size();

@@ -70,9 +70,13 @@ config USE_BUZZER
     bool "Use buzzer"
     default n
 
-config SHOW_ACTIVE_LAYER
-    bool "Show active layer"
-    default y
+config INFO_LEFT_SLOT
+    string "Info left slot"
+    default "connectivity"
+
+config INFO_RIGHT_SLOT
+    string "Info right slot"
+    default "layer"
 
 config SNAKE_BOARD_SIZE
     string "Snake board size"
@@ -190,6 +194,18 @@ config BATTERY_BG_COLOR_1
     string ""
     default "000000"
 
+config MODIFIER_SELECTED_COLOR
+    string ""
+    default "000000"
+
+config MODIFIER_UNSELECTED_COLOR
+    string ""
+    default "000000"
+
+config MODIFIER_BG_COLOR
+    string ""
+    default "000000"
+
 config SYMBOL_SELECTED_COLOR
     string ""
     default "000000"
@@ -267,6 +283,18 @@ config FRAME_COLOR_1
     default "000000"
 
 config MENU_BG_COLOR
+    string ""
+    default "000000"
+
+config WPM_FONT_COLOR
+    string ""
+    default "000000"
+
+config WPM_FONT_1_COLOR
+    string ""
+    default "000000"
+
+config WPM_FONT_BG_COLOR
     string ""
     default "000000"
 

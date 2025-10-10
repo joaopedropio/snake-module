@@ -32,6 +32,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "helpers/buzzer.h"
 #include "helpers/settings.h"
 #include "theme.h"
+#include "wpm.h"
 //#include "snake_image.h"
 #include "logo.h"
 #include <stdint.h>
@@ -94,14 +95,15 @@ void print_menu() {
     print_frames();
     start_battery_status();
     start_output_status();
+    start_wpm_status();
+    start_modifier_status();
+    start_layer_status();
     set_status_symbol();
     set_battery_symbol();
-    #ifdef CONFIG_SHOW_ACTIVE_LAYER
-    start_layer_status();
     print_layer();
-    #else
     print_themes();
-    #endif
+    print_wpm();
+    print_modifiers();
 }
 
 void toggle_menu() {
@@ -111,12 +113,12 @@ void toggle_menu() {
         #endif
     #endif
     if (menu_on) {
+        stop_wpm_status();
+        stop_modifier_status();
         stop_output_status();
         stop_battery_status();
         stop_animation();
-        #ifdef CONFIG_SHOW_ACTIVE_LAYER
         stop_layer_status();
-        #endif
         start_snake();
         menu_on = false;
     } else {

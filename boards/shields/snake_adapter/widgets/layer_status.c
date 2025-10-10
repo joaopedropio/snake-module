@@ -28,8 +28,9 @@ static uint16_t layer_font_width = 3;
 static uint16_t layer_font_height = 5;
 static uint16_t *scaled_bitmap_layer_font;
 
-static uint16_t layer_x = 124;
-static uint16_t layer_x_end = 236;
+SlotSide layer_slot_side = SLOT_SIDE_NONE;
+static uint16_t layer_x = 4;
+static uint16_t layer_x_end = 116;
 static uint16_t layer_y = 126;
 static uint8_t label_limit = 28;
 
@@ -109,6 +110,9 @@ void clear_last_printed_label() {
 }
 
 void print_layer() {
+    if (layer_slot_side == SLOT_SIDE_NONE) {
+        return;
+    }
     clear_last_printed_label();
 
     size_t len = strlen(current_layer.label);
@@ -148,6 +152,12 @@ void zmk_widget_layer_init() {
         .index = 0,
         .label = '\0'
     };
+
+    layer_slot_side = get_slot_to_print(INFO_SLOT_LAYER);
+    if (layer_slot_side == SLOT_SIDE_RIGHT) {
+        layer_x += 120;
+        layer_x_end += 120;
+    }
 
     widget_layer_status_init();
 }

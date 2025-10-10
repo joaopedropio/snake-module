@@ -25,8 +25,9 @@ static uint16_t theme_font_width = 3;
 static uint16_t theme_font_height = 6;
 static uint16_t *scaled_bitmap_theme_font;
 
-static uint16_t theme_x = 137;
-static uint16_t theme_y = 126;
+SlotSide theme_slot_side = SLOT_SIDE_NONE;
+static uint16_t theme_x = 17;
+static uint16_t theme_y = 127;
 
 static Character int_to_num_char(uint8_t i) {
     switch (i) {
@@ -45,6 +46,9 @@ static Character int_to_num_char(uint8_t i) {
 }
 
 void print_themes() {
+    if (theme_slot_side == SLOT_SIDE_NONE) {
+        return;
+    }
     Character theme_template[] = {
         CHAR_S,
         CHAR_K,
@@ -101,4 +105,9 @@ void theme_init() {
 
     current_theme = snake_settings_get_current_theme();
     apply_current_theme(current_theme);
+    
+    theme_slot_side = get_slot_to_print(INFO_SLOT_THEME);
+    if (theme_slot_side == SLOT_SIDE_RIGHT) {
+        theme_x += 120;
+    }
 }

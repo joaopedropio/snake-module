@@ -3,6 +3,20 @@
 #define HEX_PARSE_ERROR ((uint32_t)-1)
 
 typedef enum {
+    SLOT_SIDE_LEFT,
+    SLOT_SIDE_RIGHT,
+    SLOT_SIDE_NONE,
+} SlotSide;
+
+typedef enum {
+    INFO_SLOT_CONNECTIVITY,
+    INFO_SLOT_LAYER,
+    INFO_SLOT_THEME,
+    INFO_SLOT_WPM,
+    INFO_SLOT_MODIFIERS,
+} InfoSlot;
+
+typedef enum {
     CHAR_0,
     CHAR_1,
     CHAR_2,
@@ -107,7 +121,13 @@ void set_battery_bg_color_1(uint32_t color);
 void set_battery_percentage_color_1(uint32_t color);
 void set_frame_color(uint32_t color);
 void set_frame_color_1(uint32_t color);
+void set_wpm_font_color(uint32_t color);
+void set_wpm_font_1_color(uint32_t color);
+void set_wpm_font_bg_color(uint32_t color);
 void set_menu_bg_color(uint32_t color);
+void set_modifier_selected_color(uint32_t color);
+void set_modifier_unselected_color(uint32_t color);
+void set_modifier_bg_color(uint32_t color);
 void set_symbol_selected_color(uint32_t color);
 void set_symbol_unselected_color(uint32_t color);
 void set_symbol_bg_color(uint32_t color);
@@ -151,6 +171,9 @@ uint16_t get_battery_num_color_1(void);
 uint16_t get_battery_bg_color_1(void);
 uint16_t get_battery_percentage_color_1(void);
 
+uint16_t get_modifier_selected_color(void);
+uint16_t get_modifier_unselected_color(void);
+uint16_t get_modifier_bg_color(void);
 uint16_t get_symbol_selected_color(void);
 uint16_t get_symbol_unselected_color(void);
 uint16_t get_symbol_bg_color(void);
@@ -171,6 +194,9 @@ uint16_t get_bt_status_bg_color(void);
 uint16_t get_frame_color(void);
 uint16_t get_frame_color_1(void);
 uint16_t get_menu_bg_color(void);
+uint16_t get_wpm_font_color(void);
+uint16_t get_wpm_font_1_color(void);
+uint16_t get_wpm_font_bg_color(void);
 
 void clear_screen(void);
 void set_colorscheme(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6);
@@ -184,3 +210,9 @@ void apply_current_theme(uint8_t current_theme);
 uint32_t darken_color(uint32_t rgb, float percentage);
 void set_complete_colors_theme();
 uint32_t hex_string_to_uint(const char *hex_str);
+
+void set_left_slot(InfoSlot slot);
+InfoSlot get_left_slot();
+void set_right_slot(InfoSlot slot);
+InfoSlot get_right_slot();
+SlotSide get_slot_to_print(InfoSlot slot);
