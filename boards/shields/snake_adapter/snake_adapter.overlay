@@ -25,13 +25,6 @@
 		};
     };
 
-	// pwmbacklight {
-	// 	compatible = "pwm-leds";
-	// 	backlight: backlight {
-	// 		pwms = <&pwm0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>; // Use PWM channel 1
-	// 	};
-	// };
-
     dongle_action_direct_kscan: dongle_action_direct_kscan {
         compatible = "zmk,kscan-gpio-direct";
 	    input-gpios
