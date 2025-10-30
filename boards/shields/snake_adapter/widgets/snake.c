@@ -21,6 +21,12 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #include <zmk/events/wpm_state_changed.h>
 #include <zmk/wpm.h>
 
+
+#include <zmk_dongle_events/dongle_up_event.h>
+#include <zmk_dongle_events/dongle_right_event.h>
+#include <zmk_dongle_events/dongle_down_event.h>
+#include <zmk_dongle_events/dongle_left_event.h>
+
 #include "snake.h"
 #include "helpers/list.h"
 #include "helpers/display.h"
@@ -28,6 +34,9 @@ LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
 #ifdef CONFIG_USE_BUZZER
 #include "helpers/buzzer.h"
 #endif
+
+static bool is_automatic = true;
+static bool directional_pressed = false;
 
 struct snake_wpm_status_state {
     uint8_t wpm;
@@ -38,6 +47,21 @@ static Snake_List* snake_list;
 static bool snake_widget_initialized = false;
 static bool stopped = false;
 static struct snake_wpm_status_state snake_state;
+
+typedef enum {
+    DIRECTIONAL_UP,
+    DIRECTIONAL_RIGHT,
+    DIRECTIONAL_DOWN,
+    DIRECTIONAL_LEFT,
+    DIRECTIONAL_NONE,
+} Directional;
+
+typedef enum {
+    MOVE_ACTION_FORWARD,
+    MOVE_ACTION_LEFT,
+    MOVE_ACTION_RIGHT,
+    MOVE_ACTION_NONE,
+} MoveAction;
 
 // ############## SPEED ############
 
@@ -55,12 +79,10 @@ const uint8_t TIMER_CYCLES_MEDIUM = 3;
 const uint8_t TIMER_CYCLES_FAST = 2;
 const uint8_t TIMER_CYCLES_SUPER_FAST = 1;
 
-static uint8_t snake_best = 0;
-static uint8_t snake_len = 0;
-
 static uint8_t current_cycle_speed = TIMER_CYCLES_SUPER_SLOW;
 
-static uint8_t cycles_count = 0;
+static uint16_t cycles_count = 0;
+static uint16_t idle_cycles_count = 0;
 
 static Speed current_speed = SPEED_SLOW;
 static bool speed_changed = false;
@@ -177,7 +199,7 @@ const uint16_t inside_board_number = 1;
 static uint16_t current_number;
 static Snake_coordinate tail_coordinate;
 static Snake_coordinate head_coordinate;
-
+static Snake_coordinate manual_food_coordinate;
 
 uint8_t forward_steps = 4;
 uint8_t turn_steps = 4;
@@ -188,19 +210,7 @@ static uint8_t walk_index;
 static uint32_t walk_timer;
 
 static uint8_t tail_shrink_timeout = 0;
-
-
-static uint8_t random_number(uint8_t end) {
-    return rand() % end;
-}
-
-static uint16_t head_number(void) {
-    return snake_board[head_coordinate.x][head_coordinate.y];
-}
-
-static uint16_t tail_number(void) {
-    return snake_board[tail_coordinate.x][tail_coordinate.y];
-}
+static int8_t manual_tail_shrink_timeout = 0;
 
 static uint8_t* get_current_color() {
     switch(current_color) {
@@ -213,6 +223,39 @@ static uint8_t* get_current_color() {
         case 6: return buf_color_6;
     }
     return buf_white;
+}
+
+static void snake_render_pixel(uint8_t x, uint8_t y, bool on) {
+    uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
+    uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
+	if (on) {
+		display_write_wrapper(initial_x, initial_y, &buf_white_desc, buf_white);
+	} else {
+        // death count is here to change board color sometimes and avoid burning led
+        if (((x + y + death_count) % 2) == 0) {
+		    display_write_wrapper(initial_x, initial_y, &buf_desc, buf);
+        } else {
+		    display_write_wrapper(initial_x, initial_y, &buf_board_1_desc, buf_board_1);
+        }
+	}
+}
+
+static void snake_render_pixel_current_color(uint8_t x, uint8_t y) {
+    uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
+    uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
+	display_write_wrapper(initial_x, initial_y, &buf_color_desc, get_current_color());
+}
+
+static uint8_t random_number(uint8_t end) {
+    return rand() % end;
+}
+
+static uint16_t head_number(void) {
+    return snake_board[head_coordinate.x][head_coordinate.y];
+}
+
+static uint16_t tail_number(void) {
+    return snake_board[tail_coordinate.x][tail_coordinate.y];
 }
 
 static uint8_t* next_color() {
@@ -245,6 +288,10 @@ static Direction previous_direction(Direction d) {
         case DIRECTION_NONE: return DIRECTION_NONE;
     }
     return DIRECTION_NONE;
+}
+
+static void finalize_snake(void) {
+    snake_initialized = false;
 }
 
 static bool is_out_of_board(uint8_t x, uint8_t y) {
@@ -348,6 +395,27 @@ static uint16_t next_number(void) {
     return current_number;
 }
 
+static void move_tail_manual(void) {
+    if (manual_tail_shrink_timeout < 0) {
+        manual_tail_shrink_timeout = 0;
+    }
+    if (manual_tail_shrink_timeout > 0) {
+        manual_tail_shrink_timeout--;
+        return;
+    }
+
+    Surroundings surroundings = scan_surroundings(tail_coordinate.x, tail_coordinate.y);
+    for (int dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        if (surroundings.surroundings[dir].number == tail_number() + 1) {
+            snake_render_pixel(tail_coordinate.x, tail_coordinate.y, false);
+            Snake_coordinate c = surroundings.surroundings[dir].coordinate;
+            tail_coordinate.x = c.x;
+            tail_coordinate.y = c.y;
+            return;
+        }
+    }
+}
+
 static void move_tail(void) {
     if (tail_shrink_timeout > 0) {
         tail_shrink_timeout--;
@@ -385,6 +453,66 @@ static void move_head(Direction d) {
     }
 }
 
+static void draw_food_manual(void) {
+    uint16_t x = manual_food_coordinate.x;
+    uint16_t y = manual_food_coordinate.y;
+    uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
+    uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
+    display_write_wrapper(initial_x, initial_y, &buf_color_desc, buf_food_color);
+}
+
+static void random_food(void) {
+    uint8_t x;
+    uint8_t y;
+    do {
+        x = random_number(snake_board_width);
+        y = random_number(snake_board_height);
+    } while(is_snake_body(x, y));
+    manual_food_coordinate.x = x;
+    manual_food_coordinate.y = y;
+    draw_food_manual();
+}
+
+static void move_head_manual(Direction d) {
+    uint8_t x = head_coordinate.x;
+    uint8_t y = head_coordinate.y;
+    if (can_move(d, x, y)) {
+        switch (d) {
+            case UP: y++; break;
+            case DOWN: y--; break;
+            case RIGHT: x++; break;
+            case LEFT: x--; break;
+            case DIRECTION_NONE: break;
+            case DIRECTION_LENGTH: break;
+        }
+        head_coordinate.x = x;
+        head_coordinate.y = y;
+        snake_board[x][y] = next_number();
+        snake_render_pixel(head_coordinate.x, head_coordinate.y, true);
+    } else {
+        #ifdef CONFIG_USE_BUZZER
+            #ifdef CONFIG_USE_DIE_SOUND
+                play_powerd_down_song();
+            #endif
+        #endif
+        snake_died = true;
+        finalize_snake();
+        return;
+    }
+    if (head_coordinate.x == manual_food_coordinate.x && head_coordinate.y == manual_food_coordinate.y) {
+        #ifdef CONFIG_USE_BUZZER
+            #ifdef CONFIG_USE_FOOD_SOUND
+                play_snake_eat_sound();
+            #endif
+        #endif
+        random_food();
+        if (manual_tail_shrink_timeout < 0) {
+            manual_tail_shrink_timeout = 0;
+        }
+        manual_tail_shrink_timeout += 2;
+    }
+}
+
 static void move(Direction d) {
     if (can_move(d, head_coordinate.x, head_coordinate.y)) {
         move_head(d);
@@ -392,9 +520,24 @@ static void move(Direction d) {
     }
 }
 
+static void move_manual(Direction d) {
+    move_head_manual(d);
+    if (snake_died) {
+        return;
+    }
+    move_tail_manual();
+}
+
 static void move_steps(Direction d, uint8_t steps) {
     for (int i = 0; i < steps; i++) {
-        move(d);
+        if (is_automatic) {
+            move(d);
+        } else {
+            move_manual(d);
+            if (snake_died) {
+                return;
+            }
+        }
     }
 }
 
@@ -427,34 +570,12 @@ static bool locked(void) {
     return count_moves == 0;
 }
 
-static void snake_render_pixel(uint8_t x, uint8_t y, bool on) {
-    uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
-    uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
-	if (on) {
-		display_write_wrapper(initial_x, initial_y, &buf_white_desc, buf_white);
-	} else {
-        // death count is here to change board color sometimes and avoid burning led
-        if (((x + y + death_count) % 2) == 0) {
-		    display_write_wrapper(initial_x, initial_y, &buf_desc, buf);
-        } else {
-		    display_write_wrapper(initial_x, initial_y, &buf_board_1_desc, buf_board_1);
-        }
-	}
-}
-
-static void snake_render_pixel_current_color(uint8_t x, uint8_t y) {
-    uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
-    uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
-	display_write_wrapper(initial_x, initial_y, &buf_color_desc, get_current_color());
-}
-
 static void draw_food(void) {
     uint16_t x = head_coordinate.x;
     uint16_t y = head_coordinate.y;
     uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
     uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
     display_write_wrapper(initial_x, initial_y, &buf_color_desc, buf_food_color);
-    //snake_render_pixel_current_color(head_coordinate.x, head_coordinate.y);
 }
 
 static void make_path_to_food(void) {
@@ -523,8 +644,6 @@ static void initialize_snake(void) {
     prepend_snake_part(random_x, random_y + 2);
     prepend_snake_part(random_x, random_y + 1);
     prepend_snake_part(random_x, random_y);
-    snake_len = 0;
-    //set_snake_length();
     head_coordinate.x = random_x;
     head_coordinate.y = random_y + 2;
     tail_coordinate.x = random_x;
@@ -535,10 +654,10 @@ static void initialize_snake(void) {
     tail_shrink_timeout = 0;
     snake_died = false;
     snake_initialized = true;
-}
-
-static void finalize_snake(void) {
-    snake_initialized = false;
+    if (!is_automatic) {
+        random_food();
+        manual_tail_shrink_timeout = 0;
+    }
 }
 
 static void walk_render(void) {
@@ -559,6 +678,51 @@ static void walk_render(void) {
         snake_render_pixel(draw_step.coordinate.x, draw_step.coordinate.y, false);
     }
     walk_index++;
+}
+
+
+void move_direction(Directional d) {
+    if (d == DIRECTIONAL_NONE) {
+        move_forward(1);
+        return;
+    }
+
+    if (head_direction() == DOWN) {
+        switch(d) {
+            case DIRECTIONAL_UP: move_forward(1); return;
+            case DIRECTIONAL_LEFT: turn_right(1); return;
+            case DIRECTIONAL_RIGHT: turn_left(1); return;
+            default: return;
+        }
+    }
+    if (head_direction() == RIGHT) {
+        switch(d) {
+            case DIRECTIONAL_RIGHT: move_forward(1); return;
+            case DIRECTIONAL_DOWN: turn_left(1); return;
+            case DIRECTIONAL_UP: turn_right(1); return;
+            default: return;
+        }
+    }
+    if (head_direction() == UP) {
+        switch(d) {
+            case DIRECTIONAL_DOWN: move_forward(1); return;
+            case DIRECTIONAL_RIGHT: turn_right(1); return;
+            case DIRECTIONAL_LEFT: turn_left(1); return;
+            default: return;
+        }
+    }
+    if (head_direction() == LEFT) {
+        switch(d) {
+            case DIRECTIONAL_LEFT: move_forward(1); return;
+            case DIRECTIONAL_UP: turn_left(1); return;
+            case DIRECTIONAL_DOWN: turn_right(1); return;
+            default: return;
+        }
+    }
+}
+
+static void walk_manual(Directional d) {
+    move_direction(d);
 }
 
 static void render_snake(void) {
@@ -689,6 +853,18 @@ void set_speed() {
     speed_changed = true;
 }
 
+void directional_handle(Directional d) {
+    idle_cycles_count = 0;
+    cycles_count = 0;
+    if (is_automatic) {
+        stop_snake();
+        is_automatic = false;
+        start_snake();
+        return;
+    }
+    walk_manual(d);
+}
+
 struct snake_wpm_status_state snake_wpm_status_get_state(const zmk_event_t *eh) {
     struct zmk_wpm_state_changed *ev = as_zmk_wpm_state_changed(eh);
     return (struct snake_wpm_status_state) { .wpm = ev->state };
@@ -707,10 +883,92 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_snake, struct snake_wpm_status_state,
 ZMK_SUBSCRIPTION(widget_snake, zmk_wpm_state_changed);
 
 
-void timer_snake(lv_timer_t * timer) {
-    if (stopped) {
+void dongle_up_update_cb(struct zmk_dongle_uped state) {
+    directional_pressed = state.pressed;
+    if (!directional_pressed) {
+        directional_handle(DIRECTIONAL_DOWN);
         return;
     }
+    directional_handle(DIRECTIONAL_UP);
+}
+
+static struct zmk_dongle_uped dongle_up_get_state(const zmk_event_t *eh) {
+    const struct zmk_dongle_uped *ev = as_zmk_dongle_uped(eh);
+
+    return (struct zmk_dongle_uped){
+        .pressed = (ev != NULL) ? ev->pressed : false,
+        .timestamp = (ev != NULL) ? ev->timestamp : 0,
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(dongle_up, struct zmk_dongle_uped, dongle_up_update_cb, dongle_up_get_state)
+ZMK_SUBSCRIPTION(dongle_up, zmk_dongle_uped);
+
+void dongle_right_update_cb(struct zmk_dongle_righted state) {
+    directional_pressed = state.pressed;
+    if (!directional_pressed) {
+        directional_handle(DIRECTIONAL_LEFT);
+        return;
+    }
+    directional_handle(DIRECTIONAL_RIGHT);
+}
+
+static struct zmk_dongle_righted dongle_right_get_state(const zmk_event_t *eh) {
+    const struct zmk_dongle_righted *ev = as_zmk_dongle_righted(eh);
+
+    return (struct zmk_dongle_righted){
+        .pressed = (ev != NULL) ? ev->pressed : false,
+        .timestamp = (ev != NULL) ? ev->timestamp : 0,
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(dongle_right, struct zmk_dongle_righted, dongle_right_update_cb, dongle_right_get_state)
+ZMK_SUBSCRIPTION(dongle_right, zmk_dongle_righted);
+
+void dongle_down_update_cb(struct zmk_dongle_downed state) {
+    directional_pressed = state.pressed;
+    if (!directional_pressed) {
+        directional_handle(DIRECTIONAL_UP);
+        return;
+    }
+    directional_handle(DIRECTIONAL_DOWN);
+}
+
+
+static struct zmk_dongle_downed dongle_down_get_state(const zmk_event_t *eh) {
+    const struct zmk_dongle_downed *ev = as_zmk_dongle_downed(eh);
+
+    return (struct zmk_dongle_downed){
+        .pressed = (ev != NULL) ? ev->pressed : false,
+        .timestamp = (ev != NULL) ? ev->timestamp : 0,
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(dongle_down, struct zmk_dongle_downed, dongle_down_update_cb, dongle_down_get_state)
+ZMK_SUBSCRIPTION(dongle_down, zmk_dongle_downed);
+
+void dongle_left_update_cb(struct zmk_dongle_lefted state) {
+    directional_pressed = state.pressed;
+    if (!directional_pressed) {
+        directional_handle(DIRECTIONAL_RIGHT);
+        return;
+    }
+    directional_handle(DIRECTIONAL_LEFT);
+}
+
+static struct zmk_dongle_lefted dongle_left_get_state(const zmk_event_t *eh) {
+    const struct zmk_dongle_lefted *ev = as_zmk_dongle_lefted(eh);
+
+    return (struct zmk_dongle_lefted){
+        .pressed = (ev != NULL) ? ev->pressed : false,
+        .timestamp = (ev != NULL) ? ev->timestamp : 0,
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(dongle_left, struct zmk_dongle_lefted, dongle_left_update_cb, dongle_left_get_state)
+ZMK_SUBSCRIPTION(dongle_left, zmk_dongle_lefted);
+
+void automatic_snake() {
     if (speed_changed || cycles_count >= current_cycle_speed) {
         speed_changed = false;
         cycles_count = 0;
@@ -720,6 +978,42 @@ void timer_snake(lv_timer_t * timer) {
     if (cycles_count >= TIMER_CYCLES_SUPER_SLOW) {
         cycles_count = 0;
         render_snake();
+    }
+}
+
+void render_manual_snake() {
+    if (!snake_initialized) {
+        initialize_snake();
+    }
+    walk_manual(DIRECTIONAL_NONE);
+}
+
+void manual_snake() {
+    if (idle_cycles_count >= CONFIG_IDLE_THRESHOLD) {
+        stop_snake();
+        is_automatic = true;
+        start_snake();
+        return;
+    }
+    if ((!directional_pressed && cycles_count >= CONFIG_MANUAL_CYCLE_THRESHOLD) || (directional_pressed && cycles_count >= CONFIG_MANUAL_CYCLE_PRESSED_THRESHOLD)) {
+        render_manual_snake();
+        if (snake_died) {
+            snake_died = false;
+        } else {
+            cycles_count = 0;
+        }
+    }
+    idle_cycles_count++;
+}
+ 
+void timer_snake(lv_timer_t * timer) {
+    if (stopped) {
+        return;
+    }
+    if (is_automatic) {
+        automatic_snake();
+    } else {
+        manual_snake();
     }
     cycles_count++;
 }
@@ -731,6 +1025,10 @@ void zmk_widget_snake_init() {
 
 	display_setup();
     widget_snake_init();
+    dongle_up_init();
+    dongle_right_init();
+    dongle_down_init();
+    dongle_left_init();
 }
 
 void initialize_snake_game() {
@@ -738,6 +1036,7 @@ void initialize_snake_game() {
     
     snake_widget_initialized = true;
     stopped = true;
+    is_automatic = true;
 }
 
 void start_snake() {

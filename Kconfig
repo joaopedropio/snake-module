@@ -302,3 +302,14 @@ config WPM_FONT_BG_COLOR
     string ""
     default "000000"
 
+config IDLE_THRESHOLD
+    int "Idle threshold"
+    default 500
+
+config MANUAL_CYCLE_THRESHOLD
+    int "Manual cycle threshold"
+    default 16
+
+config MANUAL_CYCLE_PRESSED_THRESHOLD
+    int "Manual cycle threshold"
+    default 8
