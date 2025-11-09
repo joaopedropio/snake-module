@@ -172,6 +172,8 @@ typedef struct {
     Snake_coordinate coordinate;
     Direction direction;
     uint16_t number;
+    bool out_of_border_x;
+    bool out_of_border_y;
 } Surrounding;
 
 typedef struct {
@@ -193,7 +195,7 @@ static bool snake_died = false;
 static uint16_t death_count = 0;
 
 static uint16_t snake_board[MAX_SNAKE_BOARD_WIDTH][MAX_SNAKE_BOARD_HEIGHT];
-const uint16_t out_of_board_number = 0;
+//const uint16_t out_of_board_number = 0;
 const uint16_t inside_board_number = 1;
 
 static uint16_t current_number;
@@ -266,6 +268,18 @@ static uint8_t* next_color() {
     return get_current_color();
 }
 
+static Direction back_direction(Direction d) {
+    switch (d) {
+        case UP: return DOWN;
+        case RIGHT: return LEFT;
+        case DOWN: return UP;
+        case LEFT: return RIGHT;
+        case DIRECTION_LENGTH: return DIRECTION_LENGTH;
+        case DIRECTION_NONE: return DIRECTION_NONE;
+    }
+    return DIRECTION_NONE;
+}
+
 static Direction next_direction(Direction d) {
     switch (d) {
         case UP: return RIGHT;
@@ -294,9 +308,9 @@ static void finalize_snake(void) {
     snake_initialized = false;
 }
 
-static bool is_out_of_board(uint8_t x, uint8_t y) {
-    return x < 0 || x >= snake_board_width || y < 0 || y >= snake_board_height;
-}
+// static bool is_out_of_board(uint8_t x, uint8_t y) {
+//     return x < 0 || x >= snake_board_width || y < 0 || y >= snake_board_height;
+// }
 
 static bool is_snake_body(uint8_t x, uint8_t y) {
     return snake_board[x][y] >= tail_number() && snake_board[x][y] <= head_number();
@@ -311,25 +325,40 @@ static bool can_move(Direction d, uint8_t x, uint8_t y) {
         case DIRECTION_LENGTH: break;
         case DIRECTION_NONE: break;
     }
-    if (is_out_of_board(x, y)) {
-        return false;
+    // cross borders
+    if (x < 0) {
+        x = snake_board_width - 1;
     }
+    if (y < 0) {
+        y = snake_board_height - 1;
+    }
+    if (x >= snake_board_width) {
+        x = 0;
+    }
+    if (y >= snake_board_height) {
+        y = 0;
+    }
+    // if (is_out_of_board(x, y)) {
+    //     return false;
+    // }
     if (is_snake_body(x, y)) {
         return false;
     }
     return true;
 }
 
-static uint16_t scan_surrounding_number(uint8_t x, uint8_t y) {
-    if (is_out_of_board(x, y)) {
-        return out_of_board_number;
-    }
-    return snake_board[x][y];
-}
+// static uint16_t scan_surrounding_number(uint8_t x, uint8_t y) {
+//     // if (is_out_of_board(x, y)) {
+//     //     return out_of_board_number;
+//     // }
+//     return snake_board[x][y];
+// }
 
 static Surrounding scan_surrounding(Direction d, uint8_t x, uint8_t y) {
     Surrounding surrounding;
     Snake_coordinate coordinate;
+    bool out_of_border_x = false;
+    bool out_of_border_y = false;
     switch (d) {
         case UP: y++; break;
         case DOWN: y--; break;
@@ -338,11 +367,31 @@ static Surrounding scan_surrounding(Direction d, uint8_t x, uint8_t y) {
         case DIRECTION_LENGTH: break;
         case DIRECTION_NONE: break;
     }
+    // cross borders
+    if (x < 0) {
+        x = snake_board_width - 1;
+        out_of_border_x = true;
+    }
+    if (y < 0) {
+        y = snake_board_height - 1;
+        out_of_border_y = true;
+    }
+    if (x >= snake_board_width) {
+        x = 0;
+        out_of_border_x = true;
+    }
+    if (y >= snake_board_height) {
+        y = 0;
+        out_of_border_y = true;
+    }
+    //surrounding.direction = (out_of_border_x || out_of_border_y) ? (d + 2) % 4 : d;
     surrounding.direction = d;
-    surrounding.number = scan_surrounding_number(x, y);
+    surrounding.number = snake_board[x][y];
     coordinate.x = x;
     coordinate.y = y;
     surrounding.coordinate = coordinate;
+    surrounding.out_of_border_x = out_of_border_x;
+    surrounding.out_of_border_y = out_of_border_y;
     return surrounding;
 }
 
@@ -361,14 +410,48 @@ static Direction neck_direction(void) {
     uint16_t neck_number = head_number() - 1;
     for (uint8_t dir = 0; dir < DIRECTION_LENGTH; dir++) {
         if (surroundings.surroundings[dir].number == neck_number) {
+            // if (surroundings.surroundings[dir].out_of_border_x || surroundings.surroundings[dir].out_of_border_y) {
+            //     return (surroundings.surroundings[dir].direction + 2) % 4;
+            // }
             return surroundings.surroundings[dir].direction;
         }
     }
     return DIRECTION_NONE;
 }
 
+static Snake_coordinate neck_coordinate(void) {
+    Surroundings surroundings = scan_surroundings(head_coordinate.x, head_coordinate.y);
+    uint16_t neck_number = head_number() - 1;
+    for (uint8_t dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        if (surroundings.surroundings[dir].number == neck_number) {
+            return surroundings.surroundings[dir].coordinate;
+        }
+    }
+    Snake_coordinate none_coordinate;
+    none_coordinate.x = -99;
+    none_coordinate.y = -99;
+    return none_coordinate;
+}
+
 static Direction head_direction(void) {
     Direction d = neck_direction();
+    Snake_coordinate neck = neck_coordinate();
+    if (neck.x == -99 && neck.y == -99) {
+        snake_died = true;
+        return DIRECTION_NONE;
+    }
+    if (neck.x == 0 && head_coordinate.x == snake_board_width - 1) {
+        return back_direction(d);
+    }
+    if (neck.x == snake_board_width - 1 && head_coordinate.x == 0) {
+        return back_direction(d);
+    }
+    if (neck.y == 0 && head_coordinate.y == snake_board_height - 1) {
+        return back_direction(d);
+    }
+    if (neck.y == snake_board_height - 1 && head_coordinate.y == 0) {
+        return back_direction(d);
+    }
     switch (d) {
         case UP: return DOWN;
         case DOWN: return UP;
@@ -446,6 +529,19 @@ static void move_head(Direction d) {
             case DIRECTION_NONE: break;
             case DIRECTION_LENGTH: break;
         }
+        // cross borders
+        if (x < 0) {
+            x = snake_board_width - 1;
+        }
+        if (y < 0) {
+            y = snake_board_height - 1;
+        }
+        if (x >= snake_board_width) {
+            x = 0;
+        }
+        if (y >= snake_board_height) {
+            y = 0;
+        }
         head_coordinate.x = x;
         head_coordinate.y = y;
         snake_board[x][y] = next_number();
@@ -484,6 +580,19 @@ static void move_head_manual(Direction d) {
             case LEFT: x--; break;
             case DIRECTION_NONE: break;
             case DIRECTION_LENGTH: break;
+        }
+        // cross borders
+        if (x < 0) {
+            x = snake_board_width - 1;
+        }
+        if (y < 0) {
+            y = snake_board_height - 1;
+        }
+        if (x >= snake_board_width) {
+            x = 0;
+        }
+        if (y >= snake_board_height) {
+            y = 0;
         }
         head_coordinate.x = x;
         head_coordinate.y = y;
