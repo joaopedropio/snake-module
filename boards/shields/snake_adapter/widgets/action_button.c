@@ -171,17 +171,17 @@ void set_layer_symbol() {
     dongle_lock = false;
 }
 
-void dongle_action_update_cb(struct zmk_dongle_actioned state) {
-    if (state.timestamp == 0) {
+void handle_dongle_action(bool pressed, int64_t timestamp) {
+    if (timestamp == 0) {
         return;
     }
-    if (state.pressed) {
-        pressed_timestamp = state.timestamp;
+    if (pressed) {
+        pressed_timestamp = timestamp;
         return;
     }
-    if (!state.pressed) {
+    if (!pressed) {
         uint8_t index;
-        int64_t elapsed_time = state.timestamp - pressed_timestamp;
+        int64_t elapsed_time = timestamp - pressed_timestamp;
         if (elapsed_time > menu_threshold) {
             index = menu_layer;
         }
@@ -201,6 +201,10 @@ void dongle_action_update_cb(struct zmk_dongle_actioned state) {
     }
 }
 
+void dongle_action_update_cb(struct zmk_dongle_actioned state) {
+    handle_dongle_action(state.pressed, state.timestamp);
+}
+
 static struct zmk_dongle_actioned dongle_action_get_state(const zmk_event_t *eh) {
     const struct zmk_dongle_actioned *ev = as_zmk_dongle_actioned(eh);
 
@@ -210,10 +214,8 @@ static struct zmk_dongle_actioned dongle_action_get_state(const zmk_event_t *eh)
     };
 }
 
-
 ZMK_DISPLAY_WIDGET_LISTENER(dongle_action, struct zmk_dongle_actioned, dongle_action_update_cb, dongle_action_get_state)
 ZMK_SUBSCRIPTION(dongle_action, zmk_dongle_actioned);
-
 
 void zmk_widget_action_button_init() {
     dongle_action_init();
