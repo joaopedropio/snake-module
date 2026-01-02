@@ -30,7 +30,7 @@ choice ST7789V_PIXEL_FORMAT
 endchoice
 
 config LV_Z_VDB_SIZE
-    default 100
+    default 50
 
 config LV_Z_MEM_POOL_SIZE
     default 10000
