@@ -9,8 +9,6 @@ LOG_MODULE_REGISTER(app_configuration, LOG_LEVEL_DBG);
 #include <zephyr/drivers/pwm.h>
 #include <zephyr/kernel.h>
 
-static const struct pwm_dt_spec pwm_backlight = PWM_DT_SPEC_GET(DT_CHOSEN(zephyr_backlight));
-
 void info_slots() {
     const char *left_slot_str = CONFIG_INFO_LEFT_SLOT;
     const char *right_slot_str = CONFIG_INFO_RIGHT_SLOT;
@@ -121,18 +119,6 @@ void custom_theme() {
     }
 }
 
-void set_display_brightness() {
-    uint8_t level;
-    if (CONFIG_DISPLAY_BRIGHTNESS < 0 || CONFIG_DISPLAY_BRIGHTNESS > 100) {
-        level = 100;
-    } else {
-        level = CONFIG_DISPLAY_BRIGHTNESS;
-    }
-    uint32_t period = 1000;
-    uint32_t duty_cycle = (period * level) / 100;
-    pwm_set_dt(&pwm_backlight, PWM_HZ(period), PWM_HZ(duty_cycle));
-}
-
 void action_button() {
     set_theme_threshold(300);
     set_mute_threshold(600);
@@ -148,7 +134,6 @@ void action_button() {
 
 void configure(void) {
     info_slots();
-    set_display_brightness();
     custom_theme();
     board_size();
     default_screen();
