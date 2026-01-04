@@ -28,10 +28,10 @@ static uint16_t layer_font_width = 3;
 static uint16_t layer_font_height = 5;
 static uint16_t *scaled_bitmap_layer_font;
 
-SlotSide layer_slot_side = SLOT_SIDE_NONE;
+Slot layer_slot;
 static uint16_t layer_x = 4;
 static uint16_t layer_x_end = 116;
-static uint16_t layer_y = 126;
+static uint16_t layer_y = 20;
 static uint8_t label_limit = 28;
 
 typedef enum {
@@ -110,7 +110,7 @@ void clear_last_printed_label() {
 }
 
 void print_layer() {
-    if (layer_slot_side == SLOT_SIDE_NONE) {
+    if (layer_slot.number == SLOT_NUMBER_NONE) {
         return;
     }
     clear_last_printed_label();
@@ -153,11 +153,10 @@ void zmk_widget_layer_init() {
         .label = '\0'
     };
 
-    layer_slot_side = get_slot_to_print(INFO_SLOT_LAYER);
-    if (layer_slot_side == SLOT_SIDE_RIGHT) {
-        layer_x += 120;
-        layer_x_end += 120;
-    }
+    layer_slot = get_slot_by_name(SLOT_NAME_LAYER);
+    layer_x += layer_slot.x;
+    layer_x_end += layer_slot.x;
+    layer_y += layer_slot.y;
 
     widget_layer_status_init();
 }

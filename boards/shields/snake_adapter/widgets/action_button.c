@@ -33,7 +33,6 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "helpers/settings.h"
 #include "theme.h"
 #include "wpm.h"
-//#include "snake_image.h"
 #include "logo.h"
 #include <stdint.h>
 
@@ -75,14 +74,34 @@ void print_container(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint1
 
 void print_frames() {
     uint16_t thickness = 1;
-    // logo frame
-    print_container(buf_frame, 0, 240, 0, 113, thickness);
 
-    // status frames
-    print_container(buf_frame, 0, 120, 112, 161, thickness);
+    SlotMode slot_mode = get_slot_mode();
 
-    // theme frames
-    print_container(buf_frame, 120, 240, 112, 161, thickness);
+    if (slot_mode == SLOT_MODE_2) {
+        print_container(buf_frame, 0, 240, 0, 113, thickness); // snake slot
+        
+        print_container(buf_frame, 0, 120, 112, 161, thickness);   // slot 5
+        print_container(buf_frame, 120, 240, 112, 161, thickness); // slot 6
+    }
+
+    if (slot_mode == SLOT_MODE_4) {
+        print_container(buf_frame, 0, 240, 0, 73, thickness); // snake slot
+
+        print_container(buf_frame, 0, 120, 72, 117, thickness);   // slot 3
+        print_container(buf_frame, 120, 240, 72, 117, thickness); // slot 4
+        
+        print_container(buf_frame, 0, 120, 116, 161, thickness);   // slot 5
+        print_container(buf_frame, 120, 240, 116, 161, thickness); // slot 6
+    }
+
+    if (slot_mode == SLOT_MODE_6) {
+        print_container(buf_frame, 0, 120, 0, 55, thickness);     // slot 1
+        print_container(buf_frame, 120, 240, 0, 55, thickness);   // slot 2
+        print_container(buf_frame, 0, 120, 54, 108, thickness);   // slot 3
+        print_container(buf_frame, 120, 240, 54, 108, thickness); // slot 4
+        print_container(buf_frame, 0, 120, 107, 161, thickness);  // slot 5
+        print_container(buf_frame, 120, 240, 107, 161, thickness);// slot 6
+    }
 
     // battery frames 
     #ifdef CONFIG_SHOW_SINGLE_BATTERY
