@@ -24,7 +24,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "output_status.h"
 #include "helpers/display.h"
 
-SlotSide connectivity_slot_side = SLOT_SIDE_NONE;
+Slot connectivity_slot;
 
 static bool status_widget_initialized = false;
 static struct output_status_state status_state;
@@ -44,13 +44,13 @@ static const uint16_t bt_num_scale = 4;
 static const uint16_t bt_num_width = 5;
 static const uint16_t bt_num_height = 7;
 
-static uint16_t bluetooth_profiles_x = 58;
-static uint16_t bluetooth_profiles_y = 123;
-static uint16_t bluetooth_status_x = 84;
-static uint16_t bluetooth_status_y = 123;
-static uint16_t symbol_usb_x = 12;
-static uint16_t symbol_ble_x = 36;
-static uint16_t symbols_y = 122;
+static uint16_t bluetooth_profiles_x = 57;
+static uint16_t bluetooth_profiles_y = 16;
+static uint16_t bluetooth_status_x = 83;
+static uint16_t bluetooth_status_y = 16;
+static uint16_t symbol_usb_x = 11;
+static uint16_t symbol_ble_x = 35;
+static uint16_t symbols_y = 15;
 
 static const uint16_t usb_ready_bitmap[] = {
     0, 1, 1, 1, 1, 1, 1, 1, 0,
@@ -246,7 +246,7 @@ void print_symbols(uint16_t usb_x, uint16_t ble_x, uint16_t y, struct output_sta
 }
 
 void set_status_symbol() {
-    if (connectivity_slot_side == SLOT_SIDE_NONE) {
+    if (connectivity_slot.number == SLOT_NUMBER_NONE) {
         return;
     }
     print_bluetooth_profiles(bluetooth_profiles_x, bluetooth_profiles_y, status_state);
@@ -281,13 +281,14 @@ void zmk_widget_output_status_init() {
 
     scaled_bitmap_status = k_malloc(bitmap_size_status * 2 * sizeof(uint16_t));
 
-    connectivity_slot_side = get_slot_to_print(INFO_SLOT_CONNECTIVITY);
-    if (connectivity_slot_side == SLOT_SIDE_RIGHT) {
-        bluetooth_profiles_x += 120;
-        bluetooth_status_x += 120;
-        symbol_usb_x += 120;
-        symbol_ble_x += 120;
-    }
+    connectivity_slot = get_slot_by_name(SLOT_NAME_CONNECTIVITY);
+    bluetooth_profiles_x += connectivity_slot.x;
+    bluetooth_status_x += connectivity_slot.x;
+    symbol_usb_x += connectivity_slot.x;
+    symbol_ble_x += connectivity_slot.x;
+    bluetooth_profiles_y += connectivity_slot.y;
+    bluetooth_status_y += connectivity_slot.y;
+    symbols_y += connectivity_slot.y;
 
     widget_output_status_init();
 }

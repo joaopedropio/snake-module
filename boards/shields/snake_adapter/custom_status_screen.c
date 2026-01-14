@@ -78,7 +78,10 @@ lv_obj_t* zmk_display_status_screen() {
     zmk_widget_modifier_init();
 
     lv_timer_create(timer_splash, SPLASH_DURATION, NULL);
-    lv_timer_create(logo_animation_timer, CONFIG_LOGO_WALK_INTERVAL, NULL);
+    SlotMode slot_mode = get_slot_mode();
+    if (slot_mode == SLOT_MODE_2) {
+        lv_timer_create(logo_animation_timer, CONFIG_LOGO_WALK_INTERVAL, NULL);
+    }
 
     return lv_obj_create(NULL);
 }

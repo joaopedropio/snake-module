@@ -28,9 +28,9 @@ static uint16_t modifier_font_width = 11;
 static uint16_t modifier_font_height = 11;
 static uint16_t *scaled_bitmap_modifier_font;
 
-SlotSide modifier_slot_side = SLOT_SIDE_NONE;
+Slot modifier_slot;
 static uint16_t modifier_x = 7;
-static uint16_t modifier_y = 126;
+static uint16_t modifier_y = 20;
 
 struct modifiers_state {    
     uint8_t modifiers;
@@ -95,7 +95,7 @@ static const uint16_t shitf_bitmap[] = {
 };
 
 void print_modifiers() {
-    if (modifier_slot_side == SLOT_SIDE_NONE) {
+    if (modifier_slot.number == SLOT_NUMBER_NONE) {
         return;
     }
 
@@ -147,10 +147,9 @@ void zmk_widget_modifier_init() {
     uint16_t modifier_font_size = (modifier_font_width * modifier_font_scale) * (modifier_font_height * modifier_font_scale);
     scaled_bitmap_modifier_font = k_malloc(modifier_font_size * 2 * sizeof(uint16_t));
 
-    modifier_slot_side = get_slot_to_print(INFO_SLOT_MODIFIERS);
-    if (modifier_slot_side == SLOT_SIDE_RIGHT) {
-        modifier_x += 120;
-    }
+    modifier_slot = get_slot_by_name(SLOT_NAME_MODIFIERS);
+    modifier_x += modifier_slot.x;
+    modifier_y += modifier_slot.y;
 
     widget_modifiers_init();
     modifier_widget_initialized = true;

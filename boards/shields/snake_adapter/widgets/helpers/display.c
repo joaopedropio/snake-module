@@ -72,8 +72,13 @@ static uint16_t wpm_font_bg_color;
 
 static DefaultScreen default_screen = SNAKE_SCREEN;
 
-static InfoSlot left_slot;
-static InfoSlot right_slot;
+static SlotMode slot_mode;
+static Slot slot1;
+static Slot slot2;
+static Slot slot3;
+static Slot slot4;
+static Slot slot5;
+static Slot slot6;
 
 #define COLORS_PER_THEME 6
 
@@ -907,6 +912,55 @@ static const uint16_t num_bitmaps_5x8[10][40] = {
     },
 };
 
+const uint16_t none_letter_4x5[] = {
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+    0, 0, 0, 0,
+};
+
+const uint16_t e_letter_4x5[] = {
+    1, 1, 1, 1,
+    1, 0, 0, 0,
+    1, 1, 1, 0,
+    1, 0, 0, 0,
+    1, 1, 1, 1,
+};
+
+const uint16_t k_letter_4x5[] = {
+    1, 0, 0, 1,
+    1, 0, 1, 0,
+    1, 1, 0, 0,
+    1, 0, 1, 0,
+    1, 0, 0, 1,
+};
+
+const uint16_t a_letter_4x5[] = {
+    0, 1, 1, 0,
+    1, 0, 0, 1,
+    1, 1, 1, 1,
+    1, 0, 0, 1,
+    1, 0, 0, 1,
+};
+
+const uint16_t n_letter_4x5[] = {
+    1, 0, 0, 1,
+    1, 1, 0, 1,
+    1, 0, 1, 1,
+    1, 0, 0, 1,
+    1, 0, 0, 1,
+};
+
+const uint16_t s_letter_4x5[] = {
+    0, 1, 1, 1,
+    1, 0, 0, 0,
+    0, 1, 1, 0,
+    0, 0, 0, 1,
+    1, 1, 1, 0,
+};
+
+
 const uint16_t none_letter_3x5[] = {
     0, 0, 0,
     0, 0, 0,
@@ -1251,22 +1305,6 @@ uint16_t rgb888_to_rgb565(uint32_t color) {
 
     // Combine the red, green, and blue values.
     return red_shifted | green_shifted | blue;
-}
-
-void set_left_slot(InfoSlot slot) {
-    left_slot = slot;
-}
-
-InfoSlot get_left_slot() {
-    return left_slot;
-}
-
-void set_right_slot(InfoSlot slot) {
-    right_slot = slot;
-}
-
-InfoSlot get_right_slot() {
-    return right_slot;
 }
 
 void set_default_screen(DefaultScreen screen) {
@@ -1846,6 +1884,21 @@ void print_bitmap_5x7(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t
     }
 }
 
+
+void print_bitmap_4x5(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color) {
+    uint8_t font_width = 4;
+    uint8_t font_height = 5;
+
+    switch (c) {
+    case CHAR_A: render_bitmap(scaled_bitmap, a_letter_4x5, x, y, font_width, font_height, scale, color, bg_color); break;
+    case CHAR_E: render_bitmap(scaled_bitmap, e_letter_4x5, x, y, font_width, font_height, scale, color, bg_color); break;
+    case CHAR_K: render_bitmap(scaled_bitmap, k_letter_4x5, x, y, font_width, font_height, scale, color, bg_color); break;
+    case CHAR_N: render_bitmap(scaled_bitmap, n_letter_4x5, x, y, font_width, font_height, scale, color, bg_color); break;
+    case CHAR_S: render_bitmap(scaled_bitmap, s_letter_4x5, x, y, font_width, font_height, scale, color, bg_color); break;
+    default: render_bitmap(scaled_bitmap, none_letter_4x5, x, y, font_width, font_height, scale, color, bg_color);
+    }
+}
+
 void print_bitmap_3x5(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color) {
     if (c >= 0 && c < 10) {
         render_bitmap(scaled_bitmap, num_bitmaps_3x5[c], x, y, 3, 5, scale, color, bg_color);
@@ -1907,6 +1960,7 @@ void print_bitmap_3x6(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t
 void print_bitmap(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size) {
     switch (font_size) {
         case FONT_SIZE_3x6: print_bitmap_3x6(scaled_bitmap, c, x, y, scale, color, bg_color); break;
+        case FONT_SIZE_4x5: print_bitmap_4x5(scaled_bitmap, c, x, y, scale, color, bg_color); break;
         case FONT_SIZE_3x5: print_bitmap_3x5(scaled_bitmap, c, x, y, scale, color, bg_color); break;
         case FONT_SIZE_5x8: print_bitmap_5x8(scaled_bitmap, c, x, y, scale, color, bg_color); break;
         case FONT_SIZE_5x7: print_bitmap_5x7(scaled_bitmap, c, x, y, scale, color, bg_color); break;
@@ -2140,6 +2194,9 @@ void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t
     if (font_size == FONT_SIZE_5x7 || font_size == FONT_SIZE_5x8) {
         string_font_width_scaled = 5 * scale;
     }
+    if (font_size == FONT_SIZE_4x5) {
+        string_font_width_scaled = 4 * scale;
+    }
     if (string_font_width_scaled == 0) {
         return ;
     }
@@ -2206,12 +2263,105 @@ void print_repeat_char(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_
     }
 }
 
-SlotSide get_slot_to_print(InfoSlot slot) {
-    if (slot == left_slot) {
-        return SLOT_SIDE_LEFT;
+void set_slot_mode(SlotMode mode) {
+    slot_mode = mode;
+}
+
+SlotMode get_slot_mode() {
+    return slot_mode;
+}
+
+void set_slot_1(SlotName name) {
+    slot1.name = name;
+    slot1.number = SLOT_NUMBER_1;
+    slot1.x = 0;
+    slot2.y = 0;
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
+        slot1.number = SLOT_NUMBER_NONE;
     }
-    if (slot == right_slot) {
-        return SLOT_SIDE_RIGHT;
+}
+void set_slot_2(SlotName name) {
+    slot2.name = name;
+    slot2.number = SLOT_NUMBER_2;
+    slot2.x = 120;
+    slot2.y = 0;
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
+        slot2.number = SLOT_NUMBER_NONE;
     }
-    return SLOT_SIDE_NONE;
+}
+void set_slot_3(SlotName name) {
+    slot3.name = name;
+    slot3.number = SLOT_NUMBER_3;
+    slot3.x = 0;
+    slot3.y = 50;
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_2) {
+        slot3.number = SLOT_NUMBER_NONE;
+    }
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
+        slot3.y = 64;
+    }
+}
+void set_slot_4(SlotName name) {
+    slot4.name = name;
+    slot4.number = SLOT_NUMBER_4;
+    slot4.x = 120;
+    slot4.y = 50;
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_2) {
+        slot4.number = SLOT_NUMBER_NONE;
+    }
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
+        slot4.y = 64;
+    }
+}
+
+void set_slot_5(SlotName name) {
+    slot5.name = name;
+    slot5.number = SLOT_NUMBER_5;
+    slot5.x = 0;
+    slot5.y = 106;
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
+        slot5.y = 108;
+    }
+}
+void set_slot_6(SlotName name) {
+    slot6.name = name;
+    slot6.number = SLOT_NUMBER_6;
+    slot6.x = 120;
+    slot6.y = 106;
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
+        slot6.y = 108;
+    }
+}
+
+Slot get_slot_by_name(SlotName name) {
+    if (slot1.name == name) {
+        return slot1;
+    }
+    if (slot2.name == name) {
+        return slot2;
+    }
+    if (slot3.name == name) {
+        return slot3;
+    }
+    if (slot4.name == name) {
+        return slot4;
+    }
+    if (slot5.name == name) {
+        return slot5;
+    }
+    if (slot6.name == name) {
+        return slot6;
+    }
+
+    Slot slot_none;
+    slot_none.name = SLOT_NAME_NONE;
+    slot_none.number = SLOT_NUMBER_NONE;
+
+    return slot_none;
 }
