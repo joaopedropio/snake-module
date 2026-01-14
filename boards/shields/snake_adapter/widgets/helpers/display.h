@@ -3,18 +3,36 @@
 #define HEX_PARSE_ERROR ((uint32_t)-1)
 
 typedef enum {
-    SLOT_SIDE_LEFT,
-    SLOT_SIDE_RIGHT,
-    SLOT_SIDE_NONE,
-} SlotSide;
+    SLOT_MODE_2,
+    SLOT_MODE_4,
+    SLOT_MODE_6,
+} SlotMode;
 
 typedef enum {
-    INFO_SLOT_CONNECTIVITY,
-    INFO_SLOT_LAYER,
-    INFO_SLOT_THEME,
-    INFO_SLOT_WPM,
-    INFO_SLOT_MODIFIERS,
-} InfoSlot;
+    SLOT_NUMBER_1,
+    SLOT_NUMBER_2,
+    SLOT_NUMBER_3,
+    SLOT_NUMBER_4,
+    SLOT_NUMBER_5,
+    SLOT_NUMBER_6,
+    SLOT_NUMBER_NONE,
+} SlotNumber;
+
+typedef enum {
+    SLOT_NAME_CONNECTIVITY,
+    SLOT_NAME_LAYER,
+    SLOT_NAME_THEME,
+    SLOT_NAME_WPM,
+    SLOT_NAME_MODIFIERS,
+    SLOT_NAME_NONE,
+} SlotName;
+
+typedef struct Slot {
+    SlotName name;
+    SlotNumber number;
+    uint16_t x;
+    uint16_t y;
+} Slot;
 
 typedef enum {
     CHAR_0,
@@ -76,6 +94,7 @@ typedef enum {
 
 typedef enum {
     FONT_SIZE_3x5,
+    FONT_SIZE_4x5,
     FONT_SIZE_5x7,
     FONT_SIZE_5x8,
     FONT_SIZE_3x6,
@@ -211,8 +230,12 @@ uint32_t darken_color(uint32_t rgb, float percentage);
 void set_complete_colors_theme();
 uint32_t hex_string_to_uint(const char *hex_str);
 
-void set_left_slot(InfoSlot slot);
-InfoSlot get_left_slot();
-void set_right_slot(InfoSlot slot);
-InfoSlot get_right_slot();
-SlotSide get_slot_to_print(InfoSlot slot);
+Slot get_slot_by_name(SlotName name);
+void set_slot_mode(SlotMode mode);
+SlotMode get_slot_mode();
+void set_slot_1(SlotName slot_name);
+void set_slot_2(SlotName slot_name);
+void set_slot_3(SlotName slot_name);
+void set_slot_4(SlotName slot_name);
+void set_slot_5(SlotName slot_name);
+void set_slot_6(SlotName slot_name);

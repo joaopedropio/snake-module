@@ -74,12 +74,32 @@ config USE_BUZZER
     bool "Use buzzer"
     default n
 
-config INFO_LEFT_SLOT
-    string "Info left slot"
+config INFO_SLOT_MODE
+    string "Info slot mode"
+    default "2-slot"
+
+config INFO_SLOT_1
+    string "Info slot 1"
+    default "modifiers"
+
+config INFO_SLOT_2
+    string "Info slot 2"
+    default "theme"
+
+config INFO_SLOT_3
+    string "Info slot 3"
+    default "wpm"
+
+config INFO_SLOT_4
+    string "Info slot 4"
+    default "empty"
+
+config INFO_SLOT_5
+    string "Info slot 5"
     default "connectivity"
 
-config INFO_RIGHT_SLOT
-    string "Info right slot"
+config INFO_SLOT_6
+    string "Info slot 6"
     default "layer"
 
 config SNAKE_BOARD_SIZE

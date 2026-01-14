@@ -1,30 +1,32 @@
 #include <zephyr/logging/log.h>
 #include <lvgl.h>
 #include "helpers/display.h"
+#include "snake_logo_text.h"
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 static bool second_cycle = false;
 static bool animation_running = false;
 static bool animation_initialized = false;
 
-static uint8_t logo_animation_width = 15;
+static uint8_t logo_animation_width = 17;
 static uint8_t logo_animation_height = 6;
 static uint8_t logo_animation_scale = 2;
 
-static uint16_t logo_animation_x = 24;
-static uint16_t logo_animation_y = 15;
+static uint16_t logo_animation_x = 12;
+static uint16_t logo_animation_y = 14;
 
 static uint16_t animation_sections_total;
 static uint16_t animation_cycle_count = 0;
 
-static uint16_t snake_logo_x = 44;
-static uint16_t snake_logo_y = 38;
-static uint16_t snake_logo_font_width = 3;
+static uint16_t snake_logo_x = 32;
+static uint16_t snake_logo_y = 36;
+static uint16_t snake_logo_font_width = 4;
 static uint16_t snake_logo_font_height = 5;
 static uint16_t snake_logo_font_scale = 8;
 
 static uint16_t *snake_animation_buf;
 static uint16_t *snake_logo_buf;
+static uint16_t *snake_logo_text_buf;
 
 typedef struct section {
     uint16_t x;
@@ -244,10 +246,11 @@ void print_initial_animation() {
         CHAR_K,
         CHAR_E,
     };
-    uint16_t char_gap_pixels = snake_logo_font_scale;
+    uint16_t char_gap_pixels = 4;
     uint8_t logo_chars_len = 5;
-    print_string(snake_logo_buf, logo_chars, snake_logo_x, snake_logo_y, snake_logo_font_scale, get_logo_font_color(), get_logo_bg_color(), FONT_SIZE_3x5, char_gap_pixels, logo_chars_len);
-    
+
+    print_string(snake_logo_buf, logo_chars, snake_logo_x, snake_logo_y, snake_logo_font_scale, get_logo_font_color(), get_logo_bg_color(), FONT_SIZE_4x5, char_gap_pixels, logo_chars_len);
+
     for (uint16_t i; i < animation_sections_total; i++) {
         Section s = get_section(i);
         if (i == 5 || i == 6 || i == 7) {
@@ -282,6 +285,7 @@ void logo_animation_timer(lv_timer_t * timer) {
 
     if (!animation_initialized) {
         print_initial_animation();
+        reset_animation_count();
         animation_initialized = true;
     }
 
@@ -324,16 +328,29 @@ void stop_animation() {
 }
 
 void start_animation() {
-    print_initial_animation();
-    reset_animation_count();
+    SlotMode slot_mode = get_slot_mode();
+    if (slot_mode == SLOT_MODE_4) {
+        for (uint16_t i = 0; i < snake_logo_text_height; i++) {
+            render_bitmap(snake_logo_text_buf, snake_logo_text[i], 45, 8 + i, snake_logo_text_width, 1, 1, get_logo_font_color(), get_logo_bg_color());
+        }
+    }
     animation_initialized = false;
     animation_running = true;
 }
 
 void logo_animation_init() {
+    SlotMode slot_mode = get_slot_mode();
+    if (slot_mode == SLOT_MODE_4) {
+        logo_animation_height = 3;
+        logo_animation_scale = 1;
+        logo_animation_x = 12;
+        logo_animation_y = 14;
+    }
     animation_sections_total = (logo_animation_width * 2) + (logo_animation_height * 2);
 
     snake_animation_buf = k_malloc(36 * 2 * sizeof(uint16_t));
 
-    snake_logo_buf = k_malloc((snake_logo_font_width * snake_logo_font_scale) * (snake_logo_font_height * snake_logo_font_scale) * 2u);
+    snake_logo_text_buf = k_malloc(snake_logo_text_width * 2 * sizeof(uint16_t));
+
+    snake_logo_buf = k_malloc((snake_logo_font_width * snake_logo_font_scale) * (snake_logo_font_height * snake_logo_font_scale) * 2 * sizeof(uint16_t));
 }
