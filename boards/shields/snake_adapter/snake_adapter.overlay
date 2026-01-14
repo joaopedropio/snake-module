@@ -5,12 +5,27 @@
     chosen {
         zephyr,display = &st7789v;
 		zephyr,buzzer = &buzzer;
-		zephyr,backlight = &backlight;
     };
 
     behaviors {
         dongle_action_behavior: dongle_action_behavior {
             compatible = "zmk,behavior-dongle-action";
+            #binding-cells = <0>;
+        };
+        dongle_up_behavior: dongle_up_behavior {
+            compatible = "zmk,behavior-dongle-up";
+            #binding-cells = <0>;
+        };
+        dongle_right_behavior: dongle_right_behavior {
+            compatible = "zmk,behavior-dongle-right";
+            #binding-cells = <0>;
+        };
+        dongle_down_behavior: dongle_down_behavior {
+            compatible = "zmk,behavior-dongle-down";
+            #binding-cells = <0>;
+        };
+        dongle_left_behavior: dongle_left_behavior {
+            compatible = "zmk,behavior-dongle-left";
             #binding-cells = <0>;
         };
     };
@@ -20,9 +35,6 @@
         buzzer: buzzer_pwm {
             pwms = <&pwm0 0 PWM_MSEC(10) PWM_POLARITY_NORMAL>;
         };
-		backlight: backlight {
-			pwms = <&pwm0 1 PWM_MSEC(1) PWM_POLARITY_NORMAL>; // Use PWM channel 1
-		};
     };
 
     dongle_action_direct_kscan: dongle_action_direct_kscan {
@@ -40,6 +52,78 @@
             row = <0>;
             column = <0>;
             bindings = <&dongle_action_behavior>;
+        };
+    };
+
+    dongle_up_direct_kscan: dongle_up_direct_kscan {
+        compatible = "zmk,kscan-gpio-direct";
+	    input-gpios
+	        = <&gpio0 2 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
+	        ;
+    };
+
+    dongle_up_sideband_behaviors {
+        compatible = "zmk,kscan-sideband-behaviors";
+        kscan = <&dongle_up_direct_kscan>;
+		auto-enable;
+        dongle_up_sideband: dongle_up_sideband {
+            row = <0>;
+            column = <0>;
+            bindings = <&dongle_up_behavior>;
+        };
+    };
+
+    dongle_right_direct_kscan: dongle_right_direct_kscan {
+        compatible = "zmk,kscan-gpio-direct";
+	    input-gpios
+	        = <&gpio1 15 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
+	        ;
+    };
+
+    dongle_right_sideband_behaviors {
+        compatible = "zmk,kscan-sideband-behaviors";
+        kscan = <&dongle_right_direct_kscan>;
+		auto-enable;
+        dongle_right_sideband: dongle_right_sideband {
+            row = <0>;
+            column = <0>;
+            bindings = <&dongle_right_behavior>;
+        };
+    };
+
+    dongle_down_direct_kscan: dongle_down_direct_kscan {
+        compatible = "zmk,kscan-gpio-direct";
+	    input-gpios
+	        = <&gpio1 13 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
+	        ;
+    };
+
+    dongle_down_sideband_behaviors {
+        compatible = "zmk,kscan-sideband-behaviors";
+        kscan = <&dongle_down_direct_kscan>;
+		auto-enable;
+        dongle_down_sideband: dongle_down_sideband {
+            row = <0>;
+            column = <0>;
+            bindings = <&dongle_down_behavior>;
+        };
+    };
+
+    dongle_left_direct_kscan: dongle_left_direct_kscan {
+        compatible = "zmk,kscan-gpio-direct";
+	    input-gpios
+	        = <&gpio1 11 (GPIO_ACTIVE_LOW | GPIO_PULL_UP)>
+	        ;
+    };
+
+    dongle_left_sideband_behaviors {
+        compatible = "zmk,kscan-sideband-behaviors";
+        kscan = <&dongle_left_direct_kscan>;
+		auto-enable;
+        dongle_left_sideband: dongle_left_sideband {
+            row = <0>;
+            column = <0>;
+            bindings = <&dongle_left_behavior>;
         };
     };
 };
@@ -60,14 +144,12 @@
 
     pwm0_default: pwm0_default {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 29)>, /* buzzer */
-					<NRF_PSEL(PWM_OUT1, 1, 15)>; /* backlight */
+            psels = <NRF_PSEL(PWM_OUT0, 0, 29)>; /* buzzer */
         };
     };
     pwm0_sleep: pwm0_sleep {
         group1 {
-            psels = <NRF_PSEL(PWM_OUT0, 0, 29)>, /* buzzer */
-					<NRF_PSEL(PWM_OUT1, 1, 15)>;	/* backlight */
+            psels = <NRF_PSEL(PWM_OUT0, 0, 29)>; /* buzzer */
             low-power-enable;
         };
     };
