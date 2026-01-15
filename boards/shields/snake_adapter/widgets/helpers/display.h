@@ -24,6 +24,7 @@ typedef enum {
     SLOT_NAME_THEME,
     SLOT_NAME_WPM,
     SLOT_NAME_MODIFIERS,
+    SLOT_NAME_CAPS_WORD,
     SLOT_NAME_NONE,
 } SlotName;
 
@@ -157,6 +158,9 @@ void set_wpm_font_color(uint32_t color);
 void set_wpm_font_1_color(uint32_t color);
 void set_wpm_font_bg_color(uint32_t color);
 void set_menu_bg_color(uint32_t color);
+void set_caps_word_selected_color(uint32_t color);
+void set_caps_word_unselected_color(uint32_t color);
+void set_caps_word_bg_color(uint32_t color);
 void set_modifier_selected_color(uint32_t color);
 void set_modifier_unselected_color(uint32_t color);
 void set_modifier_bg_color(uint32_t color);
@@ -208,6 +212,9 @@ uint16_t get_battery_num_color_1(void);
 uint16_t get_battery_bg_color_1(void);
 uint16_t get_battery_percentage_color_1(void);
 
+uint16_t get_caps_word_selected_color(void);
+uint16_t get_caps_word_unselected_color(void);
+uint16_t get_caps_word_bg_color(void);
 uint16_t get_modifier_selected_color(void);
 uint16_t get_modifier_unselected_color(void);
 uint16_t get_modifier_bg_color(void);

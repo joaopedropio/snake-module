@@ -17,7 +17,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zephyr/drivers/display.h>
 #include <zmk/display.h>
 #include <zmk/display/widgets/layer_status.h>
-#include <zmk_dongle_events/dongle_action_event.h>
+#include <zmk/events/dongle_action_event.h>
 #include <zmk/event_manager.h>
 #include <zmk/endpoints.h>
 #include <zmk/keymap.h>
@@ -34,6 +34,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "theme.h"
 #include "wpm.h"
 #include "logo.h"
+#include "caps_word.h"
 #include <stdint.h>
 
 static uint8_t *buf_frame;
@@ -122,6 +123,7 @@ void print_menu() {
     print_themes();
     print_wpm();
     print_modifiers();
+    print_caps_word();
 }
 
 void toggle_menu() {

@@ -80,7 +80,7 @@ static const uint16_t ctrl_bitmap[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-static const uint16_t shitf_bitmap[] = {
+static const uint16_t shift_bitmap[] = {
     0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
     0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0,
     0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0,
@@ -118,9 +118,9 @@ void print_modifiers() {
     }
 
     if ((modifier_state.modifiers & (MOD_LSFT | MOD_RSFT)) > 0) {
-        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + 84, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, shift_bitmap, modifier_x + 84, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
     } else {
-        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + 84, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, shift_bitmap, modifier_x + 84, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
     }
 }
 

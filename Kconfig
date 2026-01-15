@@ -238,6 +238,18 @@ config BATTERY_BG_COLOR_1
     string ""
     default "000000"
 
+config CAPS_WORD_SELECTED_COLOR
+    string ""
+    default "000000"
+
+config CAPS_WORD_UNSELECTED_COLOR
+    string ""
+    default "000000"
+
+config CAPS_WORD_BG_COLOR
+    string ""
+    default "000000"
+
 config MODIFIER_SELECTED_COLOR
     string ""
     default "000000"

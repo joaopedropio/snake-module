@@ -48,6 +48,9 @@ static uint16_t battery_bg_color;
 static uint16_t symbol_selected_color;
 static uint16_t symbol_unselected_color;
 static uint16_t symbol_bg_color;
+static uint16_t caps_word_selected_color;
+static uint16_t caps_word_unselected_color;
+static uint16_t caps_word_bg_color;
 static uint16_t modifier_selected_color;
 static uint16_t modifier_unselected_color;
 static uint16_t modifier_bg_color;
@@ -135,6 +138,9 @@ void set_complete_colors_theme() {
     uint32_t modifier_selected_color = hex_string_to_uint(CONFIG_MODIFIER_SELECTED_COLOR);
     uint32_t modifier_unselected_color = hex_string_to_uint(CONFIG_MODIFIER_UNSELECTED_COLOR);
     uint32_t modifier_bg_color = hex_string_to_uint(CONFIG_MODIFIER_BG_COLOR);
+    uint32_t caps_word_selected_color = hex_string_to_uint(CONFIG_CAPS_WORD_SELECTED_COLOR);
+    uint32_t caps_word_unselected_color = hex_string_to_uint(CONFIG_CAPS_WORD_UNSELECTED_COLOR);
+    uint32_t caps_word_bg_color = hex_string_to_uint(CONFIG_CAPS_WORD_BG_COLOR);
     uint32_t bt_num_color = hex_string_to_uint(CONFIG_BT_NUM_COLOR);
     uint32_t bt_bg_color = hex_string_to_uint(CONFIG_BT_BG_COLOR);
     uint32_t bt_status_ok_color = hex_string_to_uint(CONFIG_BT_STATUS_OK_COLOR);
@@ -247,6 +253,18 @@ void set_complete_colors_theme() {
 
     if (battery_bg_color_1 == HEX_PARSE_ERROR) {
         battery_bg_color_1 = 0xFFFFFF;
+    }
+
+    if (caps_word_selected_color == HEX_PARSE_ERROR) {
+        caps_word_selected_color = 0xFFFFFF;
+    }
+
+    if (caps_word_unselected_color == HEX_PARSE_ERROR) {
+        caps_word_unselected_color = 0xFFFFFF;
+    }
+
+    if (caps_word_bg_color == HEX_PARSE_ERROR) {
+        caps_word_bg_color = 0xFFFFFF;
     }
 
     if (modifier_selected_color == HEX_PARSE_ERROR) {
@@ -380,6 +398,9 @@ void set_complete_colors_theme() {
         battery_num_color_1,
         battery_percentage_color_1,
         battery_bg_color_1,
+        caps_word_selected_color,
+        caps_word_unselected_color,
+        caps_word_bg_color,
         modifier_selected_color,
         modifier_unselected_color,
         modifier_bg_color,
@@ -1563,6 +1584,18 @@ void set_menu_bg_color(uint32_t color) {
     menu_bg_color = rgb888_to_rgb565(color);
 }
 
+void set_caps_word_selected_color(uint32_t color) {
+    caps_word_selected_color = rgb888_to_rgb565(color);
+}
+
+void set_caps_word_unselected_color(uint32_t color) {
+    caps_word_unselected_color = rgb888_to_rgb565(color);
+}
+
+void set_caps_word_bg_color(uint32_t color) {
+    caps_word_bg_color = rgb888_to_rgb565(color);
+}
+
 void set_modifier_selected_color(uint32_t color) {
     modifier_selected_color = rgb888_to_rgb565(color);
 }
@@ -1769,6 +1802,18 @@ uint16_t get_symbol_unselected_color() {
 
 uint16_t get_symbol_bg_color() {
     return symbol_bg_color;
+}
+
+uint16_t get_caps_word_selected_color() {
+    return caps_word_selected_color;
+}
+
+uint16_t get_caps_word_unselected_color() {
+    return caps_word_unselected_color;
+}
+
+uint16_t get_caps_word_bg_color() {
+    return caps_word_bg_color;
 }
 
 uint16_t get_modifier_selected_color() {
@@ -2770,6 +2815,9 @@ void set_all_colors(
     uint32_t battery_num_color_1,
     uint32_t battery_percentage_color_1,
     uint32_t battery_bg_color_1,
+    uint32_t caps_word_selected_color,
+    uint32_t caps_word_unselected_color,
+    uint32_t caps_word_bg_color,
     uint32_t modifier_selected_color,
     uint32_t modifier_unselected_color,
     uint32_t modifier_bg_color,
@@ -2822,6 +2870,9 @@ void set_all_colors(
     set_battery_percentage_color_1(battery_percentage_color_1);
     set_battery_bg_color_1(battery_bg_color_1);
 
+    set_caps_word_selected_color(caps_word_selected_color);
+    set_caps_word_unselected_color(caps_word_unselected_color);
+    set_caps_word_bg_color(caps_word_bg_color);
     set_modifier_selected_color(modifier_selected_color);
     set_modifier_unselected_color(modifier_unselected_color);
     set_modifier_bg_color(modifier_bg_color);
@@ -2885,6 +2936,9 @@ void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1,
     set_battery_percentage_color_1(background1);
     set_battery_bg_color_1(background2);
 
+    set_caps_word_selected_color(primary);
+    set_caps_word_unselected_color(background1);
+    set_caps_word_bg_color(background2);
     set_modifier_selected_color(primary);
     set_modifier_unselected_color(background1);
     set_modifier_bg_color(background2);

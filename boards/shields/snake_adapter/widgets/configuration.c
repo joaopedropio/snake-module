@@ -12,6 +12,9 @@ LOG_MODULE_REGISTER(app_configuration, LOG_LEVEL_DBG);
 static const struct pwm_dt_spec pwm_backlight = PWM_DT_SPEC_GET(DT_CHOSEN(zephyr_backlight));
 
 SlotName get_slot_name_from_var(char *slot_name) {
+    if (strcmp(slot_name, "caps_word") == 0) {
+        return SLOT_NAME_CAPS_WORD;
+    }
     if (strcmp(slot_name, "modifiers") == 0) {
         return SLOT_NAME_MODIFIERS;
     }

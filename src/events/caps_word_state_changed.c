@@ -5,6 +5,6 @@
  */
 
 #include <zephyr/kernel.h>
-#include <zmk/events/dongle_action_event.h>
+#include <zmk/events/caps_word_state_changed.h>
 
-ZMK_EVENT_IMPL(zmk_dongle_actioned);
+ZMK_EVENT_IMPL(zmk_caps_word_state_changed);

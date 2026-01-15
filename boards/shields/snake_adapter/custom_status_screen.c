@@ -76,6 +76,7 @@ lv_obj_t* zmk_display_status_screen() {
     zmk_widget_action_button_init();
     zmk_widget_wpm_init();
     zmk_widget_modifier_init();
+    zmk_widget_caps_word_init();
 
     lv_timer_create(timer_splash, SPLASH_DURATION, NULL);
     SlotMode slot_mode = get_slot_mode();

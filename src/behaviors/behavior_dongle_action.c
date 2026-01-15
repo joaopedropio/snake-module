@@ -4,7 +4,7 @@
 #include <zephyr/device.h>
 #include <drivers/behavior.h>
 #include <zephyr/logging/log.h>
-#include <zmk_dongle_events/dongle_action_event.h>
+#include <zmk/events/dongle_action_event.h>
 
 #include <zmk/behavior.h>
 
