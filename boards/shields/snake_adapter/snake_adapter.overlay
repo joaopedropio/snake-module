@@ -85,7 +85,6 @@
 	status = "okay";
 	pinctrl-0 = <&spi0_default>;
 	pinctrl-1 = <&spi0_sleep>;
-	cs-gpios = <&gpio0 11 GPIO_ACTIVE_LOW>;
 	pinctrl-names = "default", "sleep";
 	
 	st7789v: st7789v@0 {
