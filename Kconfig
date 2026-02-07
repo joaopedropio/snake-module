@@ -1,6 +1,6 @@
-config ROTATE_DISPLAY_180
-    bool "Rotate the display 180 degrees"
-    default n
+config ROTATE_DISPLAY
+    int "Rotate the display"
+    default 0
 
 config DEFAULT_SCREEN
     string "Default screen"

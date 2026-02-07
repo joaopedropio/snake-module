@@ -431,13 +431,13 @@ static void snake_render_pixel(uint8_t x, uint8_t y, bool on) {
     uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
     uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
 	if (on) {
-		display_write_wrapper(initial_x, initial_y, &buf_white_desc, buf_white);
+		display_write_wrapper_snake(initial_x, initial_y, &buf_white_desc, buf_white);
 	} else {
         // death count is here to change board color sometimes and avoid burning led
         if (((x + y + death_count) % 2) == 0) {
-		    display_write_wrapper(initial_x, initial_y, &buf_desc, buf);
+		    display_write_wrapper_snake(initial_x, initial_y, &buf_desc, buf);
         } else {
-		    display_write_wrapper(initial_x, initial_y, &buf_board_1_desc, buf_board_1);
+		    display_write_wrapper_snake(initial_x, initial_y, &buf_board_1_desc, buf_board_1);
         }
 	}
 }
@@ -445,7 +445,7 @@ static void snake_render_pixel(uint8_t x, uint8_t y, bool on) {
 static void snake_render_pixel_current_color(uint8_t x, uint8_t y) {
     uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
     uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
-	display_write_wrapper(initial_x, initial_y, &buf_color_desc, get_current_color());
+	display_write_wrapper_snake(initial_x, initial_y, &buf_color_desc, get_current_color());
 }
 
 static void draw_food(void) {
@@ -453,7 +453,7 @@ static void draw_food(void) {
     uint16_t y = head_coordinate.y;
     uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
     uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
-    display_write_wrapper(initial_x, initial_y, &buf_color_desc, buf_food_color);
+    display_write_wrapper_snake(initial_x, initial_y, &buf_color_desc, buf_food_color);
     //snake_render_pixel_current_color(head_coordinate.x, head_coordinate.y);
 }
 
