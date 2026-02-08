@@ -153,16 +153,16 @@ void action_button() {
 }
 
 void rotate_display() {
-    if (CONFIG_ROTATE_DISPLAY == 270) {
-        set_display_orientation(DISPLAY_ORIENTATION_270);
+    if (CONFIG_ROTATE_DISPLAY == 90) {
+        set_display_orientation(DISPLAY_ORIENTATION_90);
         return;
     }
     if (CONFIG_ROTATE_DISPLAY == 180) {
         set_display_orientation(DISPLAY_ORIENTATION_180);
         return;
     }
-    if (CONFIG_ROTATE_DISPLAY == 90) {
-        set_display_orientation(DISPLAY_ORIENTATION_90);
+    if (CONFIG_ROTATE_DISPLAY == 270) {
+        set_display_orientation(DISPLAY_ORIENTATION_270);
         return;
     }
     set_display_orientation(DISPLAY_ORIENTATION_0);
