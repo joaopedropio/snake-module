@@ -67,11 +67,6 @@ void set_mute_threshold(uint16_t term_ms) {
     mute_threshold = term_ms;
 }
 
-void print_container(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t scale) {
-    print_rectangle(buf_frame, start_x, end_x - scale, start_y, end_y - scale, get_frame_color(), scale);
-    print_rectangle(buf_frame, start_x + scale, end_x - (scale * 2), start_y + scale, end_y - (scale * 2), get_frame_color_1(), scale);
-}
-
 void print_frames() {
     uint16_t thickness = 1;
 

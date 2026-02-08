@@ -152,7 +152,24 @@ void action_button() {
     set_mute_threshold(CONFIG_MUTE_THRESHOLD);
 }
 
+void rotate_display() {
+    if (CONFIG_ROTATE_DISPLAY == 270) {
+        set_display_orientation(DISPLAY_ORIENTATION_270);
+        return;
+    }
+    if (CONFIG_ROTATE_DISPLAY == 180) {
+        set_display_orientation(DISPLAY_ORIENTATION_180);
+        return;
+    }
+    if (CONFIG_ROTATE_DISPLAY == 90) {
+        set_display_orientation(DISPLAY_ORIENTATION_90);
+        return;
+    }
+    set_display_orientation(DISPLAY_ORIENTATION_0);
+}
+
 void configure(void) {
+    rotate_display();
     info_slots();
     set_display_brightness();
     custom_theme();

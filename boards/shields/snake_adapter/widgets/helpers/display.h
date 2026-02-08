@@ -105,8 +105,17 @@ typedef enum {
     STATUS_SCREEN,
 } DefaultScreen;
 
+typedef enum {
+    DISPLAY_ORIENTATION_0,
+    DISPLAY_ORIENTATION_90,
+    DISPLAY_ORIENTATION_180,
+    DISPLAY_ORIENTATION_270,
+} DisplayOrientation;
+
+void print_container(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t scale);
 void fill_buffer_color(uint8_t *buf, size_t buf_size, uint32_t color);
 void init_display(void);
+void display_write_wrapper_snake(uint16_t x, uint16_t y, struct display_buffer_descriptor *buf_desc, uint8_t *buf);
 void display_write_wrapper(uint16_t x, uint16_t y, struct display_buffer_descriptor *buf_desc, uint8_t *buf);
 void print_bitmap(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size);
 void print_bitmap_status(uint16_t *scaled_bitmap, Status s, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color);
@@ -115,6 +124,7 @@ void print_rectangle(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint1
 void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
 void set_default_screen(DefaultScreen screen);
+void set_display_orientation(DisplayOrientation orientation);
 void set_splash_logo_color(uint32_t color);
 void set_splash_created_by_color(uint32_t color);
 void set_splash_bg_color(uint32_t color);
@@ -166,6 +176,7 @@ void set_bt_status_open_color(uint32_t color);
 void set_bt_status_bg_color(uint32_t color);
 
 DefaultScreen get_default_screen();
+DisplayOrientation get_display_orientation();
 uint16_t get_splash_logo_color(void);
 uint16_t get_splash_created_by_color(void);
 uint16_t get_splash_bg_color(void);
