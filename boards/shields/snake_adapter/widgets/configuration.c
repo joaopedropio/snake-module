@@ -153,7 +153,8 @@ void action_button() {
 }
 
 void rotate_display() {
-    if (CONFIG_ROTATE_DISPLAY == 270) {
+    if (CONFIG_ROTATE_DISPLAY == 90) {
+        /* Clockwise 90°: use the 270° coordinate transform (CW rotation) */
         set_display_orientation(DISPLAY_ORIENTATION_270);
         return;
     }
@@ -161,7 +162,8 @@ void rotate_display() {
         set_display_orientation(DISPLAY_ORIENTATION_180);
         return;
     }
-    if (CONFIG_ROTATE_DISPLAY == 90) {
+    if (CONFIG_ROTATE_DISPLAY == 270) {
+        /* Counter-clockwise 90°: use the 90° coordinate transform (CCW rotation) */
         set_display_orientation(DISPLAY_ORIENTATION_90);
         return;
     }
