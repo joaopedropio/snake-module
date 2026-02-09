@@ -189,7 +189,7 @@ void set_battery_symbol() {
     } else if (get_battery_slots() == 3) {
         print_percentage(battery_state_0.level, start_x_peripheral_1, start_y, scale, get_battery_num_color(), get_battery_bg_color(), get_battery_percentage_color());
         print_percentage(battery_state_1.level, start_x_peripheral_2, start_y, scale, get_battery_num_color_1(), get_battery_bg_color_1(), get_battery_percentage_color_1());
-        print_percentage(battery_state_1.level, start_x_peripheral_3, start_y, scale, get_battery_num_color_2(), get_battery_bg_color_2(), get_battery_percentage_color_2());
+        print_percentage(battery_state_2.level, start_x_peripheral_3, start_y, scale, get_battery_num_color_2(), get_battery_bg_color_2(), get_battery_percentage_color_2());
     } else {
         print_percentage(battery_state_0.level, start_x_peripheral_1, start_y, scale, get_battery_num_color(), get_battery_bg_color(), get_battery_percentage_color());
         print_percentage(battery_state_1.level, start_x_peripheral_2, start_y, scale, get_battery_num_color_1(), get_battery_bg_color_1(), get_battery_percentage_color_1());
