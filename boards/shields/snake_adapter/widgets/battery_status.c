@@ -19,6 +19,9 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/events/usb_conn_state_changed.h>
 #include <zmk/event_manager.h>
 #include <zmk/events/battery_state_changed.h>
+#include <zmk/split/central.h>
+#include <zmk/battery.h>
+#include <zmk/events/split_central_status_changed.h>
 
 #include "battery_status.h"
 #include "helpers/display.h"
@@ -145,10 +148,23 @@ void alarm_peripheral_changed_status(struct peripheral_battery_state state) {
 #endif
 
 void battery_status_update_cb(struct peripheral_battery_state state) {
-    if (state.source == 0) {
-        battery_state_0 = state;
-    } else {
-        battery_state_1 = state;
+    // if (state.source == 0) {
+    //     battery_state_0 = state;
+    // } else {
+    //     battery_state_1 = state;
+    // }
+
+    battery_state_0.source = 0;
+    battery_state_1.source = 1;
+    
+    int rc_0 = zmk_split_central_get_peripheral_battery_level(0, &battery_state_0.level);
+    if (rc_0 == -EINVAL) {
+        LOG_ERR("Invalid peripheral index requested for battery level read: %d", 0);
+    }
+    
+    int rc_1 = zmk_split_central_get_peripheral_battery_level(1, &battery_state_1.level);
+    if (rc_1 == -EINVAL) {
+        LOG_ERR("Invalid peripheral index requested for battery level read: %d", 1);
     }
     if (battery_widget_initialized) {
         #ifdef CONFIG_USE_BUZZER
@@ -163,10 +179,15 @@ void battery_status_update_cb(struct peripheral_battery_state state) {
 }
 
 static struct peripheral_battery_state battery_status_get_state(const zmk_event_t *eh) {
-    const struct zmk_peripheral_battery_state_changed *ev = as_zmk_peripheral_battery_state_changed(eh);
+    // const struct zmk_peripheral_battery_state_changed *ev = as_zmk_peripheral_battery_state_changed(eh);
+    // return (struct peripheral_battery_state){
+    //     .source = ev->source,
+    //     .level = ev->state_of_charge,
+    // };
+
     return (struct peripheral_battery_state){
-        .source = ev->source,
-        .level = ev->state_of_charge,
+        .source = 0,
+        .level = 0,
     };
 }
 
