@@ -155,13 +155,13 @@ static bool initialized_splash = false;
 
 static uint16_t snake_splash_font_x = 90;
 static uint16_t snake_splash_font_y = 210;
-static uint16_t snake_splash_font_width = 3;
-static uint16_t snake_splash_font_height = 6;
+static uint16_t snake_splash_font_width = 10;
+static uint16_t snake_splash_font_height = 13;
 static uint16_t snake_splash_font_scale = 1;
 
-static uint16_t snake_font_width = 3;
-static uint16_t snake_font_height = 6;
-static uint16_t snake_scale = 12;
+static uint16_t snake_font_width = 10;
+static uint16_t snake_font_height = 13;
+static uint16_t snake_scale = 5;
 static uint16_t *buf_splash_snake;
 
 static uint16_t snake_logo_start_height = 84;
@@ -191,55 +191,28 @@ void render_background_splash_pixel(uint8_t x, uint8_t y, uint8_t offset_x, uint
 }
 
 void print_background(void) {
-	for (uint8_t x = 0; x < 4; x++) {
-        for (uint8_t y = 0; y < 2; y++) {
-            render_background_splash_pixel(x, y, 0, 0);
-        }
-    }
-	for (uint8_t x = 0; x < 4; x++) {
-        for (uint8_t y = 0; y < 2; y++) {
-            render_background_splash_pixel(x, y, 0, 84);
-        }
-    }
-	for (uint8_t x = 0; x < 4; x++) {
-        for (uint8_t y = 0; y < 2; y++) {
-            render_background_splash_pixel(x, y, 0, 168);
-        }
-    }
+    clear_screen();
 }
 
 void print_splash(void) {
     if (initialized_splash) {
         return;
     }
+    
+    print_background();
 
-	for (uint8_t x = 0; x < 4; x++) {
-        for (uint8_t y = 0; y < 2; y++) {
-            render_background_splash_pixel(x, y, 0, 0);
-        }
-    }
-	for (uint8_t x = 0; x < 4; x++) {
-        for (uint8_t y = 0; y < 2; y++) {
-            render_background_splash_pixel(x, y, 0, 156);
-        }
-    }
+    uint16_t colors[4] = {
+        get_splash_logo_multicolor_0(),
+        get_splash_logo_multicolor_1(),
+        get_splash_logo_multicolor_2(),
+        get_splash_logo_multicolor_3(),
+    };
 
-    uint16_t gap_y = snake_logo_start_height;
-
-    display_write_wrapper(0, gap_y, &buf_desc_gap_splash, buf_gap_splash);
-    display_write_wrapper(220, gap_y, &buf_desc_gap_splash, buf_gap_splash);
-
-    display_write_wrapper(56, gap_y, &buf_desc_gap1_splash, buf_gap1_splash);
-    display_write_wrapper(96, gap_y, &buf_desc_gap1_splash, buf_gap1_splash);
-    display_write_wrapper(136, gap_y, &buf_desc_gap1_splash, buf_gap1_splash);
-    display_write_wrapper(176, gap_y, &buf_desc_gap1_splash, buf_gap1_splash);
-    display_write_wrapper(216, gap_y, &buf_desc_gap1_splash, buf_gap1_splash);
-
-	print_bitmap(buf_splash_snake, CHAR_S, 20, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
-	print_bitmap(buf_splash_snake, CHAR_N, 60, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
-	print_bitmap(buf_splash_snake, CHAR_A, 100, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
-	print_bitmap(buf_splash_snake, CHAR_K, 140, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
-	print_bitmap(buf_splash_snake, CHAR_E, 180, snake_logo_start_height, snake_scale, get_splash_logo_color(), get_splash_bg_color(), FONT_SIZE_3x6);
+    print_bitmap_multicolor(buf_splash_snake, CHAR_S, 5, snake_logo_start_height, snake_scale, colors, FONT_SIZE_10x13);
+	print_bitmap_multicolor(buf_splash_snake, CHAR_N, 50, snake_logo_start_height, snake_scale, colors, FONT_SIZE_10x13);
+	print_bitmap_multicolor(buf_splash_snake, CHAR_A, 95, snake_logo_start_height, snake_scale, colors, FONT_SIZE_10x13);
+	print_bitmap_multicolor(buf_splash_snake, CHAR_K, 140, snake_logo_start_height, snake_scale, colors, FONT_SIZE_10x13);
+	print_bitmap_multicolor(buf_splash_snake, CHAR_E, 185, snake_logo_start_height, snake_scale, colors, FONT_SIZE_10x13);
 
     Character created_chars[] = {
         CHAR_C,
@@ -303,7 +276,6 @@ void zmk_widget_splash_init() {
 	buffer_background_splash_init();
     buffer_gap_splash_init();
     buffer_gap1_splash_init();
-    // buffer_snake_image_init();
 }
 
 void clean_up_splash() {
@@ -311,7 +283,6 @@ void clean_up_splash() {
     k_free(buf_splash_snake);
     k_free(buf_gap_splash);
     k_free(buf_gap1_splash);
-    // k_free(snake_image_buf);
 }
 
 #endif
