@@ -170,6 +170,13 @@ static bool snake_initialized = false;
 static bool snake_died = false;
 static uint16_t death_count = 0;
 
+/* ############## MANUAL (SNAKE-MODE) STATE ############## */
+static bool     manual_mode       = false;
+static Direction pending_direction = DIRECTION_NONE;
+
+static Snake_coordinate manual_food;
+static bool manual_food_placed = false;
+
 static uint16_t snake_board[MAX_SNAKE_BOARD_WIDTH][MAX_SNAKE_BOARD_HEIGHT];
 const uint16_t out_of_board_number = 0;
 const uint16_t inside_board_number = 1;
@@ -561,7 +568,116 @@ static void walk_render(void) {
     walk_index++;
 }
 
+/* ############## MANUAL-MODE FOOD PLACEMENT ############## */
+
+static void place_manual_food(void) {
+    uint8_t x, y;
+    /* find a random empty cell for food */
+    do {
+        x = random_number(snake_board_width);
+        y = random_number(snake_board_height);
+    } while (is_snake_body(x, y));
+    manual_food.x = x;
+    manual_food.y = y;
+    manual_food_placed = true;
+    /* render the food dot */
+    uint16_t ix = (x * snake_pixel_size) + SNAKE_X_OFFSET;
+    uint16_t iy = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
+    display_write_wrapper_snake(ix, iy, &buf_color_desc, buf_food_color);
+}
+
+/* ############## MANUAL-MODE PUBLIC API ############## */
+
+void snake_set_manual_mode(bool on) {
+    manual_mode = on;
+    pending_direction = DIRECTION_NONE;
+    manual_food_placed = false;
+    if (on) {
+        /* restart with a fresh board when entering manual mode */
+        finalize_snake();
+    }
+}
+
+bool snake_get_manual_mode(void) {
+    return manual_mode;
+}
+
+void snake_set_direction(uint8_t dir) {
+    if (!manual_mode || dir >= DIRECTION_LENGTH) return;
+
+    Direction new_dir = (Direction)dir;
+    Direction cur     = head_direction();
+
+    /* Anti-180 guard: ignore exact reverse of current heading */
+    if ((cur == UP    && new_dir == DOWN)  ||
+        (cur == DOWN  && new_dir == UP)    ||
+        (cur == LEFT  && new_dir == RIGHT) ||
+        (cur == RIGHT && new_dir == LEFT)) {
+        return;
+    }
+    pending_direction = new_dir;
+}
+
+/* ############## MANUAL-MODE RENDER ############## */
+
+static void render_snake_manual(void) {
+    if (!snake_initialized) {
+        initialize_snake();
+        place_manual_food();
+    }
+    if (pending_direction == DIRECTION_NONE) {
+        return; /* waiting for first input */
+    }
+
+    /* one step per tick in the pending direction */
+    if (!can_move(pending_direction, head_coordinate.x, head_coordinate.y)) {
+        /* wall or self-collision → death */
+        snake_died = true;
+        death_count++;
+        #ifdef CONFIG_USE_BUZZER
+            #ifdef CONFIG_USE_DIE_SOUND
+                play_powerd_down_song();
+            #endif
+        #endif
+        finalize_snake();
+        manual_food_placed = false;
+        return;
+    }
+
+    /* advance head */
+    move_head(pending_direction);
+
+    /* check if we ate the food */
+    if (head_coordinate.x == manual_food.x &&
+        head_coordinate.y == manual_food.y) {
+        /* grow: skip tail move, place new food */
+        tail_shrink_timeout += CONFIG_SNAKE_FATNESS;
+        #ifdef CONFIG_USE_BUZZER
+            #ifdef CONFIG_USE_FOOD_SOUND
+                play_snake_eat_sound();
+            #endif
+        #endif
+        next_color();
+        place_manual_food();
+    }
+
+    move_tail();
+
+    /* render the latest draw steps */
+    while (walk_index < draw_index) {
+        walk_render();
+    }
+    draw_index = 0;
+    walk_index = 0;
+}
+
 static void render_snake(void) {
+    if (manual_mode) {
+        render_snake_manual();
+        return;
+    }
+
+    /* ---- original autopilot path ---- */
     if (!snake_initialized) {
         initialize_snake();
         make_path_to_food();
