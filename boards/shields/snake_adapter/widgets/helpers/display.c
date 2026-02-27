@@ -13,6 +13,10 @@ static uint8_t *buf_screen_area;
 
 static size_t buf_screen_size;
 
+static uint16_t splash_logo_multicolor_0 = 0x3dff98u;
+static uint16_t splash_logo_multicolor_1 = 0xff4adcu;
+static uint16_t splash_logo_multicolor_2 = 0x222323u;
+static uint16_t splash_logo_multicolor_3 = 0x121313u;// http://lospec.com/palette-list/b4sement
 static uint16_t splash_logo_color;
 static uint16_t splash_created_by_color;
 static uint16_t splash_bg_color;
@@ -101,6 +105,10 @@ static uint32_t themes_colors[][COLORS_PER_THEME] = {
 };
 
 void set_complete_colors_theme() {
+    uint32_t splash_multicolor_0 = hex_string_to_uint(CONFIG_SPLASH_MULTICOLOR_0);
+    uint32_t splash_multicolor_1 = hex_string_to_uint(CONFIG_SPLASH_MULTICOLOR_1);
+    uint32_t splash_multicolor_2 = hex_string_to_uint(CONFIG_SPLASH_MULTICOLOR_2);
+    uint32_t splash_multicolor_3 = hex_string_to_uint(CONFIG_SPLASH_MULTICOLOR_3);
     uint32_t splash_logo_color = hex_string_to_uint(CONFIG_SPLASH_LOGO_COLOR);
     uint32_t splash_created_by_color = hex_string_to_uint(CONFIG_SPLASH_CREATED_BY_COLOR);
     uint32_t splash_bg_color = hex_string_to_uint(CONFIG_SPLASH_BG_COLOR);
@@ -147,6 +155,19 @@ void set_complete_colors_theme() {
     uint32_t wpm_font_color = hex_string_to_uint(CONFIG_WPM_FONT_COLOR);
     uint32_t wpm_font_1_color = hex_string_to_uint(CONFIG_WPM_FONT_1_COLOR);
     uint32_t wpm_font_bg_color = hex_string_to_uint(CONFIG_WPM_FONT_BG_COLOR);
+
+    if (splash_multicolor_0 == HEX_PARSE_ERROR) {
+        splash_multicolor_0 = 0xFFFFFF;
+    }
+    if (splash_multicolor_1 == HEX_PARSE_ERROR) {
+        splash_multicolor_1 = 0xFFFFFF;
+    }
+    if (splash_multicolor_2 == HEX_PARSE_ERROR) {
+        splash_multicolor_2 = 0xFFFFFF;
+    }
+    if (splash_multicolor_3 == HEX_PARSE_ERROR) {
+        splash_multicolor_3 = 0xFFFFFF;
+    }
 
     if (splash_logo_color == HEX_PARSE_ERROR) {
         splash_logo_color = 0xFFFFFF;
@@ -335,6 +356,10 @@ void set_complete_colors_theme() {
     }
 
     set_all_colors(
+        splash_multicolor_0,
+        splash_multicolor_1,
+        splash_multicolor_2,
+        splash_multicolor_3,
         splash_logo_color,
         splash_created_by_color,
         splash_bg_color,
@@ -1197,6 +1222,104 @@ const uint16_t z_letter_3x5[] = {
 
 // #######################################
 
+const uint16_t none_letter_10x13[] = {
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+};
+
+const uint16_t s_letter_10x13[] = {
+    0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
+    0, 1, 2, 2, 2, 2, 2, 2, 1, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 3, 3, 3, 1,
+    1, 3, 2, 2, 2, 2, 2, 2, 3, 1,
+    1, 3, 3, 3, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 3, 2, 2, 2, 2, 2, 2, 3, 1,
+    1, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+    0, 1, 3, 3, 3, 3, 3, 3, 1, 0,
+    0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
+};
+
+const uint16_t n_letter_10x13[] = {
+    0, 1, 1, 1, 0, 0, 1, 1, 1, 0,
+    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
+    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 1, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 1, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 1, 3, 2, 2, 2, 1,
+    1, 3, 3, 3, 1, 3, 3, 3, 3, 1,
+    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
+    0, 1, 1, 1, 0, 0, 1, 1, 1, 0,
+};
+
+const uint16_t a_letter_10x13[] = {
+    0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
+    0, 1, 2, 2, 2, 2, 2, 2, 1, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
+    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
+    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
+    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+};
+
+const uint16_t k_letter_10x13[] = {
+    0, 1, 1, 1, 0, 0, 0, 1, 1, 0,
+    1, 2, 2, 2, 1, 0, 1, 2, 2, 1,
+    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
+    1, 2, 2, 2, 1, 2, 2, 2, 3, 1,
+    1, 2, 2, 2, 2, 2, 2, 3, 3, 1,
+    1, 2, 2, 2, 2, 2, 3, 3, 1, 0,
+    1, 2, 2, 2, 2, 2, 2, 1, 0, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 1, 0,
+    1, 2, 2, 2, 3, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
+    1, 3, 3, 3, 1, 3, 3, 3, 3, 1,
+    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
+    0, 1, 1, 1, 0, 0, 1, 1, 1, 1,
+};
+
+const uint16_t e_letter_10x13[] = {
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 3, 3, 3, 3, 3, 1,
+    1, 2, 2, 2, 3, 3, 3, 3, 3, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 1, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 1, 0,
+    1, 2, 2, 2, 3, 3, 3, 3, 1, 0,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
+    1, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+    1, 3, 3, 3, 3, 3, 3, 3, 3, 1,
+    0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
+};
+
+// #######################################
+
 const uint16_t none_letter_3x6[] = {
     1, 1, 1,
     1, 1, 1,
@@ -1319,6 +1442,13 @@ void set_display_orientation(DisplayOrientation orientation) {
 
 void set_splash_logo_color(uint32_t color) {
     splash_logo_color = rgb888_to_rgb565(color);
+}
+
+void set_splash_logo_multicolor(uint32_t color0, uint32_t color1, uint32_t color2, uint32_t color3) {
+    splash_logo_multicolor_0 = rgb888_to_rgb565(color0);
+    splash_logo_multicolor_1 = rgb888_to_rgb565(color1);
+    splash_logo_multicolor_2 = rgb888_to_rgb565(color2);
+    splash_logo_multicolor_3 = rgb888_to_rgb565(color3);
 }
 
 void set_splash_created_by_color(uint32_t color) {
@@ -1523,6 +1653,22 @@ DisplayOrientation get_display_orientation() {
 
 uint16_t get_splash_created_by_color() {
     return splash_created_by_color;
+}
+
+uint16_t get_splash_logo_multicolor_0() {
+    return splash_logo_multicolor_0;
+}
+
+uint16_t get_splash_logo_multicolor_1() {
+    return splash_logo_multicolor_1;
+}
+
+uint16_t get_splash_logo_multicolor_2() {
+    return splash_logo_multicolor_2;
+}
+
+uint16_t get_splash_logo_multicolor_3() {
+    return splash_logo_multicolor_3;
 }
 
 uint16_t get_splash_logo_color() {
@@ -1911,6 +2057,48 @@ void render_bitmap_270(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, u
     display_write(display_dev, dx0, dy0, &buf, scaled_bitmap);
 }
 
+void render_bitmap_270_multicolor(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t colors[]) {
+    struct display_buffer_descriptor buf;
+
+    uint16_t src_w = width * scale;
+    uint16_t src_h = height * scale;
+
+    uint16_t dst_w = src_h;
+    uint16_t dst_h = src_w;
+
+    uint16_t dx0 = y;
+    uint16_t dy0 = 240 - x - src_w;
+
+    uint16_t color, pixel;
+
+    for (uint16_t line = 0; line < height; line++) {
+        for (uint16_t i = 0; i < scale; i++) {
+            for (uint16_t col = 0; col < width; col++) {
+                for (uint16_t j = 0; j < scale; j++) {
+
+                    uint16_t sx = col * scale + j;
+                    uint16_t sy = line * scale + i;
+
+                    uint16_t dx = sy;
+                    uint16_t dy = dst_h - 1 - sx;
+
+                    pixel = bitmap[line * width + col];
+                    color = colors[pixel];
+
+                    scaled_bitmap[dy * dst_w + dx] = swap_16_bit_color(color);
+                }
+            }
+        }
+    }
+
+    buf.buf_size = dst_w * dst_h;
+    buf.pitch    = dst_w;
+    buf.width    = dst_w;
+    buf.height   = dst_h;
+
+    display_write(display_dev, dx0, dy0, &buf, scaled_bitmap);
+}
+
 void render_bitmap_180(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t num_color, uint16_t bg_color) {
     struct display_buffer_descriptor buf_font_desc;
 
@@ -1941,6 +2129,48 @@ void render_bitmap_180(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, u
                     } else {
                         color = bg_color;
                     }
+
+                    *(scaled_bitmap + index) = swap_16_bit_color(color);
+                    index++;
+                }
+            }
+        }
+    }
+
+    buf_font_desc.buf_size = font_buf_size_scaled;
+    buf_font_desc.pitch    = font_width_scaled;
+    buf_font_desc.width    = font_width_scaled;
+    buf_font_desc.height   = font_height_scaled;
+
+    display_write(display_dev, screen_width  - x - font_width_scaled, screen_height - y - font_height_scaled, &buf_font_desc, scaled_bitmap);
+}
+
+void render_bitmap_180_multicolor(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t colors[]) {
+    struct display_buffer_descriptor buf_font_desc;
+
+    uint16_t screen_width  = 240;
+    uint16_t screen_height = 240;
+
+    uint16_t color;
+    uint16_t pixel;
+
+    uint16_t font_width_scaled  = width * scale;
+    uint16_t font_height_scaled = height * scale;
+    uint16_t font_buf_size_scaled = font_width_scaled * font_height_scaled;
+
+    uint16_t index = 0;
+
+    for (uint16_t line = 0; line < height; line++) {
+        for (uint16_t i = 0; i < scale; i++) {
+            for (uint16_t column = 0; column < width; column++) {
+                for (uint16_t j = 0; j < scale; j++) {
+
+                    pixel = bitmap[
+                        (height - 1 - line) * width +
+                        (width  - 1 - column)
+                    ];
+
+                    color = colors[pixel];
 
                     *(scaled_bitmap + index) = swap_16_bit_color(color);
                     index++;
@@ -1999,6 +2229,48 @@ void render_bitmap_90(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, ui
     display_write(display_dev, dx0, dy0, &buf, scaled_bitmap);
 }
 
+void render_bitmap_90_multicolor(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t colors[]) {
+    struct display_buffer_descriptor buf;
+
+    uint16_t src_w = width * scale;
+    uint16_t src_h = height * scale;
+
+    uint16_t dst_w = src_h;
+    uint16_t dst_h = src_w;
+
+    uint16_t dx0 = 240 - y - src_h;
+    uint16_t dy0 = x;
+
+    uint16_t color, pixel;
+
+    for (uint16_t line = 0; line < height; line++) {
+        for (uint16_t i = 0; i < scale; i++) {
+            for (uint16_t col = 0; col < width; col++) {
+                for (uint16_t j = 0; j < scale; j++) {
+
+                    uint16_t sx = col * scale + j;
+                    uint16_t sy = line * scale + i;
+
+                    uint16_t dx = dst_w - 1 - sy;
+                    uint16_t dy = sx;
+
+                    pixel = bitmap[line * width + col];
+                    color = colors[pixel];
+
+                    scaled_bitmap[dy * dst_w + dx] = swap_16_bit_color(color);
+                }
+            }
+        }
+    }
+
+    buf.buf_size = dst_w * dst_h;
+    buf.pitch    = dst_w;
+    buf.width    = dst_w;
+    buf.height   = dst_h;
+
+    display_write(display_dev, dx0, dy0, &buf, scaled_bitmap);
+}
+
 void render_bitmap_0(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t num_color, uint16_t bg_color) {
 	struct display_buffer_descriptor buf_font_desc;
 
@@ -2031,12 +2303,48 @@ void render_bitmap_0(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uin
     display_write(display_dev, x, y, &buf_font_desc, scaled_bitmap);
 }
 
+void render_bitmap_0_multicolor(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t colors[]) {
+	struct display_buffer_descriptor buf_font_desc;
+
+    uint16_t color;
+    uint16_t pixel;
+    uint16_t font_width_scaled = width * scale;
+    uint16_t font_height_scaled = height * scale;
+    uint16_t font_buf_size_scaled = font_width_scaled * font_height_scaled;
+    uint16_t index = 0;
+    for (uint16_t line = 0; line < height; line++) {
+        for (uint16_t i = 0; i < scale; i++) {
+            for (uint16_t column = 0; column < width; column++) {
+                for (uint16_t j = 0; j < scale; j++) {
+                    pixel = bitmap[(line*width) + column];
+                    color = colors[pixel];
+                    *(scaled_bitmap + index) = swap_16_bit_color(color);
+                    index++;
+                }
+            }
+        }
+    }
+	buf_font_desc.buf_size = font_buf_size_scaled;
+	buf_font_desc.pitch = font_width_scaled;
+	buf_font_desc.width = font_width_scaled;
+	buf_font_desc.height = font_height_scaled;
+    display_write(display_dev, x, y, &buf_font_desc, scaled_bitmap);
+}
+
 void render_bitmap(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t num_color, uint16_t bg_color) {
     switch(get_display_orientation()) {
         case DISPLAY_ORIENTATION_90: return render_bitmap_90(scaled_bitmap, bitmap, x, y, width, height, scale, num_color, bg_color);
         case DISPLAY_ORIENTATION_180: return render_bitmap_180(scaled_bitmap, bitmap, x, y, width, height, scale, num_color, bg_color);
         case DISPLAY_ORIENTATION_270: return render_bitmap_270(scaled_bitmap, bitmap, x, y, width, height, scale, num_color, bg_color);
         default: return render_bitmap_0(scaled_bitmap, bitmap, x, y, width, height, scale, num_color, bg_color);
+    }
+}
+void render_bitmap_multicolor(uint16_t *scaled_bitmap, uint16_t bitmap[], uint16_t x, uint16_t y, uint16_t width, uint16_t height, uint16_t scale, uint16_t colors[]) {
+    switch(get_display_orientation()) {
+        case DISPLAY_ORIENTATION_90: return render_bitmap_90_multicolor(scaled_bitmap, bitmap, x, y, width, height, scale, colors);
+        case DISPLAY_ORIENTATION_180: return render_bitmap_180_multicolor(scaled_bitmap, bitmap, x, y, width, height, scale, colors);
+        case DISPLAY_ORIENTATION_270: return render_bitmap_270_multicolor(scaled_bitmap, bitmap, x, y, width, height, scale, colors);
+        default: return render_bitmap_0_multicolor(scaled_bitmap, bitmap, x, y, width, height, scale, colors);
     }
 }
 
@@ -2140,6 +2448,21 @@ void print_bitmap_3x5(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t
     }
 }
 
+void print_bitmap_multicolor_10x13(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t colors[]) {
+    // if (c >= 0 && c < 10) {
+    //     render_bitmap(scaled_bitmap, num_bitmaps_3x6[c], x, y, 3, 6, scale, color, bg_color);
+    //     return;
+    // }
+    switch (c) {
+    case CHAR_S: render_bitmap_multicolor(scaled_bitmap, s_letter_10x13, x, y, 10, 13, scale, colors); break;
+    case CHAR_N: render_bitmap_multicolor(scaled_bitmap, n_letter_10x13, x, y, 10, 13, scale, colors); break;
+    case CHAR_A: render_bitmap_multicolor(scaled_bitmap, a_letter_10x13, x, y, 10, 13, scale, colors); break;
+    case CHAR_K: render_bitmap_multicolor(scaled_bitmap, k_letter_10x13, x, y, 10, 13, scale, colors); break;
+    case CHAR_E: render_bitmap_multicolor(scaled_bitmap, e_letter_10x13, x, y, 10, 13, scale, colors); break;
+    default:     render_bitmap_multicolor(scaled_bitmap, none_letter_10x13, x, y, 10, 13, scale, colors);
+    }
+}
+
 void print_bitmap_3x6(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color) {
     if (c >= 0 && c < 10) {
         render_bitmap(scaled_bitmap, num_bitmaps_3x6[c], x, y, 3, 6, scale, color, bg_color);
@@ -2163,6 +2486,12 @@ void print_bitmap(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, 
         case FONT_SIZE_3x5: print_bitmap_3x5(scaled_bitmap, c, x, y, scale, color, bg_color); break;
         case FONT_SIZE_5x8: print_bitmap_5x8(scaled_bitmap, c, x, y, scale, color, bg_color); break;
         case FONT_SIZE_5x7: print_bitmap_5x7(scaled_bitmap, c, x, y, scale, color, bg_color); break;
+    }
+}
+
+void print_bitmap_multicolor(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t colors[], FontSize font_size) {
+    switch (font_size) {
+        case FONT_SIZE_10x13: print_bitmap_multicolor_10x13(scaled_bitmap, c, x, y, scale, colors); break;
     }
 }
 
@@ -2417,6 +2746,10 @@ void print_container(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint1
 }
 
 void set_all_colors(
+    uint32_t splash_multicolor_0,
+    uint32_t splash_multicolor_1,
+    uint32_t splash_multicolor_2,
+    uint32_t splash_multicolor_3,
     uint32_t splash_logo_color,
     uint32_t splash_created_by_color,
     uint32_t splash_bg_color,
@@ -2464,6 +2797,7 @@ void set_all_colors(
     uint32_t wpm_font_1_color,
     uint32_t wpm_font_bg_color
 ) {
+    set_splash_logo_multicolor(splash_multicolor_0, splash_multicolor_1, splash_multicolor_2, splash_multicolor_3);
     set_splash_logo_color(splash_logo_color);
     set_splash_created_by_color(splash_created_by_color);
     set_splash_bg_color(splash_bg_color);
@@ -2522,6 +2856,7 @@ void set_all_colors(
 }
 
 void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2, uint32_t color5, uint32_t color6) {
+    set_splash_logo_multicolor(background2, background1, primary, secondary);
     set_splash_logo_color(primary);
     set_splash_created_by_color(background1);
     set_splash_bg_color(background2);

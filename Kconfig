@@ -142,6 +142,22 @@ config USE_COMPLETE_CUSTOM_THEME
     bool "Complete custom theme"
     default n
 
+config SPLASH_MULTICOLOR_0
+    string ""
+    default "000000"
+
+config SPLASH_MULTICOLOR_1
+    string ""
+    default "000000"
+
+config SPLASH_MULTICOLOR_2
+    string ""
+    default "000000"
+
+config SPLASH_MULTICOLOR_3
+    string ""
+    default "000000"
+
 config SPLASH_LOGO_COLOR
     string ""
     default "000000"
