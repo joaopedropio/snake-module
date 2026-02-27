@@ -54,7 +54,7 @@ const uint8_t TIMER_CYCLES_SLOW = 4;
 const uint8_t TIMER_CYCLES_MEDIUM = 3;
 const uint8_t TIMER_CYCLES_FAST = 2;
 const uint8_t TIMER_CYCLES_SUPER_FAST = 1;
-const uint8_t TIMER_CYCLES_MANUAL = 3;  /* fixed comfortable speed for keyboard-driven play */
+const uint8_t TIMER_CYCLES_MANUAL = 6;  /* fixed comfortable speed for keyboard-driven play */
 
 static uint8_t snake_best = 0;
 static uint8_t snake_len = 0;
