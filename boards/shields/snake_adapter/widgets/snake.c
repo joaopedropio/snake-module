@@ -54,6 +54,7 @@ const uint8_t TIMER_CYCLES_SLOW = 4;
 const uint8_t TIMER_CYCLES_MEDIUM = 3;
 const uint8_t TIMER_CYCLES_FAST = 2;
 const uint8_t TIMER_CYCLES_SUPER_FAST = 1;
+const uint8_t TIMER_CYCLES_MANUAL = 3;  /* fixed comfortable speed for keyboard-driven play */
 
 static uint8_t snake_best = 0;
 static uint8_t snake_len = 0;
@@ -572,10 +573,18 @@ static void walk_render(void) {
 
 static void place_manual_food(void) {
     uint8_t x, y;
+    uint16_t attempts = 0;
+    uint16_t max_attempts = (uint16_t)snake_board_width * snake_board_height;
     /* find a random empty cell for food */
     do {
         x = random_number(snake_board_width);
         y = random_number(snake_board_height);
+        attempts++;
+        if (attempts >= max_attempts) {
+            /* board is full — no room for food, game won */
+            manual_food_placed = false;
+            return;
+        }
     } while (is_snake_body(x, y));
     manual_food.x = x;
     manual_food.y = y;
@@ -618,6 +627,55 @@ void snake_set_direction(uint8_t dir) {
     pending_direction = new_dir;
 }
 
+/* ############## MANUAL-MODE WRAP-AROUND HELPERS ############## */
+
+/* Compute the wrapped destination coordinate for a direction.
+ * Instead of dying at walls, the snake appears on the opposite edge. */
+static Snake_coordinate wrap_coordinate(Direction d, uint8_t x, uint8_t y) {
+    Snake_coordinate c;
+    switch (d) {
+        case UP:
+            c.x = x;
+            c.y = (y + 1 >= snake_board_height) ? 0 : y + 1;
+            break;
+        case DOWN:
+            c.x = x;
+            c.y = (y == 0) ? snake_board_height - 1 : y - 1;
+            break;
+        case RIGHT:
+            c.x = (x + 1 >= snake_board_width) ? 0 : x + 1;
+            c.y = y;
+            break;
+        case LEFT:
+            c.x = (x == 0) ? snake_board_width - 1 : x - 1;
+            c.y = y;
+            break;
+        default:
+            c.x = x;
+            c.y = y;
+            break;
+    }
+    return c;
+}
+
+/* Check if the snake can move into the wrapped destination (only body collision kills). */
+static bool can_move_wrap(Direction d, uint8_t x, uint8_t y) {
+    Snake_coordinate c = wrap_coordinate(d, x, y);
+    if (is_snake_body(c.x, c.y)) {
+        return false;
+    }
+    return true;
+}
+
+/* Move the head with wrap-around (no wall death). */
+static void move_head_wrap(Direction d) {
+    Snake_coordinate c = wrap_coordinate(d, head_coordinate.x, head_coordinate.y);
+    head_coordinate.x = c.x;
+    head_coordinate.y = c.y;
+    snake_board[c.x][c.y] = next_number();
+    set_draw_step(head_coordinate, HEAD);
+}
+
 /* ############## MANUAL-MODE RENDER ############## */
 
 static void render_snake_manual(void) {
@@ -629,9 +687,9 @@ static void render_snake_manual(void) {
         return; /* waiting for first input */
     }
 
-    /* one step per tick in the pending direction */
-    if (!can_move(pending_direction, head_coordinate.x, head_coordinate.y)) {
-        /* wall or self-collision → death */
+    /* Wrap-around: only die on self-collision, not on walls */
+    if (!can_move_wrap(pending_direction, head_coordinate.x, head_coordinate.y)) {
+        /* self-collision → death */
         snake_died = true;
         death_count++;
         #ifdef CONFIG_USE_BUZZER
@@ -641,14 +699,16 @@ static void render_snake_manual(void) {
         #endif
         finalize_snake();
         manual_food_placed = false;
+        pending_direction = DIRECTION_NONE;
         return;
     }
 
-    /* advance head */
-    move_head(pending_direction);
+    /* advance head with wrap-around */
+    move_head_wrap(pending_direction);
 
     /* check if we ate the food */
-    if (head_coordinate.x == manual_food.x &&
+    if (manual_food_placed &&
+        head_coordinate.x == manual_food.x &&
         head_coordinate.y == manual_food.y) {
         /* grow: skip tail move, place new food */
         tail_shrink_timeout += CONFIG_SNAKE_FATNESS;
@@ -827,6 +887,18 @@ void timer_snake(lv_timer_t * timer) {
     if (stopped) {
         return;
     }
+
+    /* Manual mode: fixed comfortable speed, ignore WPM */
+    if (manual_mode) {
+        if (cycles_count >= TIMER_CYCLES_MANUAL) {
+            cycles_count = 0;
+            render_snake();
+        }
+        cycles_count++;
+        return;
+    }
+
+    /* Autopilot mode: WPM-driven speed */
     if (speed_changed || cycles_count >= current_cycle_speed) {
         speed_changed = false;
         cycles_count = 0;
@@ -862,5 +934,9 @@ void start_snake() {
 
 void stop_snake() {
     stopped = true;
+    /* Clean up manual mode so autopilot resumes on next start_snake() */
+    manual_mode = false;
+    pending_direction = DIRECTION_NONE;
+    manual_food_placed = false;
     finalize_snake();
 }

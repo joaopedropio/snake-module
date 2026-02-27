@@ -244,13 +244,10 @@ void snake_direction_update_cb(struct zmk_snake_direction state) {
     /* Enter manual mode on first direction event (if not already) */
     if (!snake_get_manual_mode()) {
         snake_set_manual_mode(true);
-        /* If menu is open, close it and start the game */
         if (menu_on) {
-            toggle_menu();
+            toggle_menu();  /* closes menu, starts snake */
         } else {
-            /* Restart the snake in manual mode */
-            stop_snake();
-            start_snake();
+            start_snake();  /* ensure timer is running (idempotent) */
         }
     }
     snake_set_direction(state.direction);
