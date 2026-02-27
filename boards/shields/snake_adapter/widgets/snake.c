@@ -615,7 +615,8 @@ void snake_set_direction(uint8_t dir) {
     if (!manual_mode || dir >= DIRECTION_LENGTH) return;
 
     Direction new_dir = (Direction)dir;
-    Direction cur     = head_direction();
+    /* Use wrap-aware direction detection so anti-180 works across edges */
+    Direction cur     = head_direction_wrap();
 
     /* Anti-180 guard: ignore exact reverse of current heading */
     if ((cur == UP    && new_dir == DOWN)  ||
@@ -658,6 +659,25 @@ static Snake_coordinate wrap_coordinate(Direction d, uint8_t x, uint8_t y) {
     return c;
 }
 
+/* Wrap-aware surrounding scan: reads board number at wrapped coordinate. */
+static Surrounding scan_surrounding_wrap(Direction d, uint8_t x, uint8_t y) {
+    Surrounding surrounding;
+    Snake_coordinate c = wrap_coordinate(d, x, y);
+    surrounding.direction = d;
+    surrounding.number = snake_board[c.x][c.y];
+    surrounding.coordinate = c;
+    return surrounding;
+}
+
+/* Wrap-aware surroundings scan for all 4 directions. */
+static Surroundings scan_surroundings_wrap(uint8_t x, uint8_t y) {
+    Surroundings surroundings;
+    for (uint8_t dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        surroundings.surroundings[dir] = scan_surrounding_wrap(dir, x, y);
+    }
+    return surroundings;
+}
+
 /* Check if the snake can move into the wrapped destination (only body collision kills). */
 static bool can_move_wrap(Direction d, uint8_t x, uint8_t y) {
     Snake_coordinate c = wrap_coordinate(d, x, y);
@@ -674,6 +694,44 @@ static void move_head_wrap(Direction d) {
     head_coordinate.y = c.y;
     snake_board[c.x][c.y] = next_number();
     set_draw_step(head_coordinate, HEAD);
+}
+
+/* Wrap-aware tail movement: finds next tail segment across board edges. */
+static void move_tail_wrap(void) {
+    if (tail_shrink_timeout > 0) {
+        tail_shrink_timeout--;
+        return;
+    }
+
+    Surroundings surroundings = scan_surroundings_wrap(tail_coordinate.x, tail_coordinate.y);
+    for (int dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        if (surroundings.surroundings[dir].number == tail_number() + 1) {
+            set_draw_step(tail_coordinate, TAIL);
+            Snake_coordinate c = surroundings.surroundings[dir].coordinate;
+            tail_coordinate.x = c.x;
+            tail_coordinate.y = c.y;
+            return;
+        }
+    }
+}
+
+/* Wrap-aware head direction: finds neck across board edges. */
+static Direction head_direction_wrap(void) {
+    Surroundings surroundings = scan_surroundings_wrap(head_coordinate.x, head_coordinate.y);
+    uint16_t neck_num = head_number() - 1;
+    for (uint8_t dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        if (surroundings.surroundings[dir].number == neck_num) {
+            /* neck is in this direction, so head faces opposite */
+            switch (surroundings.surroundings[dir].direction) {
+                case UP:    return DOWN;
+                case DOWN:  return UP;
+                case RIGHT: return LEFT;
+                case LEFT:  return RIGHT;
+                default:    break;
+            }
+        }
+    }
+    return DIRECTION_NONE;
 }
 
 /* ############## MANUAL-MODE RENDER ############## */
@@ -721,7 +779,7 @@ static void render_snake_manual(void) {
         place_manual_food();
     }
 
-    move_tail();
+    move_tail_wrap();
 
     /* render the latest draw steps */
     while (walk_index < draw_index) {
