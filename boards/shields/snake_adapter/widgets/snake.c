@@ -353,6 +353,12 @@ static void set_draw_step(Snake_coordinate c, Snake_part part) {
 
 static uint16_t next_number(void) {
     current_number += 1;
+    /* Guard against uint16_t overflow — if we are about to wrap past
+     * the maximum representable number the board logic (is_snake_body,
+     * move_tail, etc.) would silently corrupt.  Force a death instead. */
+    if (current_number == 0) {
+        snake_died = true;
+    }
     return current_number;
 }
 
@@ -597,6 +603,9 @@ static void place_manual_food(void) {
 
 /* ############## MANUAL-MODE PUBLIC API ############## */
 
+/* Forward-declare wrap helpers used by snake_set_direction() */
+static Direction head_direction_wrap(void);
+
 void snake_set_manual_mode(bool on) {
     manual_mode = on;
     pending_direction = DIRECTION_NONE;
@@ -615,15 +624,21 @@ void snake_set_direction(uint8_t dir) {
     if (!manual_mode || dir >= DIRECTION_LENGTH) return;
 
     Direction new_dir = (Direction)dir;
-    /* Use wrap-aware direction detection so anti-180 works across edges */
-    Direction cur     = head_direction_wrap();
 
-    /* Anti-180 guard: ignore exact reverse of current heading */
-    if ((cur == UP    && new_dir == DOWN)  ||
-        (cur == DOWN  && new_dir == UP)    ||
-        (cur == LEFT  && new_dir == RIGHT) ||
-        (cur == RIGHT && new_dir == LEFT)) {
-        return;
+    /* Skip anti-180 guard when snake is not yet initialised (entering
+     * manual mode or respawning after death).  The old board data is
+     * stale and head_direction_wrap() could incorrectly reject the
+     * very first keypress. */
+    if (snake_initialized) {
+        Direction cur = head_direction_wrap();
+
+        /* Anti-180 guard: ignore exact reverse of current heading */
+        if ((cur == UP    && new_dir == DOWN)  ||
+            (cur == DOWN  && new_dir == UP)    ||
+            (cur == LEFT  && new_dir == RIGHT) ||
+            (cur == RIGHT && new_dir == LEFT)) {
+            return;
+        }
     }
     pending_direction = new_dir;
 }
