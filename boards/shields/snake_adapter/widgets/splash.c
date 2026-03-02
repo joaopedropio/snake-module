@@ -21,6 +21,10 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "helpers/display.h"
 #include "snake_image.h"
 
+#if defined(CONFIG_SPLASH_USE_DONGLE)
+#include "snake_logo_text.h"
+#endif
+
 
 #ifdef CONFIG_SPLASH_USE_SNAKE_2
 
@@ -147,6 +151,127 @@ void clean_up_splash() {
     k_free(buf_splash_snake);
     k_free(buf_gap_splash);
     k_free(snake_image_buf);
+}
+
+#elif defined(CONFIG_SPLASH_USE_DONGLE)
+
+// ======================== Snake Dongle Splash ========================
+// Layout: "SNAKE" logo bitmap | "DONGLE" multicolor text | cobra image | credit
+
+static uint16_t *snake_logo_text_buf_splash;
+static uint16_t *snake_image_buf_splash;
+static uint16_t *buf_dongle_text;
+static uint16_t *buf_credit_text;
+
+static bool initialized_splash = false;
+
+// "SNAKE" logo text bitmap (150x58) centered at x=45
+static uint16_t logo_text_x = 45;
+static uint16_t logo_text_y = 2;
+
+// "DONGLE" multicolor text: FONT_SIZE_10x13 scale 2 → 20x26 per char
+// 6 chars × 20 + 5 gaps × 4 = 140px. Centered: x = (240-140)/2 = 50
+static uint16_t dongle_font_width = 10;
+static uint16_t dongle_font_height = 13;
+static uint16_t dongle_scale = 2;
+static uint16_t dongle_text_y = 62;
+
+// Snake cobra image (192x128) centered at x=24
+static uint16_t snake_img_x = 24;
+static uint16_t snake_img_y = 92;
+
+// Credit text: FONT_SIZE_3x5 scale 1
+static uint16_t credit_font_width = 3;
+static uint16_t credit_font_height = 5;
+static uint16_t credit_scale = 1;
+static uint16_t credit_text_y = 224;
+
+void print_snake_logo_text_splash() {
+    for (uint16_t i = 0; i < snake_logo_text_height; i++) {
+        render_bitmap(snake_logo_text_buf_splash, snake_logo_text[i],
+                      logo_text_x, logo_text_y + i,
+                      snake_logo_text_width, 1, 1,
+                      get_splash_logo_color(), get_splash_bg_color());
+    }
+}
+
+void print_snake_image_splash() {
+    for (uint16_t i = 0; i < snake_image_height; i++) {
+        render_bitmap(snake_image_buf_splash, snake_image[i],
+                      snake_img_x, snake_img_y + i,
+                      snake_image_width, 1, 1,
+                      get_splash_logo_color(), get_splash_bg_color());
+    }
+}
+
+void print_background(void) {
+    clear_screen();
+}
+
+void print_splash(void) {
+    if (initialized_splash) {
+        return;
+    }
+
+    print_background();
+
+    // 1) Render "SNAKE" logo text bitmap at top
+    print_snake_logo_text_splash();
+
+    // 2) Render "DONGLE" in multicolor below the logo
+    uint16_t colors[4] = {
+        get_splash_logo_multicolor_0(),
+        get_splash_logo_multicolor_1(),
+        get_splash_logo_multicolor_2(),
+        get_splash_logo_multicolor_3(),
+    };
+    Character dongle_chars[] = { CHAR_D, CHAR_O, CHAR_N, CHAR_G, CHAR_L, CHAR_E };
+    uint16_t dongle_x_positions[] = { 50, 74, 98, 122, 146, 170 };
+    for (uint8_t i = 0; i < 6; i++) {
+        print_bitmap_multicolor(buf_dongle_text, dongle_chars[i],
+                                dongle_x_positions[i], dongle_text_y,
+                                dongle_scale, colors, FONT_SIZE_10x13);
+    }
+
+    // 3) Render snake cobra image
+    print_snake_image_splash();
+
+    // 4) Render credit text "VAIBHAV RAJPUT"
+    // "VAIBHAV" = 7 chars × 3px + 6 × 1px gap = 27px
+    // gap 4px
+    // "RAJPUT"  = 6 chars × 3px + 5 × 1px gap = 23px
+    // Total = 54px. Centered: x = (240 - 54) / 2 = 93
+    Character vaibhav_chars[] = {
+        CHAR_V, CHAR_A, CHAR_I, CHAR_B, CHAR_H, CHAR_A, CHAR_V
+    };
+    Character rajput_chars[] = {
+        CHAR_R, CHAR_A, CHAR_J, CHAR_P, CHAR_U, CHAR_T
+    };
+    uint16_t char_gap_pixels = 1;
+    print_string(buf_credit_text, vaibhav_chars, 93, credit_text_y,
+                 credit_scale, get_splash_created_by_color(),
+                 get_splash_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 7);
+    print_string(buf_credit_text, rajput_chars, 93 + 27 + 4, credit_text_y,
+                 credit_scale, get_splash_created_by_color(),
+                 get_splash_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 6);
+
+    initialized_splash = true;
+}
+
+// ############## Display setup ################
+
+void zmk_widget_splash_init() {
+    snake_logo_text_buf_splash = k_malloc(snake_logo_text_width * 2 * sizeof(uint16_t));
+    snake_image_buf_splash = k_malloc(snake_image_width * 2 * sizeof(uint16_t));
+    buf_dongle_text = k_malloc((dongle_font_width * dongle_scale) * (dongle_font_height * dongle_scale) * 2u);
+    buf_credit_text = k_malloc((credit_font_width * credit_scale) * (credit_font_height * credit_scale) * 2u);
+}
+
+void clean_up_splash() {
+    k_free(snake_logo_text_buf_splash);
+    k_free(snake_image_buf_splash);
+    k_free(buf_dongle_text);
+    k_free(buf_credit_text);
 }
 
 #else
