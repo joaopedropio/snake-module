@@ -163,8 +163,15 @@ void change_theme() {
         print_menu();
         apply_theme_snake();
     } else {
+        /* Preserve manual-mode state across the theme change.
+         * stop_snake() would reset manual_mode, losing the player's
+         * ongoing keyboard-driven game. */
+        bool was_manual = snake_get_manual_mode();
         stop_snake();
         apply_theme_snake();
+        if (was_manual) {
+            snake_set_manual_mode(true);
+        }
         start_snake();
     }
 }
