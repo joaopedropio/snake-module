@@ -54,6 +54,10 @@ config SPLASH_USE_CMD_BITMAP
     bool "Use custom CMD bitmap as splash screen (full 240x240 image)"
     default n
 
+config SPLASH_DISPLAY_TIME_MS
+    int "Splash screen display time in milliseconds"
+    default 4000
+
 config USE_SPLASH_SOUND
     bool "Use splash sound"
     default n

@@ -23,8 +23,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "widgets/helpers/settings.h"
 
 static const uint8_t SPLASH_DURATION = 50;
-static const uint8_t SPLASH_FINAL_COUNT = 50;
-static uint8_t splash_count = 0;
+static const uint16_t SPLASH_FINAL_COUNT = CONFIG_SPLASH_DISPLAY_TIME_MS / 50;
+static uint16_t splash_count = 0;
 static bool splash_finished = false;
 
 void timer_splash(lv_timer_t * timer) {

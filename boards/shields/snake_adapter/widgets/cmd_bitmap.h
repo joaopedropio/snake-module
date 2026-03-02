@@ -21,3 +21,9 @@ void draw_cmd_bitmap(uint16_t *framebuffer, int fbWidth, int fbHeight);
  * into the provided row_buf (must be at least CMD_WIDTH * num_rows uint16_t entries).
  */
 void draw_cmd_bitmap_chunk(uint16_t *row_buf, uint16_t start_row, uint16_t num_rows);
+
+/**
+ * Get a single pixel from the compressed bitmap at source coordinates (sx, sy).
+ * Returns the RGB565 color already byte-swapped for the ST7789V display.
+ */
+uint16_t get_cmd_pixel(int sx, int sy);

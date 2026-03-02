@@ -26,7 +26,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "cmd_bitmap.h"
 #include <string.h>
 
-// Number of rows to render per chunk to limit RAM usage
+// Number of display rows to render per chunk to limit RAM usage
 // Each row is 240 pixels * 2 bytes = 480 bytes, so 20 rows = 9600 bytes
 #define CMD_CHUNK_ROWS 20
 
@@ -34,6 +34,39 @@ static bool initialized_splash = false;
 
 void print_background(void) {
     clear_screen();
+}
+
+/*
+ * Map a display-space (dx, dy) coordinate back to source-image (sx, sy)
+ * based on the current software rotation.
+ *
+ *   0°  : (dx, dy)               — identity
+ *   90° : (dy, 239 - dx)         — CW quarter turn
+ *  180° : (239 - dx, 239 - dy)   — half turn
+ *  270° : (239 - dy, dx)         — CCW quarter turn
+ */
+static inline void map_source_pixel(DisplayOrientation orient,
+                                    int dx, int dy,
+                                    int *sx, int *sy)
+{
+    switch (orient) {
+    case DISPLAY_ORIENTATION_90:
+        *sx = dy;
+        *sy = 239 - dx;
+        break;
+    case DISPLAY_ORIENTATION_180:
+        *sx = 239 - dx;
+        *sy = 239 - dy;
+        break;
+    case DISPLAY_ORIENTATION_270:
+        *sx = 239 - dy;
+        *sy = dx;
+        break;
+    default: /* DISPLAY_ORIENTATION_0 */
+        *sx = dx;
+        *sy = dy;
+        break;
+    }
 }
 
 void print_splash(void) {
@@ -47,26 +80,33 @@ void print_splash(void) {
         return;
     }
 
+    DisplayOrientation orient = get_display_orientation();
+
     struct display_buffer_descriptor buf_desc;
     buf_desc.width = CMD_WIDTH;
     buf_desc.pitch = CMD_WIDTH;
 
-    // Decode and write the image in chunks
+    // For each chunk of display rows, look up the correct source pixel
+    // (applying rotation) and write directly to the display.
     for (uint16_t start_row = 0; start_row < CMD_HEIGHT; start_row += CMD_CHUNK_ROWS) {
         uint16_t rows_this_chunk = CMD_CHUNK_ROWS;
         if (start_row + rows_this_chunk > CMD_HEIGHT) {
             rows_this_chunk = CMD_HEIGHT - start_row;
         }
 
-        memset(row_buf, 0, CMD_WIDTH * rows_this_chunk * sizeof(uint16_t));
-        draw_cmd_bitmap_chunk(row_buf, start_row, rows_this_chunk);
+        // Fill the chunk with rotation-mapped pixels
+        for (uint16_t r = 0; r < rows_this_chunk; r++) {
+            int dy = start_row + r;
+            for (uint16_t c = 0; c < CMD_WIDTH; c++) {
+                int sx, sy;
+                map_source_pixel(orient, c, dy, &sx, &sy);
+                row_buf[r * CMD_WIDTH + c] = get_cmd_pixel(sx, sy);
+            }
+        }
 
         buf_desc.height = rows_this_chunk;
         buf_desc.buf_size = CMD_WIDTH * rows_this_chunk * sizeof(uint16_t);
-        // Write directly to display bypassing rotation wrapper.
-        // display_write_wrapper for 90/270 swaps buffer dimensions which
-        // corrupts the raw pixel data. For a full-screen 240x240 image the
-        // direct write is correct regardless of software rotation setting.
+        // Write directly — pixel data is already rotated in the buffer
         display_write_wrapper_snake(0, start_row, &buf_desc, (uint8_t *)row_buf);
     }
 

@@ -2956,6 +2956,20 @@ void draw_cmd_bitmap(uint16_t *framebuffer, int fbWidth, int fbHeight)
 }
 
 /*
+ * get_cmd_pixel() returns the byte-swapped RGB565 color at source position (sx, sy).
+ * Allows random access into the packed bitmap for rotation-aware rendering.
+ */
+uint16_t get_cmd_pixel(int sx, int sy)
+{
+    int linear = sy * CMD_WIDTH + sx;
+    int packed_idx = linear / 2;
+    uint16_t packed = cmd_bitmap[packed_idx];
+    uint8_t palette_idx = (linear & 1) ? (packed & 0xFF) : ((packed >> 8) & 0xFF);
+    uint16_t color = cmd_palette[palette_idx];
+    return (color >> 8) | (color << 8);
+}
+
+/*
  * draw_cmd_bitmap_chunk() decodes only the rows [start_row .. start_row+num_rows-1]
  * from the packed bitmap into row_buf. This avoids needing a full 240x240 framebuffer.
  * row_buf must hold at least CMD_WIDTH * num_rows uint16_t entries.
