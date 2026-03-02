@@ -50,15 +50,6 @@ config SPLASH_USE_SNAKE_2
     bool "Use Snake 2 Splash screen"
     default n
 
-config SPLASH_USE_DONGLE
-    bool "Use Snake Dongle Splash screen"
-    default n
-    depends on !SPLASH_USE_SNAKE_2
-    help
-      Displays the Snake Dongle splash with "SNAKE" logo text,
-      "DONGLE" in multicolor, cobra artwork, and "VAIBHAV RAJPUT"
-      credit. Mutually exclusive with SPLASH_USE_SNAKE_2.
-
 config USE_SPLASH_SOUND
     bool "Use splash sound"
     default n
