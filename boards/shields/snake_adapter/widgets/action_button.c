@@ -79,7 +79,7 @@ void print_frames() {
         print_container(buf_frame, 120, 240, 112, 161, thickness); // slot 6
     }
 
-    if (slot_mode == SLOT_MODE_4) {
+    if (slot_mode == SLOT_MODE_4 || slot_mode == SLOT_MODE_5) {
         print_container(buf_frame, 0, 240, 0, 73, thickness); // snake slot
 
         print_container(buf_frame, 0, 120, 72, 117, thickness);   // slot 3
@@ -118,6 +118,7 @@ void print_menu() {
     start_layer_status();
     set_status_symbol();
     set_battery_symbol();
+    print_battery_widget();
     print_layer();
     print_themes();
     print_wpm();

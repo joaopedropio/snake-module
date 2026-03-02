@@ -45,12 +45,12 @@ static const uint16_t bt_num_width = 5;
 static const uint16_t bt_num_height = 7;
 
 static uint16_t bluetooth_profiles_x = 57;
-static uint16_t bluetooth_profiles_y = 16;
+static uint16_t bluetooth_profiles_y = 6;
 static uint16_t bluetooth_status_x = 83;
-static uint16_t bluetooth_status_y = 16;
+static uint16_t bluetooth_status_y = 6;
 static uint16_t symbol_usb_x = 11;
 static uint16_t symbol_ble_x = 35;
-static uint16_t symbols_y = 15;
+static uint16_t symbols_y = 5;
 
 static const uint16_t usb_ready_bitmap[] = {
     0, 1, 1, 1, 1, 1, 1, 1, 0,

@@ -30,7 +30,7 @@ static uint16_t *scaled_bitmap_modifier_font;
 
 Slot modifier_slot;
 static uint16_t modifier_x = 7;
-static uint16_t modifier_y = 20;
+static uint16_t modifier_y = 10;
 
 struct modifiers_state {    
     uint8_t modifiers;

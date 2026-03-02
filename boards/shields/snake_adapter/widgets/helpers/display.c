@@ -41,6 +41,10 @@ static uint16_t snake_color_6;
 static uint16_t battery_num_color_1;
 static uint16_t battery_percentage_color_1;
 static uint16_t battery_bg_color_1;
+static uint16_t battery_widget_num_color;
+static uint16_t battery_widget_percentage_color;
+static uint16_t battery_widget_text_color;
+static uint16_t battery_widget_bg_color;
 static uint16_t battery_num_color;
 static uint16_t battery_percentage_color;
 static uint16_t battery_bg_color;
@@ -104,6 +108,22 @@ static uint32_t themes_colors[][COLORS_PER_THEME] = {
     {0xff3b94u, 0xa6fd29u, 0x55ffe1u, 0xaf3dffu, 0, 0}, // 10 - neon colors
 };
 
+Character int_to_num_char(uint8_t i) {
+    switch (i) {
+        case 0: return CHAR_0;
+        case 1: return CHAR_1;
+        case 2: return CHAR_2;
+        case 3: return CHAR_3;
+        case 4: return CHAR_4;
+        case 5: return CHAR_5;
+        case 6: return CHAR_6;
+        case 7: return CHAR_7;
+        case 8: return CHAR_8;
+        case 9: return CHAR_9;
+    }
+    return CHAR_NONE;
+}
+
 void set_complete_colors_theme() {
     uint32_t splash_multicolor_0 = hex_string_to_uint(CONFIG_SPLASH_MULTICOLOR_0);
     uint32_t splash_multicolor_1 = hex_string_to_uint(CONFIG_SPLASH_MULTICOLOR_1);
@@ -123,6 +143,10 @@ void set_complete_colors_theme() {
     uint32_t snake_color_4 = hex_string_to_uint(CONFIG_SNAKE_COLOR_4);
     uint32_t snake_color_5 = hex_string_to_uint(CONFIG_SNAKE_COLOR_5);
     uint32_t snake_color_6 = hex_string_to_uint(CONFIG_SNAKE_COLOR_6);
+    uint32_t battery_widget_num_color = hex_string_to_uint(CONFIG_BATTERY_WIDGET_NUM_COLOR);
+    uint32_t battery_widget_percentage_color = hex_string_to_uint(CONFIG_BATTERY_WIDGET_PERCENTAGE_COLOR);
+    uint32_t battery_widget_text_color = hex_string_to_uint(CONFIG_BATTERY_WIDGET_TEXT_COLOR);
+    uint32_t battery_widget_bg_color = hex_string_to_uint(CONFIG_BATTERY_WIDGET_BG_COLOR);
     uint32_t battery_num_color = hex_string_to_uint(CONFIG_BATTERY_NUM_COLOR);
     uint32_t battery_percentage_color = hex_string_to_uint(CONFIG_BATTERY_PERCENTAGE_COLOR);
     uint32_t battery_bg_color = hex_string_to_uint(CONFIG_BATTERY_BG_COLOR);
@@ -223,6 +247,22 @@ void set_complete_colors_theme() {
 
     if (snake_color_6 == HEX_PARSE_ERROR) {
         snake_color_6 = 0xFFFFFF;
+    }
+
+    if (battery_widget_num_color == HEX_PARSE_ERROR) {
+        battery_widget_num_color = 0xFFFFFF;
+    }
+
+    if (battery_widget_percentage_color == HEX_PARSE_ERROR) {
+        battery_widget_percentage_color = 0xFFFFFF;
+    }
+
+    if (battery_widget_text_color == HEX_PARSE_ERROR) {
+        battery_widget_text_color = 0xFFFFFF;
+    }
+
+    if (battery_widget_bg_color == HEX_PARSE_ERROR) {
+        battery_widget_bg_color = 0xFFFFFF;
     }
 
     if (battery_num_color == HEX_PARSE_ERROR) {
@@ -374,6 +414,10 @@ void set_complete_colors_theme() {
         snake_color_4,
         snake_color_5,
         snake_color_6,
+        battery_widget_num_color,
+        battery_widget_percentage_color,
+        battery_widget_text_color,
+        battery_widget_bg_color,
         battery_num_color,
         battery_percentage_color,
         battery_bg_color,
@@ -1515,6 +1559,22 @@ void set_snake_color_6(uint32_t color) {
     snake_color_6 = rgb888_to_rgb565(color);
 }
 
+void set_battery_widget_num_color(uint32_t color) {
+    battery_widget_num_color = rgb888_to_rgb565(color);
+}
+
+void set_battery_widget_percentage_color(uint32_t color) {
+    battery_widget_percentage_color = rgb888_to_rgb565(color);
+}
+
+void set_battery_widget_text_color(uint32_t color) {
+    battery_widget_text_color = rgb888_to_rgb565(color);
+}
+
+void set_battery_widget_bg_color(uint32_t color) {
+    battery_widget_bg_color = rgb888_to_rgb565(color);
+}
+
 void set_battery_num_color(uint32_t color) {
     battery_num_color = rgb888_to_rgb565(color);
 }
@@ -1733,6 +1793,22 @@ uint16_t get_snake_color_5() {
 
 uint16_t get_snake_color_6() {
     return snake_color_6;
+}
+
+uint16_t get_battery_widget_num_color() {
+    return battery_widget_num_color;
+}
+
+uint16_t get_battery_widget_percentage_color() {
+    return battery_widget_percentage_color;
+}
+
+uint16_t get_battery_widget_text_color() {
+    return battery_widget_text_color;
+}
+
+uint16_t get_battery_widget_bg_color() {
+    return battery_widget_bg_color;
 }
 
 uint16_t get_battery_num_color() {
@@ -2764,6 +2840,10 @@ void set_all_colors(
     uint32_t snake_color_4,
     uint32_t snake_color_5,
     uint32_t snake_color_6,
+    uint32_t battery_widget_num_color,
+    uint32_t battery_widget_percentage_color,
+    uint32_t battery_widget_text_color,
+    uint32_t battery_widget_bg_color,
     uint32_t battery_num_color,
     uint32_t battery_percentage_color,
     uint32_t battery_bg_color,
@@ -2815,6 +2895,10 @@ void set_all_colors(
     set_snake_color_5(snake_color_5);
     set_snake_color_6(snake_color_6);
 
+    set_battery_widget_num_color(battery_widget_num_color);
+    set_battery_widget_percentage_color(battery_widget_percentage_color);
+    set_battery_widget_text_color(battery_widget_text_color);
+    set_battery_widget_bg_color(battery_widget_bg_color);
     set_battery_num_color(battery_num_color);
     set_battery_percentage_color(battery_percentage_color);
     set_battery_bg_color(battery_bg_color);
@@ -2878,6 +2962,10 @@ void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1,
     set_snake_color_5(secondary);
     set_snake_color_6(background1);
 
+    set_battery_widget_num_color(primary);
+    set_battery_widget_percentage_color(background1);
+    set_battery_widget_text_color(background1);
+    set_battery_widget_bg_color(background2);
     set_battery_num_color(primary);
     set_battery_percentage_color(background1);
     set_battery_bg_color(background2);
@@ -3007,9 +3095,9 @@ void set_slot_1(SlotName name) {
     slot1.name = name;
     slot1.number = SLOT_NUMBER_1;
     slot1.x = 0;
-    slot1.y = 0;
+    slot1.y = 10;
     SlotMode mode = get_slot_mode();
-    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4 || mode == SLOT_MODE_5) {
         slot1.number = SLOT_NUMBER_NONE;
     }
 }
@@ -3017,36 +3105,40 @@ void set_slot_2(SlotName name) {
     slot2.name = name;
     slot2.number = SLOT_NUMBER_2;
     slot2.x = 120;
-    slot2.y = 0;
+    slot2.y = 10;
     SlotMode mode = get_slot_mode();
     if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
         slot2.number = SLOT_NUMBER_NONE;
+    }
+    if (mode == SLOT_MODE_5) {
+        slot2.x = 60;
+        slot2.y = 15;
     }
 }
 void set_slot_3(SlotName name) {
     slot3.name = name;
     slot3.number = SLOT_NUMBER_3;
     slot3.x = 0;
-    slot3.y = 50;
+    slot3.y = 60;
     SlotMode mode = get_slot_mode();
     if (mode == SLOT_MODE_2) {
         slot3.number = SLOT_NUMBER_NONE;
     }
-    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
-        slot3.y = 64;
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4 || mode == SLOT_MODE_5) {
+        slot3.y = 74;
     }
 }
 void set_slot_4(SlotName name) {
     slot4.name = name;
     slot4.number = SLOT_NUMBER_4;
     slot4.x = 120;
-    slot4.y = 50;
+    slot4.y = 60;
     SlotMode mode = get_slot_mode();
     if (mode == SLOT_MODE_2) {
         slot4.number = SLOT_NUMBER_NONE;
     }
-    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
-        slot4.y = 64;
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4 || mode == SLOT_MODE_5) {
+        slot4.y = 74;
     }
 }
 
@@ -3054,20 +3146,20 @@ void set_slot_5(SlotName name) {
     slot5.name = name;
     slot5.number = SLOT_NUMBER_5;
     slot5.x = 0;
-    slot5.y = 106;
+    slot5.y = 116;
     SlotMode mode = get_slot_mode();
-    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
-        slot5.y = 108;
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4 || mode == SLOT_MODE_5) {
+        slot5.y = 118;
     }
 }
 void set_slot_6(SlotName name) {
     slot6.name = name;
     slot6.number = SLOT_NUMBER_6;
     slot6.x = 120;
-    slot6.y = 106;
+    slot6.y = 116;
     SlotMode mode = get_slot_mode();
-    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
-        slot6.y = 108;
+    if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4 || mode == SLOT_MODE_5) {
+        slot6.y = 118;
     }
 }
 

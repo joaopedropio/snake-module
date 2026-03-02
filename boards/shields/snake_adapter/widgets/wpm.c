@@ -30,7 +30,7 @@ static uint16_t *scaled_bitmap_wpm_font;
 
 Slot wpm_slot;
 static uint16_t wpm_x = 13;
-static uint16_t wpm_y = 21;
+static uint16_t wpm_y = 11;
 
 struct wpm_speed_state {
     uint8_t wpm;
