@@ -19,10 +19,72 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #include "splash.h"
 #include "helpers/display.h"
+
+
+#ifdef CONFIG_SPLASH_USE_CMD_BITMAP
+
+#include "cmd_bitmap.h"
+#include <string.h>
+
+// Number of rows to render per chunk to limit RAM usage
+// Each row is 240 pixels * 2 bytes = 480 bytes, so 20 rows = 9600 bytes
+#define CMD_CHUNK_ROWS 20
+
+static bool initialized_splash = false;
+
+void print_background(void) {
+    clear_screen();
+}
+
+void print_splash(void) {
+    if (initialized_splash) {
+        return;
+    }
+
+    // Allocate a row buffer for CMD_CHUNK_ROWS rows at a time
+    uint16_t *row_buf = k_malloc(CMD_WIDTH * CMD_CHUNK_ROWS * sizeof(uint16_t));
+    if (!row_buf) {
+        return;
+    }
+
+    struct display_buffer_descriptor buf_desc;
+    buf_desc.width = CMD_WIDTH;
+    buf_desc.pitch = CMD_WIDTH;
+
+    // Decode and write the image in chunks
+    for (uint16_t start_row = 0; start_row < CMD_HEIGHT; start_row += CMD_CHUNK_ROWS) {
+        uint16_t rows_this_chunk = CMD_CHUNK_ROWS;
+        if (start_row + rows_this_chunk > CMD_HEIGHT) {
+            rows_this_chunk = CMD_HEIGHT - start_row;
+        }
+
+        memset(row_buf, 0, CMD_WIDTH * rows_this_chunk * sizeof(uint16_t));
+        draw_cmd_bitmap_chunk(row_buf, start_row, rows_this_chunk);
+
+        buf_desc.height = rows_this_chunk;
+        buf_desc.buf_size = CMD_WIDTH * rows_this_chunk * sizeof(uint16_t);
+        // Write directly to display bypassing rotation wrapper.
+        // display_write_wrapper for 90/270 swaps buffer dimensions which
+        // corrupts the raw pixel data. For a full-screen 240x240 image the
+        // direct write is correct regardless of software rotation setting.
+        display_write_wrapper_snake(0, start_row, &buf_desc, (uint8_t *)row_buf);
+    }
+
+    k_free(row_buf);
+    initialized_splash = true;
+}
+
+void zmk_widget_splash_init(void) {
+    // No persistent buffers needed — everything is allocated/freed in print_splash
+}
+
+void clean_up_splash(void) {
+    // Nothing to free
+}
+
+#elif defined(CONFIG_SPLASH_USE_SNAKE_2)
+
 #include "snake_image.h"
-
-
-#ifdef CONFIG_SPLASH_USE_SNAKE_2
 
 static uint16_t *snake_image_buf;
 static uint16_t snake_image_x = 24;

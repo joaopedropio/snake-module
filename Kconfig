@@ -50,6 +50,10 @@ config SPLASH_USE_SNAKE_2
     bool "Use Snake 2 Splash screen"
     default n
 
+config SPLASH_USE_CMD_BITMAP
+    bool "Use custom CMD bitmap as splash screen (full 240x240 image)"
+    default n
+
 config USE_SPLASH_SOUND
     bool "Use splash sound"
     default n
