@@ -30,7 +30,7 @@ static uint16_t *scaled_bitmap_wpm_font;
 
 Slot wpm_slot;
 static uint16_t wpm_x = 13;
-static uint16_t wpm_y = 21;
+static uint16_t wpm_y = 11;
 
 struct wpm_speed_state {
     uint8_t wpm;
@@ -38,12 +38,39 @@ struct wpm_speed_state {
 
 static struct wpm_speed_state wpm_speed;
 
+void print_wpm_5_slot_top() {
+    uint8_t speed = wpm_speed.wpm;
+
+    uint16_t num_1 = speed / 100;
+    uint16_t num_2 = (speed % 100) / 10;
+    uint16_t num_3 = speed % 10;
+
+    uint8_t gap = 4;
+    uint8_t char_len = (wpm_font_scale * wpm_font_width) + gap;
+
+    print_bitmap(scaled_bitmap_wpm_font, CHAR_W, wpm_x, wpm_y, wpm_font_scale, get_wpm_font_color(), get_wpm_font_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_wpm_font, CHAR_P, wpm_x + (char_len * 1), wpm_y, wpm_font_scale, get_wpm_font_color(), get_wpm_font_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_wpm_font, CHAR_M, wpm_x + (char_len * 2), wpm_y, wpm_font_scale, get_wpm_font_color(), get_wpm_font_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_wpm_font, CHAR_COLON, wpm_x + (char_len * 3), wpm_y, wpm_font_scale, get_wpm_font_color(), get_wpm_font_bg_color(), FONT_SIZE_3x5);
+
+    gap = 2;
+
+    print_bitmap(scaled_bitmap_wpm_font, num_1, wpm_x + (char_len * 4), wpm_y, wpm_font_scale, get_wpm_font_1_color(), get_wpm_font_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_wpm_font, num_2, wpm_x + (char_len * 5), wpm_y, wpm_font_scale, get_wpm_font_1_color(), get_wpm_font_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_wpm_font, num_3, wpm_x + (char_len * 6), wpm_y, wpm_font_scale, get_wpm_font_1_color(), get_wpm_font_bg_color(), FONT_SIZE_3x5);
+}
+
 void print_wpm() {
     if (wpm_slot.number == SLOT_NUMBER_NONE) {
         return;
     }
-    uint8_t wpm_string_size = 3;
-    uint8_t gap = 2;
+
+    SlotMode mode = get_slot_mode();
+    wpm_slot = get_slot_by_name(SLOT_NAME_WPM);
+    if (mode == SLOT_MODE_5 && wpm_slot.number == SLOT_NUMBER_2) {
+        print_wpm_5_slot_top();
+        return;
+    }
 
     uint8_t speed = wpm_speed.wpm;
 
@@ -81,12 +108,19 @@ ZMK_DISPLAY_WIDGET_LISTENER(widget_wpm, struct wpm_speed_state,
 ZMK_SUBSCRIPTION(widget_wpm, zmk_wpm_state_changed);
 
 void zmk_widget_wpm_init() {
+    SlotMode mode = get_slot_mode();
+    wpm_slot = get_slot_by_name(SLOT_NAME_WPM);
+    if (mode == SLOT_MODE_5 && wpm_slot.number == SLOT_NUMBER_2) {
+        wpm_font_scale = 9;
+        wpm_x = 13;
+        wpm_y = 12;
+    } else {
+        wpm_x += wpm_slot.x;
+        wpm_y += wpm_slot.y;
+    }
+
     uint16_t wpm_font_size = (wpm_font_width * wpm_font_scale) * (wpm_font_height * wpm_font_scale);
     scaled_bitmap_wpm_font = k_malloc(wpm_font_size * 2 * sizeof(uint16_t));
-
-    wpm_slot = get_slot_by_name(SLOT_NAME_WPM);
-    wpm_x += wpm_slot.x;
-    wpm_y += wpm_slot.y;
 
     widget_wpm_init();
     wpm_widget_initialized = true;

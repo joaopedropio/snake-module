@@ -27,26 +27,45 @@ static uint16_t *scaled_bitmap_theme_font;
 
 Slot theme_slot;
 static uint16_t theme_x = 17;
-static uint16_t theme_y = 21;
+static uint16_t theme_y = 11;
 
-static Character int_to_num_char(uint8_t i) {
-    switch (i) {
-        case 0: return CHAR_0;
-        case 1: return CHAR_1;
-        case 2: return CHAR_2;
-        case 3: return CHAR_3;
-        case 4: return CHAR_4;
-        case 5: return CHAR_5;
-        case 6: return CHAR_6;
-        case 7: return CHAR_7;
-        case 8: return CHAR_8;
-        case 9: return CHAR_9;
+void print_themes_5_slot_top() {
+    Character theme_template[] = {
+        CHAR_S,
+        CHAR_K,
+        CHAR_I,
+        CHAR_N,
+    };
+
+    uint8_t gap = 4;
+    uint8_t char_len = (theme_font_scale * theme_font_width) + gap;
+    uint16_t theme_x_custom = theme_x + 14;
+    uint16_t theme_num_x = theme_x + (char_len * 4);
+    uint16_t theme_num_x_custom = theme_x_custom + (char_len * 4);
+    uint8_t num = current_theme;
+    uint16_t first_num = current_theme / 10;
+    uint16_t second_num = current_theme % 10;
+
+
+    uint16_t char_gap_pixels = 2;
+    if (num == 0) {
+        print_string(scaled_bitmap_theme_font, theme_template, theme_x_custom, theme_y, theme_font_scale, get_theme_font_color(), get_theme_font_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 4);
+        print_bitmap(scaled_bitmap_theme_font, CHAR_C, theme_num_x_custom, theme_y, theme_font_scale, get_theme_font_color_1(), get_theme_font_bg_color(), FONT_SIZE_3x5);
+        print_bitmap(scaled_bitmap_theme_font, CHAR_NONE, theme_num_x_custom + char_len, theme_y, theme_font_scale, get_theme_font_color_1(), get_theme_font_bg_color(), FONT_SIZE_3x5);
+        return;
     }
-    return CHAR_NONE;
+    print_string(scaled_bitmap_theme_font, theme_template, theme_x, theme_y, theme_font_scale, get_theme_font_color(), get_theme_font_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 4);
+    print_bitmap(scaled_bitmap_theme_font, int_to_num_char(first_num), theme_num_x, theme_y, theme_font_scale, get_theme_font_color_1(), get_theme_font_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_theme_font, int_to_num_char(second_num), theme_num_x + char_len, theme_y, theme_font_scale, get_theme_font_color_1(), get_theme_font_bg_color(), FONT_SIZE_3x5);
 }
 
 void print_themes() {
     if (theme_slot.number == SLOT_NUMBER_NONE) {
+        return;
+    }
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_5 && theme_slot.number == SLOT_NUMBER_2) {
+        print_themes_5_slot_top();
         return;
     }
     Character theme_template[] = {
@@ -99,14 +118,20 @@ void set_next_theme() {
 }
 
 void theme_init() {
+    SlotMode mode = get_slot_mode();
+    theme_slot = get_slot_by_name(SLOT_NAME_THEME);
+    if (mode == SLOT_MODE_5 && theme_slot.number == SLOT_NUMBER_2) {
+        theme_font_scale = 9;
+        theme_x = 30;
+        theme_y = 12;
+    } else {
+        theme_x += theme_slot.x;
+        theme_y += theme_slot.y;
+    }
     uint16_t theme_font_size = (theme_font_width * theme_font_scale) * (theme_font_height * theme_font_scale);
 
     scaled_bitmap_theme_font = k_malloc(theme_font_size * 2 * sizeof(uint16_t));
 
     current_theme = snake_settings_get_current_theme();
     apply_current_theme(current_theme);
-    
-    theme_slot = get_slot_by_name(SLOT_NAME_THEME);
-    theme_x += theme_slot.x;
-    theme_y += theme_slot.y;
 }

@@ -5,6 +5,7 @@
 typedef enum {
     SLOT_MODE_2,
     SLOT_MODE_4,
+    SLOT_MODE_5,
     SLOT_MODE_6,
 } SlotMode;
 
@@ -24,6 +25,7 @@ typedef enum {
     SLOT_NAME_THEME,
     SLOT_NAME_WPM,
     SLOT_NAME_MODIFIERS,
+    SLOT_NAME_BATTERY,
     SLOT_NAME_NONE,
 } SlotName;
 
@@ -113,6 +115,8 @@ typedef enum {
     DISPLAY_ORIENTATION_270,
 } DisplayOrientation;
 
+Character int_to_num_char(uint8_t i);
+
 void print_container(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t scale);
 void fill_buffer_color(uint8_t *buf, size_t buf_size, uint32_t color);
 void init_display(void);
@@ -145,6 +149,10 @@ void set_snake_color_3(uint32_t color);
 void set_snake_color_4(uint32_t color);
 void set_snake_color_5(uint32_t color);
 void set_snake_color_6(uint32_t color);
+void set_battery_widget_num_color(uint32_t color);
+void set_battery_widget_bg_color(uint32_t color);
+void set_battery_widget_percentage_color(uint32_t color);
+void set_battery_widget_text_color(uint32_t color);
 void set_battery_num_color(uint32_t color);
 void set_battery_bg_color(uint32_t color);
 void set_battery_percentage_color(uint32_t color);
@@ -201,6 +209,10 @@ uint16_t get_snake_color_3(void);
 uint16_t get_snake_color_4(void);
 uint16_t get_snake_color_5(void);
 uint16_t get_snake_color_6(void);
+uint16_t get_battery_widget_num_color(void);
+uint16_t get_battery_widget_bg_color(void);
+uint16_t get_battery_widget_percentage_color(void);
+uint16_t get_battery_widget_text_color(void);
 uint16_t get_battery_num_color(void);
 uint16_t get_battery_bg_color(void);
 uint16_t get_battery_percentage_color(void);

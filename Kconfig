@@ -214,6 +214,26 @@ config SNAKE_COLOR_6
     string ""
     default "000000"
 
+config BATTERY_WIDGET_NUMBER
+    int ""
+    default 0
+
+config BATTERY_WIDGET_NUM_COLOR
+    string ""
+    default "000000"
+
+config BATTERY_WIDGET_PERCENTAGE_COLOR
+    string ""
+    default "000000"
+
+config BATTERY_WIDGET_TEXT_COLOR
+    string ""
+    default "000000"
+
+config BATTERY_WIDGET_BG_COLOR
+    string ""
+    default "000000"
+
 config BATTERY_NUM_COLOR
     string ""
     default "000000"
