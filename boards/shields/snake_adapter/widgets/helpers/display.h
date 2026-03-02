@@ -93,6 +93,7 @@ typedef enum {
 } Status;
 
 typedef enum {
+    FONT_SIZE_10x13,
     FONT_SIZE_3x5,
     FONT_SIZE_4x5,
     FONT_SIZE_5x7,
@@ -117,6 +118,7 @@ void init_display(void);
 void display_write_wrapper_snake(uint16_t x, uint16_t y, struct display_buffer_descriptor *buf_desc, uint8_t *buf);
 void display_write_wrapper(uint16_t x, uint16_t y, struct display_buffer_descriptor *buf_desc, uint8_t *buf);
 void print_bitmap(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size);
+void print_bitmap_multicolor(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t colors[], FontSize font_size);
 void print_bitmap_status(uint16_t *scaled_bitmap, Status s, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color);
 void print_bitmap_transport(uint16_t *scaled_bitmap, Transport t, bool is_ready, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color);
 void print_rectangle(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t color, uint16_t scale);
@@ -124,6 +126,7 @@ void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t wi
 
 void set_default_screen(DefaultScreen screen);
 void set_display_orientation(DisplayOrientation orientation);
+void set_splash_logo_multicolor(uint32_t color0, uint32_t color1, uint32_t color2, uint32_t color3);
 void set_splash_logo_color(uint32_t color);
 void set_splash_created_by_color(uint32_t color);
 void set_splash_bg_color(uint32_t color);
@@ -176,6 +179,10 @@ void set_bt_status_bg_color(uint32_t color);
 
 DefaultScreen get_default_screen();
 DisplayOrientation get_display_orientation();
+uint16_t get_splash_logo_multicolor_0(void);
+uint16_t get_splash_logo_multicolor_1(void);
+uint16_t get_splash_logo_multicolor_2(void);
+uint16_t get_splash_logo_multicolor_3(void);
 uint16_t get_splash_logo_color(void);
 uint16_t get_splash_created_by_color(void);
 uint16_t get_splash_bg_color(void);
