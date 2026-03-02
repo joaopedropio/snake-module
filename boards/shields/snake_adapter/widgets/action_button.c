@@ -18,6 +18,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zmk/display.h>
 #include <zmk/display/widgets/layer_status.h>
 #include <zmk_dongle_events/dongle_action_event.h>
+#include <zmk_dongle_events/snake_direction_event.h>
 #include <zmk/event_manager.h>
 #include <zmk/endpoints.h>
 #include <zmk/keymap.h>
@@ -234,8 +235,38 @@ ZMK_DISPLAY_WIDGET_LISTENER(dongle_action, struct zmk_dongle_actioned, dongle_ac
 ZMK_SUBSCRIPTION(dongle_action, zmk_dongle_actioned);
 
 
+/* ############## SNAKE DIRECTION LISTENER ############## */
+
+void snake_direction_update_cb(struct zmk_snake_direction state) {
+    if (!action_button_initialized) {
+        return;
+    }
+    /* Enter manual mode on first direction event (if not already) */
+    if (!snake_get_manual_mode()) {
+        snake_set_manual_mode(true);
+        if (menu_on) {
+            toggle_menu();  /* closes menu, starts snake */
+        } else {
+            start_snake();  /* ensure timer is running (idempotent) */
+        }
+    }
+    snake_set_direction(state.direction);
+}
+
+static struct zmk_snake_direction snake_direction_get_state(const zmk_event_t *eh) {
+    const struct zmk_snake_direction *ev = as_zmk_snake_direction(eh);
+    return (struct zmk_snake_direction){
+        .direction = (ev != NULL) ? ev->direction : 0,
+    };
+}
+
+ZMK_DISPLAY_WIDGET_LISTENER(snake_direction, struct zmk_snake_direction, snake_direction_update_cb, snake_direction_get_state)
+ZMK_SUBSCRIPTION(snake_direction, zmk_snake_direction);
+
+
 void zmk_widget_action_button_init() {
     dongle_action_init();
+    snake_direction_init();
 
     buf_frame = (uint8_t*)k_malloc(320 * 2 * sizeof(uint8_t));
 }

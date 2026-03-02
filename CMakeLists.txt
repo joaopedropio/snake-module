@@ -10,3 +10,5 @@ endif()
 
 target_sources(app PRIVATE src/behaviors/behavior_dongle_action.c)
 target_sources(app PRIVATE src/events/dongle_action_event.c)
+target_sources(app PRIVATE src/behaviors/behavior_snake_direction.c)
+target_sources(app PRIVATE src/events/snake_direction_event.c)

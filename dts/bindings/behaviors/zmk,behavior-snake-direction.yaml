@@ -1,0 +1,10 @@
+# Copyright (c) 2024 The ZMK Contributors
+# SPDX-License-Identifier: MIT
+
+description: Snake Direction Behavior
+
+compatible: "zmk,behavior-snake-direction"
+
+include: one_param.yaml
+
+properties: {}

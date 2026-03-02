@@ -54,6 +54,7 @@ const uint8_t TIMER_CYCLES_SLOW = 4;
 const uint8_t TIMER_CYCLES_MEDIUM = 3;
 const uint8_t TIMER_CYCLES_FAST = 2;
 const uint8_t TIMER_CYCLES_SUPER_FAST = 1;
+const uint8_t TIMER_CYCLES_MANUAL = 6;  /* fixed comfortable speed for keyboard-driven play */
 
 static uint8_t snake_best = 0;
 static uint8_t snake_len = 0;
@@ -169,6 +170,13 @@ typedef struct {
 static bool snake_initialized = false;
 static bool snake_died = false;
 static uint16_t death_count = 0;
+
+/* ############## MANUAL (SNAKE-MODE) STATE ############## */
+static bool     manual_mode       = false;
+static Direction pending_direction = DIRECTION_NONE;
+
+static Snake_coordinate manual_food;
+static bool manual_food_placed = false;
 
 static uint16_t snake_board[MAX_SNAKE_BOARD_WIDTH][MAX_SNAKE_BOARD_HEIGHT];
 const uint16_t out_of_board_number = 0;
@@ -345,6 +353,12 @@ static void set_draw_step(Snake_coordinate c, Snake_part part) {
 
 static uint16_t next_number(void) {
     current_number += 1;
+    /* Guard against uint16_t overflow — if we are about to wrap past
+     * the maximum representable number the board logic (is_snake_body,
+     * move_tail, etc.) would silently corrupt.  Force a death instead. */
+    if (current_number == 0) {
+        snake_died = true;
+    }
     return current_number;
 }
 
@@ -561,7 +575,242 @@ static void walk_render(void) {
     walk_index++;
 }
 
+/* ############## MANUAL-MODE FOOD PLACEMENT ############## */
+
+static void place_manual_food(void) {
+    uint8_t x, y;
+    uint16_t attempts = 0;
+    uint16_t max_attempts = (uint16_t)snake_board_width * snake_board_height;
+    /* find a random empty cell for food */
+    do {
+        x = random_number(snake_board_width);
+        y = random_number(snake_board_height);
+        attempts++;
+        if (attempts >= max_attempts) {
+            /* board is full — no room for food, game won */
+            manual_food_placed = false;
+            return;
+        }
+    } while (is_snake_body(x, y));
+    manual_food.x = x;
+    manual_food.y = y;
+    manual_food_placed = true;
+    /* render the food dot */
+    uint16_t ix = (x * snake_pixel_size) + SNAKE_X_OFFSET;
+    uint16_t iy = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
+    display_write_wrapper_snake(ix, iy, &buf_color_desc, buf_food_color);
+}
+
+/* ############## MANUAL-MODE PUBLIC API ############## */
+
+/* Forward-declare wrap helpers used by snake_set_direction() */
+static Direction head_direction_wrap(void);
+
+void snake_set_manual_mode(bool on) {
+    manual_mode = on;
+    pending_direction = DIRECTION_NONE;
+    manual_food_placed = false;
+    if (on) {
+        /* restart with a fresh board when entering manual mode */
+        finalize_snake();
+    }
+}
+
+bool snake_get_manual_mode(void) {
+    return manual_mode;
+}
+
+void snake_set_direction(uint8_t dir) {
+    if (!manual_mode || dir >= DIRECTION_LENGTH) return;
+
+    Direction new_dir = (Direction)dir;
+
+    /* Skip anti-180 guard when snake is not yet initialised (entering
+     * manual mode or respawning after death).  The old board data is
+     * stale and head_direction_wrap() could incorrectly reject the
+     * very first keypress. */
+    if (snake_initialized) {
+        Direction cur = head_direction_wrap();
+
+        /* Anti-180 guard: ignore exact reverse of current heading */
+        if ((cur == UP    && new_dir == DOWN)  ||
+            (cur == DOWN  && new_dir == UP)    ||
+            (cur == LEFT  && new_dir == RIGHT) ||
+            (cur == RIGHT && new_dir == LEFT)) {
+            return;
+        }
+    }
+    pending_direction = new_dir;
+}
+
+/* ############## MANUAL-MODE WRAP-AROUND HELPERS ############## */
+
+/* Compute the wrapped destination coordinate for a direction.
+ * Instead of dying at walls, the snake appears on the opposite edge. */
+static Snake_coordinate wrap_coordinate(Direction d, uint8_t x, uint8_t y) {
+    Snake_coordinate c;
+    switch (d) {
+        case UP:
+            c.x = x;
+            c.y = (y + 1 >= snake_board_height) ? 0 : y + 1;
+            break;
+        case DOWN:
+            c.x = x;
+            c.y = (y == 0) ? snake_board_height - 1 : y - 1;
+            break;
+        case RIGHT:
+            c.x = (x + 1 >= snake_board_width) ? 0 : x + 1;
+            c.y = y;
+            break;
+        case LEFT:
+            c.x = (x == 0) ? snake_board_width - 1 : x - 1;
+            c.y = y;
+            break;
+        default:
+            c.x = x;
+            c.y = y;
+            break;
+    }
+    return c;
+}
+
+/* Wrap-aware surrounding scan: reads board number at wrapped coordinate. */
+static Surrounding scan_surrounding_wrap(Direction d, uint8_t x, uint8_t y) {
+    Surrounding surrounding;
+    Snake_coordinate c = wrap_coordinate(d, x, y);
+    surrounding.direction = d;
+    surrounding.number = snake_board[c.x][c.y];
+    surrounding.coordinate = c;
+    return surrounding;
+}
+
+/* Wrap-aware surroundings scan for all 4 directions. */
+static Surroundings scan_surroundings_wrap(uint8_t x, uint8_t y) {
+    Surroundings surroundings;
+    for (uint8_t dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        surroundings.surroundings[dir] = scan_surrounding_wrap(dir, x, y);
+    }
+    return surroundings;
+}
+
+/* Check if the snake can move into the wrapped destination (only body collision kills). */
+static bool can_move_wrap(Direction d, uint8_t x, uint8_t y) {
+    Snake_coordinate c = wrap_coordinate(d, x, y);
+    if (is_snake_body(c.x, c.y)) {
+        return false;
+    }
+    return true;
+}
+
+/* Move the head with wrap-around (no wall death). */
+static void move_head_wrap(Direction d) {
+    Snake_coordinate c = wrap_coordinate(d, head_coordinate.x, head_coordinate.y);
+    head_coordinate.x = c.x;
+    head_coordinate.y = c.y;
+    snake_board[c.x][c.y] = next_number();
+    set_draw_step(head_coordinate, HEAD);
+}
+
+/* Wrap-aware tail movement: finds next tail segment across board edges. */
+static void move_tail_wrap(void) {
+    if (tail_shrink_timeout > 0) {
+        tail_shrink_timeout--;
+        return;
+    }
+
+    Surroundings surroundings = scan_surroundings_wrap(tail_coordinate.x, tail_coordinate.y);
+    for (int dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        if (surroundings.surroundings[dir].number == tail_number() + 1) {
+            set_draw_step(tail_coordinate, TAIL);
+            Snake_coordinate c = surroundings.surroundings[dir].coordinate;
+            tail_coordinate.x = c.x;
+            tail_coordinate.y = c.y;
+            return;
+        }
+    }
+}
+
+/* Wrap-aware head direction: finds neck across board edges. */
+static Direction head_direction_wrap(void) {
+    Surroundings surroundings = scan_surroundings_wrap(head_coordinate.x, head_coordinate.y);
+    uint16_t neck_num = head_number() - 1;
+    for (uint8_t dir = 0; dir < DIRECTION_LENGTH; dir++) {
+        if (surroundings.surroundings[dir].number == neck_num) {
+            /* neck is in this direction, so head faces opposite */
+            switch (surroundings.surroundings[dir].direction) {
+                case UP:    return DOWN;
+                case DOWN:  return UP;
+                case RIGHT: return LEFT;
+                case LEFT:  return RIGHT;
+                default:    break;
+            }
+        }
+    }
+    return DIRECTION_NONE;
+}
+
+/* ############## MANUAL-MODE RENDER ############## */
+
+static void render_snake_manual(void) {
+    if (!snake_initialized) {
+        initialize_snake();
+        place_manual_food();
+    }
+    if (pending_direction == DIRECTION_NONE) {
+        return; /* waiting for first input */
+    }
+
+    /* Wrap-around: only die on self-collision, not on walls */
+    if (!can_move_wrap(pending_direction, head_coordinate.x, head_coordinate.y)) {
+        /* self-collision → death */
+        snake_died = true;
+        death_count++;
+        #ifdef CONFIG_USE_BUZZER
+            #ifdef CONFIG_USE_DIE_SOUND
+                play_powerd_down_song();
+            #endif
+        #endif
+        finalize_snake();
+        manual_food_placed = false;
+        pending_direction = DIRECTION_NONE;
+        return;
+    }
+
+    /* advance head with wrap-around */
+    move_head_wrap(pending_direction);
+
+    /* check if we ate the food */
+    if (manual_food_placed &&
+        head_coordinate.x == manual_food.x &&
+        head_coordinate.y == manual_food.y) {
+        /* grow: skip tail move, place new food */
+        tail_shrink_timeout += CONFIG_SNAKE_FATNESS;
+        #ifdef CONFIG_USE_BUZZER
+            #ifdef CONFIG_USE_FOOD_SOUND
+                play_snake_eat_sound();
+            #endif
+        #endif
+        next_color();
+        place_manual_food();
+    }
+
+    move_tail_wrap();
+
+    /* render the latest draw steps */
+    while (walk_index < draw_index) {
+        walk_render();
+    }
+    draw_index = 0;
+    walk_index = 0;
+}
+
 static void render_snake(void) {
+    if (manual_mode) {
+        render_snake_manual();
+        return;
+    }
+
+    /* ---- original autopilot path ---- */
     if (!snake_initialized) {
         initialize_snake();
         make_path_to_food();
@@ -711,6 +960,18 @@ void timer_snake(lv_timer_t * timer) {
     if (stopped) {
         return;
     }
+
+    /* Manual mode: fixed comfortable speed, ignore WPM */
+    if (manual_mode) {
+        if (cycles_count >= TIMER_CYCLES_MANUAL) {
+            cycles_count = 0;
+            render_snake();
+        }
+        cycles_count++;
+        return;
+    }
+
+    /* Autopilot mode: WPM-driven speed */
     if (speed_changed || cycles_count >= current_cycle_speed) {
         speed_changed = false;
         cycles_count = 0;
@@ -746,5 +1007,9 @@ void start_snake() {
 
 void stop_snake() {
     stopped = true;
+    /* Clean up manual mode so autopilot resumes on next start_snake() */
+    manual_mode = false;
+    pending_direction = DIRECTION_NONE;
+    manual_food_placed = false;
     finalize_snake();
 }
