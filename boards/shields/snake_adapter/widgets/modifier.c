@@ -26,11 +26,12 @@ static bool modifier_widget_initialized = false;
 static uint16_t modifier_font_scale = 2;
 static uint16_t modifier_font_width = 11;
 static uint16_t modifier_font_height = 11;
+static uint16_t modifier_font_gap = 6;
 static uint16_t *scaled_bitmap_modifier_font;
 
 Slot modifier_slot;
 static uint16_t modifier_x = 7;
-static uint16_t modifier_y = 20;
+static uint16_t modifier_y = 10;
 
 struct modifiers_state {    
     uint8_t modifiers;
@@ -99,6 +100,8 @@ void print_modifiers() {
         return;
     }
 
+    uint16_t char_len = (modifier_font_width * modifier_font_scale) + modifier_font_gap;
+
     if ((modifier_state.modifiers & (MOD_LGUI | MOD_RGUI)) > 0) {
         render_bitmap(scaled_bitmap_modifier_font, cmd_bitmap, modifier_x, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
     } else {
@@ -106,21 +109,21 @@ void print_modifiers() {
     }
 
     if ((modifier_state.modifiers & (MOD_LALT | MOD_RALT)) > 0) {
-        render_bitmap(scaled_bitmap_modifier_font, option_bitmap, modifier_x + 28, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, option_bitmap, modifier_x + char_len, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
     } else {
-        render_bitmap(scaled_bitmap_modifier_font, option_bitmap, modifier_x + 28, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, option_bitmap, modifier_x + char_len, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
     }
 
     if ((modifier_state.modifiers & (MOD_LCTL | MOD_RCTL)) > 0) {
-        render_bitmap(scaled_bitmap_modifier_font, ctrl_bitmap, modifier_x + 56, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, ctrl_bitmap, modifier_x + (char_len * 2), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
     } else {
-        render_bitmap(scaled_bitmap_modifier_font, ctrl_bitmap, modifier_x + 56, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, ctrl_bitmap, modifier_x + (char_len * 2), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
     }
 
     if ((modifier_state.modifiers & (MOD_LSFT | MOD_RSFT)) > 0) {
-        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + 84, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + (char_len * 3), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
     } else {
-        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + 84, modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + (char_len * 3), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
     }
 }
 
@@ -144,12 +147,20 @@ ZMK_SUBSCRIPTION(widget_modifiers, zmk_keycode_state_changed);
 
 
 void zmk_widget_modifier_init() {
+    SlotMode mode = get_slot_mode();
+    modifier_slot = get_slot_by_name(SLOT_NAME_MODIFIERS);
+    if (mode == SLOT_MODE_5 && modifier_slot.number == SLOT_NUMBER_2) {
+        modifier_font_scale = 4;
+        modifier_x = 20;
+        modifier_y = 14;
+        modifier_font_gap = 10;
+    } else {
+        modifier_x += modifier_slot.x;
+        modifier_y += modifier_slot.y;
+    }
+
     uint16_t modifier_font_size = (modifier_font_width * modifier_font_scale) * (modifier_font_height * modifier_font_scale);
     scaled_bitmap_modifier_font = k_malloc(modifier_font_size * 2 * sizeof(uint16_t));
-
-    modifier_slot = get_slot_by_name(SLOT_NAME_MODIFIERS);
-    modifier_x += modifier_slot.x;
-    modifier_y += modifier_slot.y;
 
     widget_modifiers_init();
     modifier_widget_initialized = true;

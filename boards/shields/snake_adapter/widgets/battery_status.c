@@ -27,8 +27,8 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include "helpers/buzzer.h"
 #endif
 
-static bool battery_widget_initialized = false;
-static bool battery_widget_running = false;
+static bool battery_status_initialized = false;
+static bool battery_status_running = false;
 static struct peripheral_battery_state battery_state_0;
 static struct peripheral_battery_state battery_state_1;
 static uint16_t *scaled_bitmap_1;
@@ -52,6 +52,20 @@ static const uint16_t scale = 6;
 static const uint16_t font_width = 5;
 static const uint16_t font_height = 8;
 #endif
+
+// battery widget
+
+Slot battery_widget_slot;
+static uint16_t battery_widget_font_scale = 4;
+static uint16_t battery_widget_font_width = 3;
+static uint16_t battery_widget_font_height = 6;
+static uint16_t *scaled_bitmap_battery_widget_font;
+static uint16_t battery_widget_slot_x = 10;
+static uint16_t battery_widget_slot_y = 11;
+static struct peripheral_battery_state battery_widget_state;
+static uint8_t battery_widget_number = CONFIG_BATTERY_WIDGET_NUMBER;
+
+//
 
 static const uint16_t start_x_peripheral_1 = 12;
 static const uint16_t start_x_peripheral_2 = 132;
@@ -113,6 +127,58 @@ void print_percentage(uint8_t digit, uint16_t x, uint16_t y, uint16_t scale, uin
     #endif
 }
 
+void print_battery_widget() {
+    if (battery_widget_slot.number == SLOT_NUMBER_NONE) {
+        return;
+    }
+    Character battery_widget_template[] = {
+        CHAR_B,
+        CHAR_A,
+        CHAR_T,
+        CHAR_COLON,
+    };
+
+    uint16_t char_gap_pixels = 2;
+    uint16_t char_len = ((battery_widget_font_scale * battery_widget_font_width) + char_gap_pixels);
+    uint16_t x_offset = char_len * 5;
+    uint16_t first_x = battery_widget_slot_x + 58;
+    uint16_t second_x = battery_widget_slot_x + 72;
+    uint16_t third_x = battery_widget_slot_x + 86;
+
+    SlotMode mode = get_slot_mode();
+    if (mode == SLOT_MODE_5 && battery_widget_slot.number == SLOT_NUMBER_2) {
+        battery_widget_slot_x = 20;
+        first_x = x_offset - 10;
+        second_x = first_x + char_len;
+        third_x = second_x + char_len;
+    }
+
+    uint8_t digit = battery_widget_state.level;
+
+    print_string(scaled_bitmap_battery_widget_font, battery_widget_template, battery_widget_slot_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_text_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 4);
+
+    if (digit == 0) {
+        print_bitmap(scaled_bitmap_battery_widget_font, CHAR_DASH, first_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_num_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+        print_bitmap(scaled_bitmap_battery_widget_font, CHAR_DASH, second_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_num_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+        print_bitmap(scaled_bitmap_battery_widget_font, CHAR_PERCENTAGE, third_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_percentage_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+        return;
+    }
+
+    if (digit > 99) {
+        print_bitmap(scaled_bitmap_battery_widget_font, 1, first_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_num_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+        print_bitmap(scaled_bitmap_battery_widget_font, 0, second_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_num_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+        print_bitmap(scaled_bitmap_battery_widget_font, 0, third_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_num_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+        return;
+    }
+
+    uint16_t first_num = digit / 10;
+    uint16_t second_num = digit % 10;
+    
+    print_bitmap(scaled_bitmap_battery_widget_font, int_to_num_char(first_num), first_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_num_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_battery_widget_font, int_to_num_char(second_num), second_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_num_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+    print_bitmap(scaled_bitmap_battery_widget_font, CHAR_PERCENTAGE, third_x, battery_widget_slot_y, battery_widget_font_scale, get_battery_widget_percentage_color(), get_battery_widget_bg_color(), FONT_SIZE_3x5);
+}
+
 void set_battery_symbol() {
     #ifdef CONFIG_SHOW_SINGLE_BATTERY
     print_percentage(battery_state_0.level, start_x_peripheral_1 + single_battery_offset, start_y, scale, get_battery_num_color(), get_battery_bg_color(), get_battery_percentage_color());
@@ -145,20 +211,24 @@ void alarm_peripheral_changed_status(struct peripheral_battery_state state) {
 #endif
 
 void battery_status_update_cb(struct peripheral_battery_state state) {
-    if (state.source == 0) {
-        battery_state_0 = state;
-    } else {
-        battery_state_1 = state;
-    }
-    if (battery_widget_initialized) {
+    if (battery_status_initialized) {
         #ifdef CONFIG_USE_BUZZER
             #ifdef CONFIG_USE_STATUS_SOUND
             alarm_peripheral_changed_status(state);
             #endif
         #endif
     }
-    if (battery_widget_running) {
+    if (state.source == 0) {
+        battery_state_0 = state;
+    } else if (state.source == 1) {
+        battery_state_1 = state;
+    }
+    if (state.source == battery_widget_number) {
+        battery_widget_state = state;
+    }
+    if (battery_status_running) {
         set_battery_symbol();
+        print_battery_widget();
     }
 }
 
@@ -185,22 +255,38 @@ void print_empty_batteries() {
 }
 
 void zmk_widget_peripheral_battery_status_init() {
+    SlotMode mode = get_slot_mode();
+    battery_widget_slot = get_slot_by_name(SLOT_NAME_BATTERY);
+    if (mode == SLOT_MODE_5 && battery_widget_slot.number == SLOT_NUMBER_2) {
+        battery_widget_font_scale = 9;
+        battery_widget_slot_x = 10;
+        battery_widget_slot_y = 13;
+
+    } else {
+        battery_widget_slot_x += battery_widget_slot.x;
+        battery_widget_slot_y += battery_widget_slot.y;
+    }
+
     uint16_t bitmap_size = (font_width * scale) * (font_height * scale);
 
     scaled_bitmap_1 = k_malloc(bitmap_size * 2 * sizeof(uint16_t));
+
+    uint16_t battery_widget_font_size = (battery_widget_font_width * battery_widget_font_scale) * (battery_widget_font_height * battery_widget_font_scale);
+
+    scaled_bitmap_battery_widget_font = k_malloc(battery_widget_font_size * 2 * sizeof(uint16_t));
     
     widget_battery_status_init();
 }
 
 void initialize_battery_status() {
-    battery_widget_initialized = true;
+    battery_status_initialized = true;
 }
 
 void start_battery_status() {
     print_empty_batteries();
-    battery_widget_running = true;
+    battery_status_running = true;
 }
 
 void stop_battery_status(void) {
-    battery_widget_running = false;
+    battery_status_running = false;
 }

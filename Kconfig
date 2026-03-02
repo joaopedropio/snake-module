@@ -140,205 +140,225 @@ config WPM_SUPER_FAST
     
 config USE_COMPLETE_CUSTOM_THEME
     bool "Complete custom theme"
-    default n
+    default y
 
 config SPLASH_MULTICOLOR_0
     string ""
-    default "000000"
+    default "212121"
 
 config SPLASH_MULTICOLOR_1
     string ""
-    default "000000"
+    default "FEE440"
 
 config SPLASH_MULTICOLOR_2
     string ""
-    default "000000"
+    default "FF4D6D"
 
 config SPLASH_MULTICOLOR_3
     string ""
-    default "000000"
+    default "3C1642"
 
 config SPLASH_LOGO_COLOR
     string ""
-    default "000000"
+    default "FF6B81"
 
 config SPLASH_CREATED_BY_COLOR
     string ""
-    default "000000"
+    default "7FDBFF"
 
 config SPLASH_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config SNAKE_DEFAULT_COLOR
     string ""
-    default "000000"
+    default "00FFC6"
 
 config SNAKE_BOARD_COLOR
     string ""
-    default "000000"
+    default "004643"
 
 config SNAKE_BOARD_1_COLOR
     string ""
-    default "000000"
+    default "00ADB5"
 
 config FOOD_COLOR
     string ""
-    default "000000"
+    default "FF9F1C"
 
 config SNAKE_COLOR_0
     string ""
-    default "000000"
+    default "FF206E"
 
 config SNAKE_COLOR_1
     string ""
-    default "000000"
+    default "FB5607"
 
 config SNAKE_COLOR_2
     string ""
-    default "000000"
+    default "8338EC"
 
 config SNAKE_COLOR_3
     string ""
-    default "000000"
+    default "3A86FF"
 
 config SNAKE_COLOR_4
     string ""
-    default "000000"
+    default "6A4C93"
 
 config SNAKE_COLOR_5
     string ""
-    default "000000"
+    default "B5179E"
 
 config SNAKE_COLOR_6
     string ""
-    default "000000"
+    default "80ED99"
+
+config BATTERY_WIDGET_NUMBER
+    int ""
+    default 0
+
+config BATTERY_WIDGET_NUM_COLOR
+    string ""
+    default "FF8C00"
+
+config BATTERY_WIDGET_PERCENTAGE_COLOR
+    string ""
+    default "66FF66"
+
+config BATTERY_WIDGET_TEXT_COLOR
+    string ""
+    default "A0A0A0"
+
+config BATTERY_WIDGET_BG_COLOR
+    string ""
+    default "212121"
 
 config BATTERY_NUM_COLOR
     string ""
-    default "000000"
+    default "FF8C00"
 
 config BATTERY_PERCENTAGE_COLOR
     string ""
-    default "000000"
+    default "66FF66"
 
 config BATTERY_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config BATTERY_NUM_COLOR_1
     string ""
-    default "000000"
+    default "FF8C00"
 
 config BATTERY_PERCENTAGE_COLOR_1
     string ""
-    default "000000"
+    default "66FF66"
 
 config BATTERY_BG_COLOR_1
     string ""
-    default "000000"
+    default "212121"
 
 config MODIFIER_SELECTED_COLOR
     string ""
-    default "000000"
+    default "9D4EDD"
 
 config MODIFIER_UNSELECTED_COLOR
     string ""
-    default "000000"
+    default "4A4E69"
 
 config MODIFIER_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config SYMBOL_SELECTED_COLOR
     string ""
-    default "000000"
+    default "FFD700"
 
 config SYMBOL_UNSELECTED_COLOR
     string ""
-    default "000000"
+    default "8D99AE"
 
 config SYMBOL_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config BT_STATUS_OK_COLOR
     string ""
-    default "000000"
+    default "28A745"
 
 config BT_STATUS_NOT_OK_COLOR
     string ""
-    default "000000"
+    default "DC3545"
 
 config BT_STATUS_OPEN_COLOR
     string ""
-    default "000000"
+    default "FFD166"
 
 config BT_STATUS_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config BT_NUM_COLOR
     string ""
-    default "000000"
+    default "06D6A0"
 
 config BT_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config LAYER_FONT_COLOR
     string ""
-    default "000000"
+    default "E0E0E0"
 
 config LAYER_FONT_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config THEME_FONT_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config THEME_FONT_COLOR
     string ""
-    default "000000"
+    default "E0E0E0"
 
 config THEME_FONT_COLOR_1
     string ""
-    default "000000"
+    default "E0E0E0"
 
 config LOGO_FONT_COLOR
     string ""
-    default "000000"
+    default "A0A0A0"
 
 config LOGO_SNAKE_COLOR
     string ""
-    default "000000"
+    default "00C896"
 
 config LOGO_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config FRAME_COLOR
     string ""
-    default "000000"
+    default "FEE440"
 
 config FRAME_COLOR_1
     string ""
-    default "000000"
+    default "3C1642"
 
 config MENU_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 
 config WPM_FONT_COLOR
     string ""
-    default "000000"
+    default "A0A0A0"
 
 config WPM_FONT_1_COLOR
     string ""
-    default "000000"
+    default "E0E0E0"
 
 config WPM_FONT_BG_COLOR
     string ""
-    default "000000"
+    default "212121"
 

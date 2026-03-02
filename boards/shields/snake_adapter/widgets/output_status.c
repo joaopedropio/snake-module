@@ -32,25 +32,25 @@ static uint16_t *scaled_bitmap_status;
 static uint16_t *scaled_bitmap_symbol;
 static uint16_t *scaled_bitmap_bt_num;
 
-static const uint16_t status_height = 9;
-static const uint16_t status_width = 9;
-static const uint16_t status_scale = 3;
+static uint16_t status_height = 9;
+static uint16_t status_width = 9;
+static uint16_t status_scale = 3;
 
-static const uint16_t symbol_scale = 2;
-static const uint16_t symbol_width = 9;
-static const uint16_t symbol_height = 15;
+static uint16_t symbol_scale = 2;
+static uint16_t symbol_width = 9;
+static uint16_t symbol_height = 15;
 
-static const uint16_t bt_num_scale = 4;
-static const uint16_t bt_num_width = 5;
-static const uint16_t bt_num_height = 7;
+static uint16_t bt_num_scale = 4;
+static uint16_t bt_num_width = 5;
+static uint16_t bt_num_height = 7;
 
 static uint16_t bluetooth_profiles_x = 57;
-static uint16_t bluetooth_profiles_y = 16;
+static uint16_t bluetooth_profiles_y = 6;
 static uint16_t bluetooth_status_x = 83;
-static uint16_t bluetooth_status_y = 16;
+static uint16_t bluetooth_status_y = 6;
 static uint16_t symbol_usb_x = 11;
 static uint16_t symbol_ble_x = 35;
-static uint16_t symbols_y = 15;
+static uint16_t symbols_y = 5;
 
 static const uint16_t usb_ready_bitmap[] = {
     0, 1, 1, 1, 1, 1, 1, 1, 0,
@@ -267,8 +267,34 @@ ZMK_SUBSCRIPTION(widget_output_status, zmk_endpoint_changed);
 ZMK_SUBSCRIPTION(widget_output_status, zmk_ble_active_profile_changed);
 ZMK_SUBSCRIPTION(widget_output_status, zmk_usb_conn_state_changed);
 
-
 void zmk_widget_output_status_init() {
+    SlotMode mode = get_slot_mode();
+    connectivity_slot = get_slot_by_name(SLOT_NAME_CONNECTIVITY);
+    if (mode == SLOT_MODE_5 && connectivity_slot.number == SLOT_NUMBER_2) {
+        status_scale = 5;
+        symbol_scale = 3;
+        bt_num_scale = 6;
+
+        symbol_usb_x = 54;
+        symbol_ble_x = 88;
+        bluetooth_profiles_x = 118;
+        bluetooth_status_x = 154;
+
+        symbols_y = 14;
+        bluetooth_profiles_y = 15;
+        bluetooth_status_y = 14;
+    } else {
+        symbol_usb_x += connectivity_slot.x;
+        symbol_ble_x += connectivity_slot.x;
+        bluetooth_profiles_x += connectivity_slot.x;
+        bluetooth_status_x += connectivity_slot.x;
+        bluetooth_profiles_y += connectivity_slot.y;
+        bluetooth_status_y += connectivity_slot.y;
+        symbols_y += connectivity_slot.y;
+    }
+
+
+
     uint16_t bitmap_size_symbol = (symbol_width * symbol_scale) * (symbol_height * symbol_scale);
 
     scaled_bitmap_symbol = k_malloc(bitmap_size_symbol * 2 * sizeof(uint16_t));
@@ -281,14 +307,7 @@ void zmk_widget_output_status_init() {
 
     scaled_bitmap_status = k_malloc(bitmap_size_status * 2 * sizeof(uint16_t));
 
-    connectivity_slot = get_slot_by_name(SLOT_NAME_CONNECTIVITY);
-    bluetooth_profiles_x += connectivity_slot.x;
-    bluetooth_status_x += connectivity_slot.x;
-    symbol_usb_x += connectivity_slot.x;
-    symbol_ble_x += connectivity_slot.x;
-    bluetooth_profiles_y += connectivity_slot.y;
-    bluetooth_status_y += connectivity_slot.y;
-    symbols_y += connectivity_slot.y;
+
 
     widget_output_status_init();
 }
