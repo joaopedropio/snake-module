@@ -292,22 +292,16 @@ void zmk_widget_output_status_init() {
         bluetooth_status_y += connectivity_slot.y;
         symbols_y += connectivity_slot.y;
     }
+    if (connectivity_slot.number != SLOT_NUMBER_NONE) {
+        uint16_t bitmap_size_symbol = (symbol_width * symbol_scale) * (symbol_height * symbol_scale);
+        scaled_bitmap_symbol = k_malloc(bitmap_size_symbol * 2 * sizeof(uint16_t));
 
+        uint16_t bitmap_size_bt_num = (bt_num_width * bt_num_scale) * (bt_num_height * bt_num_scale);
+        scaled_bitmap_bt_num = k_malloc(bitmap_size_bt_num * 2 * sizeof(uint16_t));
 
-
-    uint16_t bitmap_size_symbol = (symbol_width * symbol_scale) * (symbol_height * symbol_scale);
-
-    scaled_bitmap_symbol = k_malloc(bitmap_size_symbol * 2 * sizeof(uint16_t));
-
-    uint16_t bitmap_size_bt_num = (bt_num_width * bt_num_scale) * (bt_num_height * bt_num_scale);
-
-    scaled_bitmap_bt_num = k_malloc(bitmap_size_bt_num * 2 * sizeof(uint16_t));
-
-    uint16_t bitmap_size_status = (status_width * status_scale) * (status_height * status_scale);
-
-    scaled_bitmap_status = k_malloc(bitmap_size_status * 2 * sizeof(uint16_t));
-
-
+        uint16_t bitmap_size_status = (status_width * status_scale) * (status_height * status_scale);
+        scaled_bitmap_status = k_malloc(bitmap_size_status * 2 * sizeof(uint16_t));
+    }
 
     widget_output_status_init();
 }

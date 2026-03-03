@@ -32,6 +32,7 @@ void timer_splash(lv_timer_t * timer) {
         return;
     }
     if (splash_count >= SPLASH_FINAL_COUNT) {
+        clean_up_splash();
         print_background();
         initialize_snake_game();
         initialize_battery_status();
@@ -66,8 +67,7 @@ lv_obj_t* zmk_display_status_screen() {
             play_snake_game_intro();
         #endif
     #endif
-    
-    zmk_widget_peripheral_status_init();
+
     zmk_widget_splash_init();
     zmk_widget_snake_init();
     zmk_widget_output_status_init();

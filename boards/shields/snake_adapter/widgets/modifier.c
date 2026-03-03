@@ -158,9 +158,10 @@ void zmk_widget_modifier_init() {
         modifier_x += modifier_slot.x;
         modifier_y += modifier_slot.y;
     }
-
-    uint16_t modifier_font_size = (modifier_font_width * modifier_font_scale) * (modifier_font_height * modifier_font_scale);
-    scaled_bitmap_modifier_font = k_malloc(modifier_font_size * 2 * sizeof(uint16_t));
+    if (modifier_slot.number != SLOT_NUMBER_NONE) {
+        uint16_t modifier_font_size = (modifier_font_width * modifier_font_scale) * (modifier_font_height * modifier_font_scale);
+        scaled_bitmap_modifier_font = k_malloc(modifier_font_size * 2 * sizeof(uint16_t));
+    }
 
     widget_modifiers_init();
     modifier_widget_initialized = true;

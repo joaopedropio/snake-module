@@ -11,6 +11,5 @@
 
 void logo_animation_timer(lv_timer_t * timer);
 void logo_animation_init(void);
-void print_initial_animation(void);
 void stop_animation(void);
 void start_animation(void);

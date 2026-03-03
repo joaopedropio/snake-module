@@ -72,38 +72,40 @@ void print_frames() {
 
     SlotMode slot_mode = get_slot_mode();
 
+    print_rectangle(buf_frame, 0, 239, 0, 239, get_frame_color(), thickness);
+
     if (slot_mode == SLOT_MODE_2) {
-        print_container(buf_frame, 0, 240, 0, 113, thickness); // snake slot
+        print_container(buf_frame, 1, 239, 1, 113, thickness); // snake slot
         
-        print_container(buf_frame, 0, 120, 112, 161, thickness);   // slot 5
-        print_container(buf_frame, 120, 240, 112, 161, thickness); // slot 6
+        print_container(buf_frame, 1, 120, 113, 161, thickness);   // slot 5
+        print_container(buf_frame, 120, 239, 113, 161, thickness); // slot 6
     }
 
     if (slot_mode == SLOT_MODE_4 || slot_mode == SLOT_MODE_5) {
-        print_container(buf_frame, 0, 240, 0, 73, thickness); // snake slot
+        print_container(buf_frame, 1, 239, 1, 73, thickness); // snake slot
 
-        print_container(buf_frame, 0, 120, 72, 117, thickness);   // slot 3
-        print_container(buf_frame, 120, 240, 72, 117, thickness); // slot 4
+        print_container(buf_frame, 1, 120, 73, 117, thickness);   // slot 3
+        print_container(buf_frame, 120, 239, 73, 117, thickness); // slot 4
         
-        print_container(buf_frame, 0, 120, 116, 161, thickness);   // slot 5
-        print_container(buf_frame, 120, 240, 116, 161, thickness); // slot 6
+        print_container(buf_frame, 1, 120, 117, 161, thickness);   // slot 5
+        print_container(buf_frame, 120, 239, 117, 161, thickness); // slot 6
     }
 
     if (slot_mode == SLOT_MODE_6) {
-        print_container(buf_frame, 0, 120, 0, 55, thickness);     // slot 1
-        print_container(buf_frame, 120, 240, 0, 55, thickness);   // slot 2
-        print_container(buf_frame, 0, 120, 54, 108, thickness);   // slot 3
-        print_container(buf_frame, 120, 240, 54, 108, thickness); // slot 4
-        print_container(buf_frame, 0, 120, 107, 161, thickness);  // slot 5
-        print_container(buf_frame, 120, 240, 107, 161, thickness);// slot 6
+        print_container(buf_frame, 1, 120, 1, 55, thickness);     // slot 1
+        print_container(buf_frame, 120, 239, 1, 55, thickness);   // slot 2
+        print_container(buf_frame, 1, 120, 55, 108, thickness);   // slot 3
+        print_container(buf_frame, 120, 239, 55, 108, thickness); // slot 4
+        print_container(buf_frame, 1, 120, 108, 161, thickness);  // slot 5
+        print_container(buf_frame, 120, 239, 108, 161, thickness);// slot 6
     }
 
     // battery frames 
     #ifdef CONFIG_SHOW_SINGLE_BATTERY
-    print_container(buf_frame, 0, 240, 160, 240, thickness);
+    print_container(buf_frame, 1, 239, 161, 239, thickness);
     #else
-    print_container(buf_frame, 0, 120, 160, 240, thickness);
-    print_container(buf_frame, 120, 240, 160, 240, thickness);
+    print_container(buf_frame, 1, 120, 161, 239, thickness);
+    print_container(buf_frame, 120, 239, 161, 239, thickness);
     #endif
 }
 

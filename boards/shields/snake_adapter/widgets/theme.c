@@ -128,9 +128,10 @@ void theme_init() {
         theme_x += theme_slot.x;
         theme_y += theme_slot.y;
     }
-    uint16_t theme_font_size = (theme_font_width * theme_font_scale) * (theme_font_height * theme_font_scale);
-
-    scaled_bitmap_theme_font = k_malloc(theme_font_size * 2 * sizeof(uint16_t));
+    if (theme_slot.number != SLOT_NUMBER_NONE) {
+        uint16_t theme_font_size = (theme_font_width * theme_font_scale) * (theme_font_height * theme_font_scale);
+        scaled_bitmap_theme_font = k_malloc(theme_font_size * 2 * sizeof(uint16_t));
+    }
 
     current_theme = snake_settings_get_current_theme();
     apply_current_theme(current_theme);

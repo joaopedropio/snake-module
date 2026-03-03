@@ -320,7 +320,7 @@ config THEME_FONT_BG_COLOR
 
 config THEME_FONT_COLOR
     string ""
-    default "E0E0E0"
+    default "A0A0A0"
 
 config THEME_FONT_COLOR_1
     string ""
@@ -328,7 +328,7 @@ config THEME_FONT_COLOR_1
 
 config LOGO_FONT_COLOR
     string ""
-    default "A0A0A0"
+    default "FF4D6D"
 
 config LOGO_SNAKE_COLOR
     string ""
@@ -344,7 +344,7 @@ config FRAME_COLOR
 
 config FRAME_COLOR_1
     string ""
-    default "3C1642"
+    default "D3AE21"
 
 config MENU_BG_COLOR
     string ""

@@ -345,12 +345,13 @@ void logo_animation_init() {
         logo_animation_scale = 1;
         logo_animation_x = 12;
         logo_animation_y = 14;
+        snake_logo_text_buf = k_malloc(snake_logo_text_width * 2 * sizeof(uint16_t));
+        return;
     }
-    animation_sections_total = (logo_animation_width * 2) + (logo_animation_height * 2);
 
-    snake_animation_buf = k_malloc(36 * 2 * sizeof(uint16_t));
-
-    snake_logo_text_buf = k_malloc(snake_logo_text_width * 2 * sizeof(uint16_t));
-
-    snake_logo_buf = k_malloc((snake_logo_font_width * snake_logo_font_scale) * (snake_logo_font_height * snake_logo_font_scale) * 2 * sizeof(uint16_t));
+    if (slot_mode == SLOT_MODE_2) { 
+        animation_sections_total = (logo_animation_width * 2) + (logo_animation_height * 2);
+        snake_animation_buf = k_malloc(36 * 2 * sizeof(uint16_t));
+        snake_logo_buf = k_malloc((snake_logo_font_width * snake_logo_font_scale) * (snake_logo_font_height * snake_logo_font_scale) * 2 * sizeof(uint16_t));
+    }
 }
