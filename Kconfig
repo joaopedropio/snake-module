@@ -53,6 +53,19 @@ config SPLASH_USE_SNAKE_2
 config SPLASH_USE_CMD_BITMAP
     bool "Use custom CMD bitmap as splash screen (full 240x240 image)"
     default n
+    depends on !SPLASH_USE_SNAKE_2
+
+config CUSTOM_SPLASH_IMAGE
+    string "Custom splash .c file (relative to config dir)"
+    default ""
+    depends on SPLASH_USE_CMD_BITMAP
+    help
+      Path to a .c file containing a Full RGB565 (65K color) array
+      named 'custom_splash_map'. Use the LVGL Image Converter online:
+      upload 240x240 image, select CF_TRUE_COLOR (v8) or CF_RGB565 (v9),
+      set name to "custom_splash". Both header formats are auto-detected.
+      If the generated array has 'static', remove it.
+      Leave empty to use the built-in default image.
 
 config SPLASH_DISPLAY_TIME_MS
     int "Splash screen display time in milliseconds"

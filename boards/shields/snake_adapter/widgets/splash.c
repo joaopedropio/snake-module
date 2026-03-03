@@ -23,12 +23,93 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
 #ifdef CONFIG_SPLASH_USE_CMD_BITMAP
 
+/* ---------- Image dimensions (always 240x240 for ST7789V) ---------- */
+#define SPLASH_IMG_W 240
+#define SPLASH_IMG_H 240
+
+#ifdef HAS_CUSTOM_SPLASH_IMAGE
+/* ---- User-provided raw RGB565 array (from LVGL Image Converter) ---- *
+ * The user's .c file must define:                                       *
+ *   const uint8_t custom_splash_map[]  (240*240*2 = 115 200 bytes)      *
+ * Use the online LVGL Image Converter (v8 or v9): select CF_TRUE_COLOR  *
+ * (v8) or CF_RGB565 (v9), set the image name to "custom_splash".        *
+ * Both header formats are auto-detected and skipped automatically.      */
+extern const uint8_t custom_splash_map[];
+
+/*
+ * Byte offset to the start of pixel data within custom_splash_map.
+ *
+ * LVGL v8 converters prepend a 4-byte lv_img_header_t:
+ *   Packed LE uint32: cf[4:0]=4 (CF_TRUE_COLOR), w[20:10], h[31:21]
+ *
+ * LVGL v9.2+ converters prepend a 12-byte image header:
+ *   byte 0 = 0x19 (magic), byte 1 = 0x12 (LV_COLOR_FORMAT_RGB565),
+ *   bytes 4-5 = width (LE), bytes 6-7 = height (LE).
+ *
+ * We auto-detect both at runtime so output from either converter
+ * version works without user intervention.
+ */
+static int splash_data_offset = 0;
+
+static void detect_splash_header(void)
+{
+    /* ---- LVGL v9.2+ : 12-byte header (magic 0x19) ---- */
+    if (custom_splash_map[0] == 0x19 &&                     /* LVGL v9 magic */
+        custom_splash_map[1] == 0x12 &&                     /* CF_RGB565 (LV_COLOR_FORMAT_RGB565 = 0x12) */
+        custom_splash_map[4] == (SPLASH_IMG_W & 0xFF) &&    /* width low     */
+        custom_splash_map[5] == (SPLASH_IMG_W >> 8) &&      /* width high    */
+        custom_splash_map[6] == (SPLASH_IMG_H & 0xFF) &&    /* height low    */
+        custom_splash_map[7] == (SPLASH_IMG_H >> 8)) {      /* height high   */
+        splash_data_offset = 12;
+        return;
+    }
+
+    /* ---- LVGL v8 : 4-byte packed lv_img_header_t (LE uint32) ----
+     *   bits [4:0]   = cf   (color format; 4 = CF_TRUE_COLOR / RGB565)
+     *   bits [7:5]   = always_zero
+     *   bits [9:8]   = reserved
+     *   bits [20:10] = width
+     *   bits [31:21] = height
+     */
+    uint32_t hdr = (uint32_t)custom_splash_map[0]
+                 | ((uint32_t)custom_splash_map[1] << 8)
+                 | ((uint32_t)custom_splash_map[2] << 16)
+                 | ((uint32_t)custom_splash_map[3] << 24);
+    uint8_t  cf = hdr & 0x1F;
+    uint16_t w  = (hdr >> 10) & 0x7FF;
+    uint16_t h  = (hdr >> 21) & 0x7FF;
+
+    if (cf == 4 && w == SPLASH_IMG_W && h == SPLASH_IMG_H) {
+        splash_data_offset = 4;
+        return;
+    }
+
+    /* No recognized header — assume raw pixel data */
+    splash_data_offset = 0;
+}
+
+static inline uint16_t get_splash_pixel(int sx, int sy)
+{
+    int offset = splash_data_offset + (sy * SPLASH_IMG_W + sx) * 2;
+    /* LVGL stores RGB565 in little-endian byte order;
+     * ST7789V (SPI) expects big-endian — byte-swap. */
+    uint16_t color = (uint16_t)custom_splash_map[offset]
+                   | ((uint16_t)custom_splash_map[offset + 1] << 8);
+    return (color >> 8) | (color << 8);
+}
+#else
+/* ---- Built-in packed-palette image ---- */
 #include "cmd_bitmap.h"
-#include <string.h>
+
+static inline uint16_t get_splash_pixel(int sx, int sy)
+{
+    return get_cmd_pixel(sx, sy);   /* already byte-swapped */
+}
+#endif /* HAS_CUSTOM_SPLASH_IMAGE */
 
 // Number of display rows to render per chunk to limit RAM usage
 // Each row is 240 pixels * 2 bytes = 480 bytes, so 20 rows = 9600 bytes
-#define CMD_CHUNK_ROWS 20
+#define SPLASH_CHUNK_ROWS 20
 
 static bool initialized_splash = false;
 
@@ -40,10 +121,10 @@ void print_background(void) {
  * Map a display-space (dx, dy) coordinate back to source-image (sx, sy)
  * based on the current software rotation.
  *
- *   0°  : (dx, dy)               — identity
- *   90° : (dy, 239 - dx)         — CW quarter turn
- *  180° : (239 - dx, 239 - dy)   — half turn
- *  270° : (239 - dy, dx)         — CCW quarter turn
+ *   0°  : (dx, dy)                         — identity
+ *   90° : (dy, H-1 - dx)                   — CW quarter turn
+ *  180° : (W-1 - dx, H-1 - dy)             — half turn
+ *  270° : (W-1 - dy, dx)                   — CCW quarter turn
  */
 static inline void map_source_pixel(DisplayOrientation orient,
                                     int dx, int dy,
@@ -52,14 +133,14 @@ static inline void map_source_pixel(DisplayOrientation orient,
     switch (orient) {
     case DISPLAY_ORIENTATION_90:
         *sx = dy;
-        *sy = 239 - dx;
+        *sy = (SPLASH_IMG_H - 1) - dx;
         break;
     case DISPLAY_ORIENTATION_180:
-        *sx = 239 - dx;
-        *sy = 239 - dy;
+        *sx = (SPLASH_IMG_W - 1) - dx;
+        *sy = (SPLASH_IMG_H - 1) - dy;
         break;
     case DISPLAY_ORIENTATION_270:
-        *sx = 239 - dy;
+        *sx = (SPLASH_IMG_W - 1) - dy;
         *sy = dx;
         break;
     default: /* DISPLAY_ORIENTATION_0 */
@@ -74,39 +155,38 @@ void print_splash(void) {
         return;
     }
 
-    // Allocate a row buffer for CMD_CHUNK_ROWS rows at a time
-    uint16_t *row_buf = k_malloc(CMD_WIDTH * CMD_CHUNK_ROWS * sizeof(uint16_t));
+    uint16_t *row_buf = k_malloc(SPLASH_IMG_W * SPLASH_CHUNK_ROWS * sizeof(uint16_t));
     if (!row_buf) {
         return;
     }
 
+#ifdef HAS_CUSTOM_SPLASH_IMAGE
+    detect_splash_header();
+#endif
+
     DisplayOrientation orient = get_display_orientation();
 
     struct display_buffer_descriptor buf_desc;
-    buf_desc.width = CMD_WIDTH;
-    buf_desc.pitch = CMD_WIDTH;
+    buf_desc.width = SPLASH_IMG_W;
+    buf_desc.pitch = SPLASH_IMG_W;
 
-    // For each chunk of display rows, look up the correct source pixel
-    // (applying rotation) and write directly to the display.
-    for (uint16_t start_row = 0; start_row < CMD_HEIGHT; start_row += CMD_CHUNK_ROWS) {
-        uint16_t rows_this_chunk = CMD_CHUNK_ROWS;
-        if (start_row + rows_this_chunk > CMD_HEIGHT) {
-            rows_this_chunk = CMD_HEIGHT - start_row;
+    for (uint16_t start_row = 0; start_row < SPLASH_IMG_H; start_row += SPLASH_CHUNK_ROWS) {
+        uint16_t rows_this_chunk = SPLASH_CHUNK_ROWS;
+        if (start_row + rows_this_chunk > SPLASH_IMG_H) {
+            rows_this_chunk = SPLASH_IMG_H - start_row;
         }
 
-        // Fill the chunk with rotation-mapped pixels
         for (uint16_t r = 0; r < rows_this_chunk; r++) {
             int dy = start_row + r;
-            for (uint16_t c = 0; c < CMD_WIDTH; c++) {
+            for (uint16_t c = 0; c < SPLASH_IMG_W; c++) {
                 int sx, sy;
                 map_source_pixel(orient, c, dy, &sx, &sy);
-                row_buf[r * CMD_WIDTH + c] = get_cmd_pixel(sx, sy);
+                row_buf[r * SPLASH_IMG_W + c] = get_splash_pixel(sx, sy);
             }
         }
 
         buf_desc.height = rows_this_chunk;
-        buf_desc.buf_size = CMD_WIDTH * rows_this_chunk * sizeof(uint16_t);
-        // Write directly — pixel data is already rotated in the buffer
+        buf_desc.buf_size = SPLASH_IMG_W * rows_this_chunk * sizeof(uint16_t);
         display_write_wrapper_snake(0, start_row, &buf_desc, (uint8_t *)row_buf);
     }
 
@@ -115,11 +195,9 @@ void print_splash(void) {
 }
 
 void zmk_widget_splash_init(void) {
-    // No persistent buffers needed — everything is allocated/freed in print_splash
 }
 
 void clean_up_splash(void) {
-    // Nothing to free
 }
 
 #elif defined(CONFIG_SPLASH_USE_SNAKE_2)
