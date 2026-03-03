@@ -18,11 +18,11 @@ if(CONFIG_ZMK_DISPLAY AND CONFIG_ZMK_DISPLAY_STATUS_SCREEN_CUSTOM)
     if(CONFIG_SPLASH_USE_CMD_BITMAP)
         if(NOT "${CONFIG_CUSTOM_SPLASH_IMAGE}" STREQUAL "")
             # User-provided splash .c file (raw RGB565 array from LVGL converter)
-            set(_splash_input "${CMAKE_SOURCE_DIR}/${CONFIG_CUSTOM_SPLASH_IMAGE}")
+            set(_splash_input "${ZMK_CONFIG}/${CONFIG_CUSTOM_SPLASH_IMAGE}")
             if(NOT EXISTS "${_splash_input}")
                 message(FATAL_ERROR
                     "Custom splash image not found: ${_splash_input}\n"
-                    "Place your .c file in: ${CMAKE_SOURCE_DIR}/")
+                    "Place your .c file in: ${ZMK_CONFIG}/")
             endif()
             zephyr_library_sources(${_splash_input})
             zephyr_compile_definitions(HAS_CUSTOM_SPLASH_IMAGE=1)
