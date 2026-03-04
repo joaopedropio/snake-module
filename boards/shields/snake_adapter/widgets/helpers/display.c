@@ -87,22 +87,22 @@ static Slot slot4;
 static Slot slot5;
 static Slot slot6;
 
-#define COLORS_PER_THEME 6
+#define COLORS_PER_THEME 4
 
 static uint8_t themes_colors_len = 11;
 static uint32_t themes_colors[][COLORS_PER_THEME] = {
     // primary  secondary  back1      back2
-    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u, 0, 0}, // C  - custom https://lospec.com/palette-list/b4sement
-    {0xd0d058u, 0xa0a840u, 0x708028u, 0x405010u, 0, 0}, // 01 - https://lospec.com/palette-list/nostalgia
-    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u, 0, 0}, // 02 - https://lospec.com/palette-list/b4sement
-    {0x94e344u, 0x46878fu, 0x332c50u, 0x231c40u, 0, 0}, // 03 - https://lospec.com/palette-list/kirokaze-gameboy
-    {0x5fc75du, 0x36868fu, 0x203671u, 0x0f052du, 0, 0}, // 04 - https://lospec.com/palette-list/moonlight-gb
-    {0xff4d6du, 0xfcdeeau, 0x265935u, 0x012824u, 0, 0}, // 05 - https://lospec.com/palette-list/cherrymelon
-    {0xc56981u, 0xa3a29au, 0x545c7eu, 0x282328u, 0, 0}, // 06 - https://lospec.com/palette-list/bittersweet
-    {0xff8e80u, 0xc53a9du, 0x4a2480u, 0x051f39u, 0, 0}, // 07 - https://lospec.com/palette-list/lava-gb
-    {0xecfffbu, 0x858f97u, 0x576373u, 0x323859u, 0, 0}, // 08 - https://lospec.com/gallery/dogmaster/cave
-    {0xa3da58u, 0xf7ba2bu, 0x615aa8u, 0x592661u, 0, 0}, // 09 - Eva 01 neon genesis evangelion
-    {0xff3b94u, 0xa6fd29u, 0x55ffe1u, 0xaf3dffu, 0, 0}, // 10 - neon colors
+    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u}, // C  - custom https://lospec.com/palette-list/b4sement
+    {0xd0d058u, 0xa0a840u, 0x708028u, 0x405010u}, // 01 - https://lospec.com/palette-list/nostalgia
+    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u}, // 02 - https://lospec.com/palette-list/b4sement
+    {0x94e344u, 0x46878fu, 0x332c50u, 0x231c40u}, // 03 - https://lospec.com/palette-list/kirokaze-gameboy
+    {0x5fc75du, 0x36868fu, 0x203671u, 0x0f052du}, // 04 - https://lospec.com/palette-list/moonlight-gb
+    {0xff4d6du, 0xfcdeeau, 0x265935u, 0x012824u}, // 05 - https://lospec.com/palette-list/cherrymelon
+    {0xc56981u, 0xa3a29au, 0x545c7eu, 0x282328u}, // 06 - https://lospec.com/palette-list/bittersweet
+    {0xff8e80u, 0xc53a9du, 0x4a2480u, 0x051f39u}, // 07 - https://lospec.com/palette-list/lava-gb
+    {0xecfffbu, 0x858f97u, 0x576373u, 0x323859u}, // 08 - https://lospec.com/gallery/dogmaster/cave
+    {0xa3da58u, 0xf7ba2bu, 0x615aa8u, 0x592661u}, // 09 - Eva 01 neon genesis evangelion
+    {0xff3b94u, 0xa6fd29u, 0x55ffe1u, 0xaf3dffu}, // 10 - neon colors
 };
 
 Character int_to_num_char(uint8_t i) {
@@ -457,13 +457,11 @@ uint8_t get_themes_colors_len () {
     return themes_colors_len;
 }
 
-void set_custom_theme_colors(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6) {
-    themes_colors[0][0] = color1;
-    themes_colors[0][1] = color2;
-    themes_colors[0][2] = color3;
-    themes_colors[0][3] = color4;
-    themes_colors[0][4] = color5;
-    themes_colors[0][5] = color6;
+void set_custom_theme_colors(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2) {
+    themes_colors[0][0] = primary;
+    themes_colors[0][1] = secondary;
+    themes_colors[0][2] = background1;
+    themes_colors[0][3] = background2;
 }
 
 void apply_current_theme(uint8_t current_theme) {
@@ -475,9 +473,7 @@ void apply_current_theme(uint8_t current_theme) {
             themes_colors[current_theme][0],
             themes_colors[current_theme][1],
             themes_colors[current_theme][2],
-            themes_colors[current_theme][3],
-            themes_colors[current_theme][4],
-            themes_colors[current_theme][5]
+            themes_colors[current_theme][3]
         );
     }
     #else
@@ -485,9 +481,7 @@ void apply_current_theme(uint8_t current_theme) {
         themes_colors[current_theme][0],
         themes_colors[current_theme][1],
         themes_colors[current_theme][2],
-        themes_colors[current_theme][3],
-        themes_colors[current_theme][4],
-        themes_colors[current_theme][5]
+        themes_colors[current_theme][3]
     );
     #endif
 }
@@ -1790,10 +1784,10 @@ void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t wi
 	display_write_wrapper_snake(x, y, &buf_desc_area, buf_area);
 }
 
-void clear_screen() {
+void clear_screen(uint16_t color) {
     uint8_t screen_width_square = 20;
     uint8_t screen_height_square = 20;
-	fill_buffer_color(buf_screen_area, buf_screen_size, get_menu_bg_color());
+	fill_buffer_color(buf_screen_area, buf_screen_size, color);
     for (int i = 0; i < 12; i++) {
         for (int j = 0; j < 12; j++) {
             render_filled_rectangle(buf_screen_area, i * screen_width_square, j * screen_height_square, screen_width_square, screen_height_square);
@@ -1924,7 +1918,7 @@ void set_all_colors(
     set_wpm_font_bg_color(wpm_font_bg_color);
 }
 
-void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2, uint32_t color5, uint32_t color6) {
+void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2) {
     set_splash_logo_multicolor(background2, background1, primary, secondary);
     set_splash_logo_color(primary);
     set_splash_created_by_color(background1);

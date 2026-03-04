@@ -33,7 +33,6 @@ void timer_splash(lv_timer_t * timer) {
     }
     if (splash_count >= SPLASH_FINAL_COUNT) {
         clean_up_splash();
-        print_background();
         initialize_snake_game();
         initialize_battery_status();
         DefaultScreen screen = get_default_screen();

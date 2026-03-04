@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2019 Jan Van Winkel <jan.van_winkel@dxplore.eu>
- *
- * Based on ST7789V sample:
- * Copyright (c) 2019 Marc Reilly
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -35,17 +26,6 @@ static uint16_t snake_splash_font_height = 6;
 static uint16_t snake_splash_font_scale = 1;
 static uint16_t *buf_splash_snake;
 
-static uint16_t snake_logo_start_height = 56;
-static uint16_t background_pixel_width = 60;
-static uint16_t background_pixel_height = 56;
-
-static struct display_buffer_descriptor buf_desc_background_splash;
-
-static uint16_t gap_width = 24;
-static uint16_t gap_height = 128;
-static struct display_buffer_descriptor buf_desc_gap_splash;
-static size_t buf_size_gap_splash = 0;
-
 static bool initialized_splash = false;
 
 void print_snake_image() {
@@ -54,16 +34,12 @@ void print_snake_image() {
     }
 }
 
-void print_background(void) {
-    clear_screen();
-}
-
 void print_splash(void) {
     if (initialized_splash) {
         return;
     }
 
-    print_background();
+    clear_screen(get_splash_bg_color());
     print_snake_image();
 
     Character created_chars[] = {
@@ -114,8 +90,6 @@ static bool initialized_splash = false;
 
 static uint16_t snake_splash_font_x = 90;
 static uint16_t snake_splash_font_y = 210;
-static uint16_t snake_splash_font_width = 10;
-static uint16_t snake_splash_font_height = 13;
 static uint16_t snake_splash_font_scale = 1;
 
 static uint16_t snake_font_width = 10;
@@ -124,33 +98,13 @@ static uint16_t snake_scale = 5;
 static uint16_t *buf_splash_snake;
 
 static uint16_t snake_logo_start_height = 84;
-static uint16_t background_pixel_width = 60;
-static uint16_t background_pixel_height = 42;
-
-static size_t buf_size_background_splash = 0;
-
-static uint16_t gap_width = 20;
-static uint16_t gap_height = 72;
-static uint8_t *buf_gap_splash;
-static struct display_buffer_descriptor buf_desc_gap_splash;
-static size_t buf_size_gap_splash = 0;
-
-static uint16_t gap1_width = 4;
-static uint16_t gap1_height = 72;
-static uint8_t *buf_gap1_splash;
-static struct display_buffer_descriptor buf_desc_gap1_splash;
-static size_t buf_size_gap1_splash = 0;
-
-void print_background(void) {
-    clear_screen();
-}
 
 void print_splash(void) {
     if (initialized_splash) {
         return;
     }
     
-    print_background();
+    clear_screen(get_splash_bg_color());
 
     uint16_t colors[4] = {
         get_splash_logo_multicolor_0(),

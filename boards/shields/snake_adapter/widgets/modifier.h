@@ -9,7 +9,7 @@
 #include <lvgl.h>
 #include <zephyr/kernel.h>
 
-void print_modifier();
+void print_modifiers();
 void zmk_widget_modifier_init();
 void start_modifier_status();
 void stop_modifier_status();

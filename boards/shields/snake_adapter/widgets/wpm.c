@@ -1,13 +1,6 @@
-/* 
- * Based on ST7789V sample:
- * Copyright (c) 2019 Marc Reilly
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <stdlib.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(snake_wpm, LOG_LEVEL_INF);
 
 #include <zephyr/kernel.h>
 #include <zephyr/bluetooth/services/bas.h>

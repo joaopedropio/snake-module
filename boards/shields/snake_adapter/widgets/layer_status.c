@@ -130,7 +130,7 @@ uint16_t get_gap(size_t label_len) {
 }
 
 uint16_t get_x(size_t label_len) {
-    uint16_t available_pixels = layer_x_end - layer_x; // 112
+    uint16_t available_pixels = layer_x_end - layer_x;
     uint16_t total_width = ((get_scale(label_len) * layer_font_width) + get_gap(label_len)) * label_len;
     uint16_t offset = (available_pixels - total_width) / 2;
     return layer_x + offset;

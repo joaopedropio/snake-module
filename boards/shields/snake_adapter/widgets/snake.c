@@ -1,15 +1,6 @@
-/*
- * Copyright (c) 2019 Jan Van Winkel <jan.van_winkel@dxplore.eu>
- *
- * Based on ST7789V sample:
- * Copyright (c) 2019 Marc Reilly
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <stdlib.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(snake_game, LOG_LEVEL_INF);
 
 #include <zephyr/kernel.h>
 #include <zephyr/bluetooth/services/bas.h>
@@ -55,7 +46,6 @@ const uint8_t TIMER_CYCLES_MEDIUM = 3;
 const uint8_t TIMER_CYCLES_FAST = 2;
 const uint8_t TIMER_CYCLES_SUPER_FAST = 1;
 
-static uint8_t snake_best = 0;
 static uint8_t snake_len = 0;
 
 static uint8_t current_cycle_speed = TIMER_CYCLES_SUPER_SLOW;
@@ -66,8 +56,6 @@ static Speed current_speed = SPEED_SLOW;
 static bool speed_changed = false;
 
 // ############## DISPLAY STATICS ##############
-
-static uint16_t *scaled_bitmap_snake;
 
 static uint16_t scale_snake = 2;
 static uint16_t font_width_snake = 5;
@@ -104,7 +92,6 @@ static uint8_t current_color = 0;
 
 // ############## SNAKE GAME ###################
 
-
 static uint8_t snake_board_width = 48;
 static uint8_t snake_board_height = 48;
 static uint8_t snake_pixel_size = 5;
@@ -122,15 +109,9 @@ void set_snake_pixel_size(uint8_t pixel_size) {
 
 #define SNAKE_X_OFFSET     0
 #define SNAKE_Y_OFFSET     0
-// #define SNAKE_BOARD_WIDTH  48
-// #define SNAKE_BOARD_HEIGHT 48
-// #define SNAKE_PIXEL_SIZE   5
 
 #define MAX_SNAKE_BOARD_WIDTH 48
 #define MAX_SNAKE_BOARD_HEIGHT 48
-
-// #define SNAKE_WALK_DURATION 40
-//#define FATNESS             1
 
 typedef enum {
     UP,
@@ -454,7 +435,6 @@ static void draw_food(void) {
     uint16_t initial_y = (y * snake_pixel_size) + SNAKE_Y_OFFSET;
     uint16_t initial_x = (x * snake_pixel_size) + SNAKE_X_OFFSET;
     display_write_wrapper_snake(initial_x, initial_y, &buf_color_desc, buf_food_color);
-    //snake_render_pixel_current_color(head_coordinate.x, head_coordinate.y);
 }
 
 static void make_path_to_food(void) {
@@ -524,7 +504,6 @@ static void initialize_snake(void) {
     prepend_snake_part(random_x, random_y + 1);
     prepend_snake_part(random_x, random_y);
     snake_len = 0;
-    //set_snake_length();
     head_coordinate.x = random_x;
     head_coordinate.y = random_y + 2;
     tail_coordinate.x = random_x;
@@ -550,7 +529,6 @@ static void walk_render(void) {
         prepend_snake_part(draw_step.coordinate.x, draw_step.coordinate.y);
         snake_render_pixel(draw_step.coordinate.x, draw_step.coordinate.y, true);
 
-        //draw_food();
         if (current_speed == SPEED_SUPER_FAST) {
             paint_snake();
         }
@@ -576,7 +554,7 @@ static void render_snake(void) {
         if (snake_died) {
             #ifdef CONFIG_USE_BUZZER
                 #ifdef CONFIG_USE_DIE_SOUND
-                    play_powerd_down_song();
+                    play_powered_down_song();
                 #endif
             #endif
             finalize_snake();
@@ -725,8 +703,6 @@ void timer_snake(lv_timer_t * timer) {
 }
 
 void zmk_widget_snake_init() {
-    uint16_t bitmap_size = (font_width_snake * scale_snake) * (font_height_snake * scale_snake);
-    scaled_bitmap_snake = k_malloc(bitmap_size * 2 * sizeof(uint16_t));
     snake_list = create_list();
 
 	display_setup();

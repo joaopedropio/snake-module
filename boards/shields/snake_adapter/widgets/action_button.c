@@ -1,12 +1,3 @@
-/*
- * Copyright (c) 2019 Jan Van Winkel <jan.van_winkel@dxplore.eu>
- *
- * Based on ST7789V sample:
- * Copyright (c) 2019 Marc Reilly
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 
@@ -110,7 +101,7 @@ void print_frames() {
 }
 
 void print_menu() {
-    clear_screen();
+    clear_screen(get_menu_bg_color());
     start_animation();
     print_frames();
     start_battery_status();

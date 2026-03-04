@@ -127,9 +127,9 @@ void custom_theme() {
         color3 == HEX_PARSE_ERROR ||
         color4 == HEX_PARSE_ERROR) {
         // https://lospec.com/palette-list/b4sement
-        set_custom_theme_colors(0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u, 0, 0);
+        set_custom_theme_colors(0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u);
     } else {
-        set_custom_theme_colors(color1, color2, color3, color4, 0x000000u, 0x000000u);
+        set_custom_theme_colors(color1, color2, color3, color4);
     }
 }
 
