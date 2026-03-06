@@ -133,18 +133,6 @@ void custom_theme() {
     }
 }
 
-void set_display_brightness() {
-    uint8_t level;
-    if (CONFIG_DISPLAY_BRIGHTNESS < 0 || CONFIG_DISPLAY_BRIGHTNESS > 100) {
-        level = 100;
-    } else {
-        level = CONFIG_DISPLAY_BRIGHTNESS;
-    }
-    uint32_t period = 1000;
-    uint32_t duty_cycle = (period * level) / 100;
-    pwm_set_dt(&pwm_backlight, PWM_HZ(period), PWM_HZ(duty_cycle));
-}
-
 void action_button() {
     set_theme_threshold(300);
     set_mute_threshold(600);
@@ -174,10 +162,20 @@ void rotate_display() {
     set_display_orientation(DISPLAY_ORIENTATION_0);
 }
 
+void battery_slots() {
+    if (CONFIG_BATTERY_SLOTS == 1) {
+        set_battery_slots(1);
+    } else if (CONFIG_BATTERY_SLOTS == 3) {
+        set_battery_slots(3);
+    } else {
+        set_battery_slots(2);
+    }
+}
+
 void configure(void) {
+    battery_slots();
     rotate_display();
     info_slots();
-    set_display_brightness();
     custom_theme();
     board_size();
     default_screen();

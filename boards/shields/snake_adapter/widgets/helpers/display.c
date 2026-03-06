@@ -14,6 +14,8 @@ static uint8_t *buf_screen_area;
 
 static size_t buf_screen_size;
 
+static uint8_t battery_slots;
+
 static uint16_t splash_logo_multicolor_0 = 0x3dff98u;
 static uint16_t splash_logo_multicolor_1 = 0xff4adcu;
 static uint16_t splash_logo_multicolor_2 = 0x222323u;
@@ -35,9 +37,6 @@ static uint16_t snake_color_4;
 static uint16_t snake_color_5;
 static uint16_t snake_color_6;
 
-static uint16_t battery_num_color_1;
-static uint16_t battery_percentage_color_1;
-static uint16_t battery_bg_color_1;
 static uint16_t battery_widget_num_color;
 static uint16_t battery_widget_percentage_color;
 static uint16_t battery_widget_text_color;
@@ -45,6 +44,12 @@ static uint16_t battery_widget_bg_color;
 static uint16_t battery_num_color;
 static uint16_t battery_percentage_color;
 static uint16_t battery_bg_color;
+static uint16_t battery_num_color_1;
+static uint16_t battery_percentage_color_1;
+static uint16_t battery_bg_color_1;
+static uint16_t battery_num_color_2;
+static uint16_t battery_percentage_color_2;
+static uint16_t battery_bg_color_2;
 
 static uint16_t symbol_selected_color;
 static uint16_t symbol_unselected_color;
@@ -150,6 +155,9 @@ void set_complete_colors_theme() {
     uint32_t battery_num_color_1 = hex_string_to_uint(CONFIG_BATTERY_NUM_COLOR_1);
     uint32_t battery_percentage_color_1 = hex_string_to_uint(CONFIG_BATTERY_PERCENTAGE_COLOR_1);
     uint32_t battery_bg_color_1 = hex_string_to_uint(CONFIG_BATTERY_BG_COLOR_1);
+    uint32_t battery_num_color_2 = hex_string_to_uint(CONFIG_BATTERY_NUM_COLOR_2);
+    uint32_t battery_percentage_color_2 = hex_string_to_uint(CONFIG_BATTERY_PERCENTAGE_COLOR_2);
+    uint32_t battery_bg_color_2 = hex_string_to_uint(CONFIG_BATTERY_BG_COLOR_2);
     uint32_t symbol_selected_color = hex_string_to_uint(CONFIG_SYMBOL_SELECTED_COLOR);
     uint32_t symbol_unselected_color = hex_string_to_uint(CONFIG_SYMBOL_UNSELECTED_COLOR);
     uint32_t symbol_bg_color = hex_string_to_uint(CONFIG_SYMBOL_BG_COLOR);
@@ -284,6 +292,18 @@ void set_complete_colors_theme() {
 
     if (battery_bg_color_1 == HEX_PARSE_ERROR) {
         battery_bg_color_1 = 0xFFFFFF;
+    }
+
+    if (battery_num_color_2 == HEX_PARSE_ERROR) {
+        battery_num_color_2 = 0xFFFFFF;
+    }
+
+    if (battery_percentage_color_2 == HEX_PARSE_ERROR) {
+        battery_percentage_color_2 = 0xFFFFFF;
+    }
+
+    if (battery_bg_color_2 == HEX_PARSE_ERROR) {
+        battery_bg_color_2 = 0xFFFFFF;
     }
 
     if (modifier_selected_color == HEX_PARSE_ERROR) {
@@ -421,6 +441,9 @@ void set_complete_colors_theme() {
         battery_num_color_1,
         battery_percentage_color_1,
         battery_bg_color_1,
+        battery_num_color_2,
+        battery_percentage_color_2,
+        battery_bg_color_2,
         modifier_selected_color,
         modifier_unselected_color,
         modifier_bg_color,
@@ -498,6 +521,10 @@ uint16_t rgb888_to_rgb565(uint32_t color) {
 
     // Combine the red, green, and blue values.
     return red_shifted | green_shifted | blue;
+}
+
+void set_battery_slots(uint8_t slots) {
+    battery_slots = slots;
 }
 
 void set_default_screen(DefaultScreen screen) {
@@ -609,6 +636,18 @@ void set_battery_percentage_color_1(uint32_t color) {
 
 void set_battery_bg_color_1(uint32_t color) {
     battery_bg_color_1 = rgb888_to_rgb565(color);
+}
+
+void set_battery_num_color_2(uint32_t color) {
+    battery_num_color_2 = rgb888_to_rgb565(color);
+}
+
+void set_battery_percentage_color_2(uint32_t color) {
+    battery_percentage_color_2 = rgb888_to_rgb565(color);
+}
+
+void set_battery_bg_color_2(uint32_t color) {
+    battery_bg_color_2 = rgb888_to_rgb565(color);
 }
 
 void set_frame_color(uint32_t color) {
@@ -723,6 +762,10 @@ DisplayOrientation get_display_orientation() {
     return display_orientation;
 }
 
+uint8_t get_battery_slots() {
+    return battery_slots;
+}
+
 uint16_t get_splash_created_by_color() {
     return splash_created_by_color;
 }
@@ -833,6 +876,18 @@ uint16_t get_battery_percentage_color_1() {
 
 uint16_t get_battery_bg_color_1() {
     return battery_bg_color_1;
+}
+
+uint16_t get_battery_num_color_2() {
+    return battery_num_color_2;
+}
+
+uint16_t get_battery_percentage_color_2() {
+    return battery_percentage_color_2;
+}
+
+uint16_t get_battery_bg_color_2() {
+    return battery_bg_color_2;
 }
 
 uint16_t get_symbol_selected_color() {
@@ -1829,6 +1884,9 @@ void set_all_colors(
     uint32_t battery_num_color_1,
     uint32_t battery_percentage_color_1,
     uint32_t battery_bg_color_1,
+    uint32_t battery_num_color_2,
+    uint32_t battery_percentage_color_2,
+    uint32_t battery_bg_color_2,
     uint32_t modifier_selected_color,
     uint32_t modifier_unselected_color,
     uint32_t modifier_bg_color,
@@ -1884,6 +1942,9 @@ void set_all_colors(
     set_battery_num_color_1(battery_num_color_1);
     set_battery_percentage_color_1(battery_percentage_color_1);
     set_battery_bg_color_1(battery_bg_color_1);
+    set_battery_num_color_2(battery_num_color_2);
+    set_battery_percentage_color_2(battery_percentage_color_2);
+    set_battery_bg_color_2(battery_bg_color_2);
 
     set_modifier_selected_color(modifier_selected_color);
     set_modifier_unselected_color(modifier_unselected_color);
@@ -1951,6 +2012,9 @@ void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1,
     set_battery_num_color_1(primary);
     set_battery_percentage_color_1(background1);
     set_battery_bg_color_1(background2);
+    set_battery_num_color_2(primary);
+    set_battery_percentage_color_2(background1);
+    set_battery_bg_color_2(background2);
 
     set_modifier_selected_color(primary);
     set_modifier_unselected_color(background1);

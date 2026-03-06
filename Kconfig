@@ -6,9 +6,9 @@ config DEFAULT_SCREEN
     string "Default screen"
     default "snake"
 
-config SHOW_SINGLE_BATTERY
-    bool "Show single battery"
-    default n
+config BATTERY_SLOTS
+    int "Battery Slots"
+    default 2
 
 config USE_BATTERY_FONT_3X5
     bool "Use battery font 3x5"
@@ -255,6 +255,18 @@ config BATTERY_PERCENTAGE_COLOR_1
     default "66FF66"
 
 config BATTERY_BG_COLOR_1
+    string ""
+    default "212121"
+
+config BATTERY_NUM_COLOR_2
+    string ""
+    default "FF8C00"
+
+config BATTERY_PERCENTAGE_COLOR_2
+    string ""
+    default "66FF66"
+
+config BATTERY_BG_COLOR_2
     string ""
     default "212121"
 

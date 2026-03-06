@@ -129,6 +129,7 @@ void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t wi
 
 void set_default_screen(DefaultScreen screen);
 void set_display_orientation(DisplayOrientation orientation);
+void set_battery_slots(uint8_t slots);
 void set_splash_logo_multicolor(uint32_t color0, uint32_t color1, uint32_t color2, uint32_t color3);
 void set_splash_logo_color(uint32_t color);
 void set_splash_created_by_color(uint32_t color);
@@ -154,6 +155,9 @@ void set_battery_percentage_color(uint32_t color);
 void set_battery_num_color_1(uint32_t color);
 void set_battery_bg_color_1(uint32_t color);
 void set_battery_percentage_color_1(uint32_t color);
+void set_battery_num_color_2(uint32_t color);
+void set_battery_bg_color_2(uint32_t color);
+void set_battery_percentage_color_2(uint32_t color);
 void set_frame_color(uint32_t color);
 void set_frame_color_1(uint32_t color);
 void set_wpm_font_color(uint32_t color);
@@ -183,6 +187,7 @@ void set_bt_status_bg_color(uint32_t color);
 
 DefaultScreen get_default_screen();
 DisplayOrientation get_display_orientation();
+uint8_t get_battery_slots(void);
 uint16_t get_splash_logo_multicolor_0(void);
 uint16_t get_splash_logo_multicolor_1(void);
 uint16_t get_splash_logo_multicolor_2(void);
@@ -211,6 +216,9 @@ uint16_t get_battery_percentage_color(void);
 uint16_t get_battery_num_color_1(void);
 uint16_t get_battery_bg_color_1(void);
 uint16_t get_battery_percentage_color_1(void);
+uint16_t get_battery_num_color_2(void);
+uint16_t get_battery_bg_color_2(void);
+uint16_t get_battery_percentage_color_2(void);
 
 uint16_t get_modifier_selected_color(void);
 uint16_t get_modifier_unselected_color(void);
