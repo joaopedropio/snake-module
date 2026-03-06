@@ -1,6 +1,7 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/display.h>
 #include "display.h"
+#include "fonts.h"
 
 #include <zephyr/logging/log.h>
 LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
@@ -20,10 +21,6 @@ static uint16_t splash_logo_multicolor_3 = 0x121313u;// http://lospec.com/palett
 static uint16_t splash_logo_color;
 static uint16_t splash_created_by_color;
 static uint16_t splash_bg_color;
-
-static uint16_t snake_font_color;
-static uint16_t snake_num_color;
-static uint16_t snake_bg_color;
 
 static uint16_t snake_default_color;
 static uint16_t snake_board_color;
@@ -90,22 +87,22 @@ static Slot slot4;
 static Slot slot5;
 static Slot slot6;
 
-#define COLORS_PER_THEME 6
+#define COLORS_PER_THEME 4
 
 static uint8_t themes_colors_len = 11;
 static uint32_t themes_colors[][COLORS_PER_THEME] = {
     // primary  secondary  back1      back2
-    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u, 0, 0}, // C  - custom https://lospec.com/palette-list/b4sement
-    {0xd0d058u, 0xa0a840u, 0x708028u, 0x405010u, 0, 0}, // 01 - https://lospec.com/palette-list/nostalgia
-    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u, 0, 0}, // 02 - https://lospec.com/palette-list/b4sement
-    {0x94e344u, 0x46878fu, 0x332c50u, 0x231c40u, 0, 0}, // 03 - https://lospec.com/palette-list/kirokaze-gameboy
-    {0x5fc75du, 0x36868fu, 0x203671u, 0x0f052du, 0, 0}, // 04 - https://lospec.com/palette-list/moonlight-gb
-    {0xff4d6du, 0xfcdeeau, 0x265935u, 0x012824u, 0, 0}, // 05 - https://lospec.com/palette-list/cherrymelon
-    {0xc56981u, 0xa3a29au, 0x545c7eu, 0x282328u, 0, 0}, // 06 - https://lospec.com/palette-list/bittersweet
-    {0xff8e80u, 0xc53a9du, 0x4a2480u, 0x051f39u, 0, 0}, // 07 - https://lospec.com/palette-list/lava-gb
-    {0xecfffbu, 0x858f97u, 0x576373u, 0x323859u, 0, 0}, // 08 - https://lospec.com/gallery/dogmaster/cave
-    {0xa3da58u, 0xf7ba2bu, 0x615aa8u, 0x592661u, 0, 0}, // 09 - Eva 01 neon genesis evangelion
-    {0xff3b94u, 0xa6fd29u, 0x55ffe1u, 0xaf3dffu, 0, 0}, // 10 - neon colors
+    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u}, // C  - custom https://lospec.com/palette-list/b4sement
+    {0xd0d058u, 0xa0a840u, 0x708028u, 0x405010u}, // 01 - https://lospec.com/palette-list/nostalgia
+    {0x3dff98u, 0xff4adcu, 0x222323u, 0x121313u}, // 02 - https://lospec.com/palette-list/b4sement
+    {0x94e344u, 0x46878fu, 0x332c50u, 0x231c40u}, // 03 - https://lospec.com/palette-list/kirokaze-gameboy
+    {0x5fc75du, 0x36868fu, 0x203671u, 0x0f052du}, // 04 - https://lospec.com/palette-list/moonlight-gb
+    {0xff4d6du, 0xfcdeeau, 0x265935u, 0x012824u}, // 05 - https://lospec.com/palette-list/cherrymelon
+    {0xc56981u, 0xa3a29au, 0x545c7eu, 0x282328u}, // 06 - https://lospec.com/palette-list/bittersweet
+    {0xff8e80u, 0xc53a9du, 0x4a2480u, 0x051f39u}, // 07 - https://lospec.com/palette-list/lava-gb
+    {0xecfffbu, 0x858f97u, 0x576373u, 0x323859u}, // 08 - https://lospec.com/gallery/dogmaster/cave
+    {0xa3da58u, 0xf7ba2bu, 0x615aa8u, 0x592661u}, // 09 - Eva 01 neon genesis evangelion
+    {0xff3b94u, 0xa6fd29u, 0x55ffe1u, 0xaf3dffu}, // 10 - neon colors
 };
 
 Character int_to_num_char(uint8_t i) {
@@ -453,973 +450,6 @@ void set_complete_colors_theme() {
     );
 }
 
-static const uint16_t empty_bitmap_5x7[] = {
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-};
-static const uint16_t none_bitmap_5x7[] = {
-    0, 1, 1, 1, 0,
-    1, 0, 0, 0, 1,
-    0, 0, 0, 0, 1,
-    0, 0, 0, 1, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 1, 0, 0,
-};
-static const uint16_t b_bitmap_5x7[] = {
-    1, 1, 1, 1, 0,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 0,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 0,
-};
-static const uint16_t e_bitmap_5x7[] = {
-    1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 1, 1, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 1, 1, 1,
-};
-static const uint16_t h_bitmap_5x7[] = {
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-};
-static const uint16_t l_bitmap_5x7[] = {
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 1, 1, 1,
-};
-static const uint16_t m_bitmap_5x7[] = {
-    0, 1, 0, 1, 0,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 0, 0, 1,
-};
-static const uint16_t n_bitmap_5x7[] = {
-    1, 0, 0, 0, 1,
-    1, 1, 0, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 0, 1, 1,
-    1, 0, 0, 1, 1,
-    1, 0, 0, 0, 1,
-};
-static const uint16_t p_bitmap_5x7[] = {
-    1, 1, 1, 1, 0,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-};
-static const uint16_t s_bitmap_5x7[] = {
-    0, 1, 1, 1, 1,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    0, 1, 1, 1, 0,
-    0, 0, 0, 0, 1,
-    0, 0, 0, 0, 1,
-    1, 1, 1, 1, 0,
-};
-static const uint16_t t_bitmap_5x7[] = {
-    1, 1, 1, 1, 1,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-};
-static const uint16_t w_bitmap_5x7[] = {
-    1, 0, 0, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    1, 0, 1, 0, 1,
-    0, 1, 0, 1, 0,
-};
-static const uint16_t colon_bitmap_5x7[] = {
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 1, 0, 0, 0,
-    0, 0, 0, 0, 0,
-};
-static const uint16_t num_bitmaps_5x7[10][35] = {
-    {// zero
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// one
-        0, 0, 1, 0, 0,
-        0, 1, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 1, 1, 1, 0
-    },
-    {// two
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 1, 0,
-        0, 0, 1, 0, 0,
-        0, 1, 0, 0, 0,
-        1, 1, 1, 1, 1
-    },
-    {// three
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 1, 1, 0,
-        0, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// four
-        0, 0, 0, 1, 0,
-        0, 0, 1, 1, 0,
-        0, 1, 0, 1, 0,
-        1, 0, 0, 1, 0,
-        1, 1, 1, 1, 1,
-        0, 0, 0, 1, 0,
-        0, 0, 0, 1, 0
-    },
-    {// five
-        1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0,
-        1, 1, 1, 1, 0,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// six
-        0, 0, 1, 1, 0,
-        0, 1, 0, 0, 0,
-        1, 0, 0, 0, 0,
-        1, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// seven
-        1, 1, 1, 1, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 1, 0,
-        0, 0, 0, 1, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 1, 0, 0, 0,
-    },
-    {// eight
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// nine
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 1, 0,
-        1, 1, 1, 0, 0
-    },
-};
-
-static const uint16_t none_bitmap_5x8[] = {
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1,
-};
-static const uint16_t dash_bitmap_5x8[] = {
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    1, 1, 1, 1, 1,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0,
-};
-static const uint16_t f_bitmap_5x8[] = {
-    1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 1, 1, 1,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-};
-static const uint16_t u_bitmap_5x8[] = {
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 0, 0, 0, 1,
-    1, 1, 1, 1, 1,
-};
-static const uint16_t l_bitmap_5x8[] = {
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 0, 0, 0, 0,
-    1, 1, 1, 1, 1,
-};
-static const uint16_t percentage_bitmap_5x8[] = {
-    1, 1, 0, 0, 1,
-    1, 1, 0, 1, 0,
-    0, 0, 0, 1, 0,
-    0, 0, 1, 0, 0,
-    0, 0, 1, 0, 0,
-    0, 1, 0, 0, 0,
-    0, 1, 0, 1, 1,
-    1, 0, 0, 1, 1,
-};
-
-static const uint16_t num_bitmaps_3x5[10][15] = {
-    {
-        1, 1, 1,
-        1, 0, 1,
-        1, 0, 1,
-        1, 0, 1,
-        1, 1, 1,
-    },
-    {
-        0, 1, 0,
-        1, 1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        0, 0, 1,
-        1, 1, 1,
-        1, 0, 0,
-        1, 1, 1,
-    },
-    {
-         1, 1, 1,
-         0, 0, 1,
-         1, 1, 1,
-         0, 0, 1,
-         1, 1, 1,
-    },
-    {
-        1, 0, 1,
-        1, 0, 1,
-        1, 1, 1,
-        0, 0, 1,
-        0, 0, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 0,
-        1, 1, 1,
-        0, 0, 1,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 0,
-        1, 1, 1,
-        1, 0, 1,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 1,
-        1, 1, 1,
-        1, 0, 1,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 1,
-        1, 1, 1,
-        0, 0, 1,
-        0, 0, 1,
-    },
-};
-
-static const uint16_t num_bitmaps_3x6[10][18] = {
-    {
-        1, 1, 1,
-        1, 0, 1,
-        1, 0, 1,
-        1, 0, 1,
-        1, 0, 1,
-        1, 1, 1,
-    },
-    {
-        0, 1, 0,
-        1, 1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        0, 1, 0,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        0, 0, 1,
-        1, 1, 1,
-        1, 0, 0,
-        1, 0, 0,
-        1, 1, 1,
-    },
-    {
-         1, 1, 1,
-         0, 0, 1,
-         1, 1, 1,
-         0, 0, 1,
-         0, 0, 1,
-         1, 1, 1,
-    },
-    {
-        1, 0, 1,
-        1, 0, 1,
-        1, 1, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 0,
-        1, 1, 1,
-        0, 0, 1,
-        0, 0, 1,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 0,
-        1, 1, 1,
-        1, 0, 1,
-        1, 0, 1,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-        0, 0, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 1,
-        1, 1, 1,
-        1, 0, 1,
-        1, 0, 1,
-        1, 1, 1,
-    },
-    {
-        1, 1, 1,
-        1, 0, 1,
-        1, 1, 1,
-        0, 0, 1,
-        0, 0, 1,
-        1, 1, 1,
-    },
-};
-
-static const uint16_t num_bitmaps_5x8[10][40] = {
-    {// zero
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// one
-        0, 0, 1, 0, 0,
-        0, 1, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 1, 1, 1, 0
-    },
-    {// two
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 1, 0,
-        0, 0, 1, 0, 0,
-        0, 1, 0, 0, 0,
-        1, 0, 0, 0, 0,
-        1, 1, 1, 1, 1
-    },
-    {// three
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 1, 1, 0,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// four
-        0, 0, 0, 1, 0,
-        0, 0, 1, 1, 0,
-        0, 1, 0, 1, 0,
-        1, 0, 0, 1, 0,
-        1, 1, 1, 1, 1,
-        0, 0, 0, 1, 0,
-        0, 0, 0, 1, 0,
-        0, 0, 0, 1, 0
-    },
-    {// five
-        1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0,
-        1, 0, 0, 0, 0,
-        1, 1, 1, 1, 0,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// six
-        0, 0, 1, 1, 0,
-        0, 1, 0, 0, 0,
-        1, 0, 0, 0, 0,
-        1, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// seven
-        1, 1, 1, 1, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 1, 0,
-        0, 0, 0, 1, 0,
-        0, 0, 1, 0, 0,
-        0, 0, 1, 0, 0,
-        0, 1, 0, 0, 0,
-        0, 1, 0, 0, 0
-    },
-    {// eight
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 0
-    },
-    {// nine
-        0, 1, 1, 1, 0,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        1, 0, 0, 0, 1,
-        0, 1, 1, 1, 1,
-        0, 0, 0, 0, 1,
-        0, 0, 0, 1, 0,
-        1, 1, 1, 0, 0
-    },
-};
-
-const uint16_t none_letter_4x5[] = {
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-    0, 0, 0, 0,
-};
-
-const uint16_t e_letter_4x5[] = {
-    1, 1, 1, 1,
-    1, 0, 0, 0,
-    1, 1, 1, 0,
-    1, 0, 0, 0,
-    1, 1, 1, 1,
-};
-
-const uint16_t k_letter_4x5[] = {
-    1, 0, 0, 1,
-    1, 0, 1, 0,
-    1, 1, 0, 0,
-    1, 0, 1, 0,
-    1, 0, 0, 1,
-};
-
-const uint16_t a_letter_4x5[] = {
-    0, 1, 1, 0,
-    1, 0, 0, 1,
-    1, 1, 1, 1,
-    1, 0, 0, 1,
-    1, 0, 0, 1,
-};
-
-const uint16_t n_letter_4x5[] = {
-    1, 0, 0, 1,
-    1, 1, 0, 1,
-    1, 0, 1, 1,
-    1, 0, 0, 1,
-    1, 0, 0, 1,
-};
-
-const uint16_t s_letter_4x5[] = {
-    0, 1, 1, 1,
-    1, 0, 0, 0,
-    0, 1, 1, 0,
-    0, 0, 0, 1,
-    1, 1, 1, 0,
-};
-
-
-const uint16_t none_letter_3x5[] = {
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-};
-const uint16_t percentage_letter_3x5[] = {
-    1, 0, 1,
-    0, 0, 1,
-    0, 1, 0,
-    1, 0, 0,
-    1, 0, 1,
-};
-const uint16_t colon_letter_3x5[] = {
-    0, 0, 0,
-    1, 0, 0,
-    0, 0, 0,
-    1, 0, 0,
-    0, 0, 0,
-};
-const uint16_t dash_letter_3x5[] = {
-    0, 0, 0,
-    0, 0, 0,
-    1, 1, 1,
-    0, 0, 0,
-    0, 0, 0,
-};
-const uint16_t underline_letter_3x5[] = {
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-    0, 0, 0,
-    1, 1, 1,
-};
-const uint16_t pipe_letter_3x5[] = {
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-};
-const uint16_t plus_letter_3x5[] = {
-    0, 0, 0,
-    0, 1, 0,
-    1, 1, 1,
-    0, 1, 0,
-    0, 0, 0,
-};
-const uint16_t a_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t b_letter_3x5[] = {
-    1, 1, 0,
-    1, 0, 1,
-    1, 1, 0,
-    1, 0, 1,
-    1, 1, 1,
-};
-const uint16_t c_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 0, 0,
-    1, 0, 0,
-    1, 1, 1,
-};
-const uint16_t d_letter_3x5[] = {
-    1, 1, 0,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 0,
-};
-const uint16_t e_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 1, 1,
-    1, 0, 0,
-    1, 1, 1,
-};
-const uint16_t f_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 1, 1,
-    1, 0, 0,
-    1, 0, 0,
-};
-const uint16_t g_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
-};
-const uint16_t h_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t i_letter_3x5[] = {
-    1, 1, 1,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    1, 1, 1,
-};
-const uint16_t j_letter_3x5[] = {
-    0, 1, 1,
-    0, 0, 1,
-    0, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
-};
-const uint16_t k_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 0,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t l_letter_3x5[] = {
-    1, 0, 0,
-    1, 0, 0,
-    1, 0, 0,
-    1, 0, 0,
-    1, 1, 1,
-};
-const uint16_t m_letter_3x5[] = {
-    1, 0, 1,
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t n_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t o_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
-};
-const uint16_t p_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 1, 1,
-    1, 0, 0,
-    1, 0, 0,
-};
-const uint16_t q_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 0,
-    0, 0, 1,
-};
-const uint16_t r_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 1, 0,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t s_letter_3x5[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 1, 1,
-    0, 0, 1,
-    1, 1, 1,
-};
-const uint16_t t_letter_3x5[] = {
-    1, 1, 1,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-};
-const uint16_t u_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
-};
-const uint16_t v_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    0, 1, 0,
-};
-const uint16_t w_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
-    1, 1, 1,
-    1, 0, 1,
-};
-const uint16_t x_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    0, 1, 0,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t y_letter_3x5[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 1,
-    0, 0, 1,
-    1, 1, 1,
-};
-const uint16_t z_letter_3x5[] = {
-    1, 1, 1,
-    0, 0, 1,
-    0, 1, 0,
-    1, 0, 0,
-    1, 1, 1,
-};
-
-// #######################################
-
-const uint16_t none_letter_10x13[] = {
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-    1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-};
-
-const uint16_t s_letter_10x13[] = {
-    0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
-    0, 1, 2, 2, 2, 2, 2, 2, 1, 0,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 3, 3, 3, 1,
-    1, 3, 2, 2, 2, 2, 2, 2, 3, 1,
-    1, 3, 3, 3, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 3, 2, 2, 2, 2, 2, 2, 3, 1,
-    1, 3, 3, 3, 3, 3, 3, 3, 3, 1,
-    0, 1, 3, 3, 3, 3, 3, 3, 1, 0,
-    0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
-};
-
-const uint16_t n_letter_10x13[] = {
-    0, 1, 1, 1, 0, 0, 1, 1, 1, 0,
-    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
-    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 1, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 1, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 1, 3, 2, 2, 2, 1,
-    1, 3, 3, 3, 1, 3, 3, 3, 3, 1,
-    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
-    0, 1, 1, 1, 0, 0, 1, 1, 1, 0,
-};
-
-const uint16_t a_letter_10x13[] = {
-    0, 0, 1, 1, 1, 1, 1, 1, 0, 0,
-    0, 1, 2, 2, 2, 2, 2, 2, 1, 0,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
-    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
-    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
-    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-};
-
-const uint16_t k_letter_10x13[] = {
-    0, 1, 1, 1, 0, 0, 0, 1, 1, 0,
-    1, 2, 2, 2, 1, 0, 1, 2, 2, 1,
-    1, 2, 2, 2, 1, 1, 2, 2, 2, 1,
-    1, 2, 2, 2, 1, 2, 2, 2, 3, 1,
-    1, 2, 2, 2, 2, 2, 2, 3, 3, 1,
-    1, 2, 2, 2, 2, 2, 3, 3, 1, 0,
-    1, 2, 2, 2, 2, 2, 2, 1, 0, 0,
-    1, 2, 2, 2, 2, 2, 2, 2, 1, 0,
-    1, 2, 2, 2, 3, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 2, 2, 2, 1,
-    1, 3, 3, 3, 1, 3, 3, 3, 3, 1,
-    1, 3, 3, 3, 1, 1, 3, 3, 3, 1,
-    0, 1, 1, 1, 0, 0, 1, 1, 1, 1,
-};
-
-const uint16_t e_letter_10x13[] = {
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 3, 3, 3, 3, 3, 1,
-    1, 2, 2, 2, 3, 3, 3, 3, 3, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 1, 0,
-    1, 2, 2, 2, 2, 2, 2, 2, 1, 0,
-    1, 2, 2, 2, 3, 3, 3, 3, 1, 0,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 2, 2, 2, 2, 2, 2, 2, 2, 1,
-    1, 3, 3, 3, 3, 3, 3, 3, 3, 1,
-    1, 3, 3, 3, 3, 3, 3, 3, 3, 1,
-    0, 1, 1, 1, 1, 1, 1, 1, 1, 0,
-};
-
-// #######################################
-
-const uint16_t none_letter_3x6[] = {
-    1, 1, 1,
-    1, 1, 1,
-    1, 1, 1,
-    1, 1, 1,
-    1, 1, 1,
-    1, 1, 1,
-};
-const uint16_t s_letter_3x6[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 1, 1,
-    0, 0, 1,
-    0, 0, 1,
-    1, 1, 1,
-};
-const uint16_t n_letter_3x6[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t a_letter_3x6[] = {
-    1, 1, 1,
-    1, 0, 1,
-    1, 1, 1,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t k_letter_3x6[] = {
-    1, 0, 1,
-    1, 0, 1,
-    1, 1, 0,
-    1, 0, 1,
-    1, 0, 1,
-    1, 0, 1,
-};
-const uint16_t e_letter_3x6[] = {
-    1, 1, 1,
-    1, 0, 0,
-    1, 1, 0,
-    1, 0, 0,
-    1, 0, 0,
-    1, 1, 1,
-};
-const uint16_t i_letter_3x6[] = {
-    1, 1, 1,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    0, 1, 0,
-    1, 1, 1,
-};
 
 // ###############################################################
 
@@ -1427,13 +457,11 @@ uint8_t get_themes_colors_len () {
     return themes_colors_len;
 }
 
-void set_custom_theme_colors(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6) {
-    themes_colors[0][0] = color1;
-    themes_colors[0][1] = color2;
-    themes_colors[0][2] = color3;
-    themes_colors[0][3] = color4;
-    themes_colors[0][4] = color5;
-    themes_colors[0][5] = color6;
+void set_custom_theme_colors(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2) {
+    themes_colors[0][0] = primary;
+    themes_colors[0][1] = secondary;
+    themes_colors[0][2] = background1;
+    themes_colors[0][3] = background2;
 }
 
 void apply_current_theme(uint8_t current_theme) {
@@ -1445,9 +473,7 @@ void apply_current_theme(uint8_t current_theme) {
             themes_colors[current_theme][0],
             themes_colors[current_theme][1],
             themes_colors[current_theme][2],
-            themes_colors[current_theme][3],
-            themes_colors[current_theme][4],
-            themes_colors[current_theme][5]
+            themes_colors[current_theme][3]
         );
     }
     #else
@@ -1455,9 +481,7 @@ void apply_current_theme(uint8_t current_theme) {
         themes_colors[current_theme][0],
         themes_colors[current_theme][1],
         themes_colors[current_theme][2],
-        themes_colors[current_theme][3],
-        themes_colors[current_theme][4],
-        themes_colors[current_theme][5]
+        themes_colors[current_theme][3]
     );
     #endif
 }
@@ -1501,18 +525,6 @@ void set_splash_created_by_color(uint32_t color) {
 
 void set_splash_bg_color(uint32_t color) {
     splash_bg_color = rgb888_to_rgb565(color);
-}
-
-void set_snake_font_color(uint32_t color) {
-    snake_font_color = rgb888_to_rgb565(color);
-}
-
-void set_snake_num_color(uint32_t color) {
-    snake_num_color = rgb888_to_rgb565(color);
-}
-
-void set_snake_bg_color(uint32_t color) {
-    snake_bg_color = rgb888_to_rgb565(color);
 }
 
 void set_snake_default_color(uint32_t color) {
@@ -1737,18 +749,6 @@ uint16_t get_splash_logo_color() {
 
 uint16_t get_splash_bg_color() {
     return splash_bg_color;
-}
-
-uint16_t get_snake_font_color() {
-    return snake_font_color;
-}
-
-uint16_t get_snake_num_color() {
-    return snake_num_color;
-}
-
-uint16_t get_snake_bg_color() {
-    return snake_bg_color;
 }
 
 uint16_t get_snake_default_color() {
@@ -2658,27 +1658,6 @@ void print_line_horizontal(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x,
     }
 }
 
-// void print_line_vertical_270(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t scale, uint16_t color) {
-//     struct display_buffer_descriptor line_desc;
-
-//     uint16_t vertical_line_len = end_y - start_y + scale;
-
-//     /* Horizontal line after rotation */
-//     line_desc.width    = vertical_line_len;
-//     line_desc.height   = scale;
-//     line_desc.pitch    = vertical_line_len;
-//     line_desc.buf_size = vertical_line_len * scale;
-
-//     fill_buffer_color(buf_frame, line_desc.buf_size * 2u, color);
-
-//     uint16_t x_rot = start_y;
-//     uint16_t y_rot_start = SCREEN_WIDTH - start_x - vertical_line_len;
-//     uint16_t y_rot_end   = SCREEN_WIDTH - end_x   - vertical_line_len;
-
-//     display_write(display_dev, x_rot, y_rot_start, &line_desc, buf_frame);
-//     display_write(display_dev, x_rot, y_rot_end,   &line_desc, buf_frame);
-// }
-
 void print_line_vertical_270(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t scale, uint16_t color) {
     struct display_buffer_descriptor line_desc;
 
@@ -2805,10 +1784,10 @@ void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t wi
 	display_write_wrapper_snake(x, y, &buf_desc_area, buf_area);
 }
 
-void clear_screen() {
+void clear_screen(uint16_t color) {
     uint8_t screen_width_square = 20;
     uint8_t screen_height_square = 20;
-	fill_buffer_color(buf_screen_area, buf_screen_size, get_menu_bg_color());
+	fill_buffer_color(buf_screen_area, buf_screen_size, color);
     for (int i = 0; i < 12; i++) {
         for (int j = 0; j < 12; j++) {
             render_filled_rectangle(buf_screen_area, i * screen_width_square, j * screen_height_square, screen_width_square, screen_height_square);
@@ -2939,7 +1918,7 @@ void set_all_colors(
     set_wpm_font_bg_color(wpm_font_bg_color);
 }
 
-void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2, uint32_t color5, uint32_t color6) {
+void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2) {
     set_splash_logo_multicolor(background2, background1, primary, secondary);
     set_splash_logo_color(primary);
     set_splash_created_by_color(background1);
@@ -3095,7 +2074,7 @@ void set_slot_1(SlotName name) {
     slot1.name = name;
     slot1.number = SLOT_NUMBER_1;
     slot1.x = 0;
-    slot1.y = 10;
+    slot1.y = 7;
     SlotMode mode = get_slot_mode();
     if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4 || mode == SLOT_MODE_5) {
         slot1.number = SLOT_NUMBER_NONE;
@@ -3105,7 +2084,7 @@ void set_slot_2(SlotName name) {
     slot2.name = name;
     slot2.number = SLOT_NUMBER_2;
     slot2.x = 120;
-    slot2.y = 10;
+    slot2.y = 7;
     SlotMode mode = get_slot_mode();
     if (mode == SLOT_MODE_2 || mode == SLOT_MODE_4) {
         slot2.number = SLOT_NUMBER_NONE;

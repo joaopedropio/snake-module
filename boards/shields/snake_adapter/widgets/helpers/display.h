@@ -124,8 +124,6 @@ void display_write_wrapper_snake(uint16_t x, uint16_t y, struct display_buffer_d
 void display_write_wrapper(uint16_t x, uint16_t y, struct display_buffer_descriptor *buf_desc, uint8_t *buf);
 void print_bitmap(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size);
 void print_bitmap_multicolor(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t colors[], FontSize font_size);
-void print_bitmap_status(uint16_t *scaled_bitmap, Status s, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color);
-void print_bitmap_transport(uint16_t *scaled_bitmap, Transport t, bool is_ready, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color);
 void print_rectangle(uint8_t *buf_frame, uint16_t start_x, uint16_t end_x, uint16_t start_y, uint16_t end_y, uint16_t color, uint16_t scale);
 void render_filled_rectangle(uint8_t *buf_area, uint8_t x, uint8_t y, uint8_t width, uint8_t height);
 
@@ -135,9 +133,6 @@ void set_splash_logo_multicolor(uint32_t color0, uint32_t color1, uint32_t color
 void set_splash_logo_color(uint32_t color);
 void set_splash_created_by_color(uint32_t color);
 void set_splash_bg_color(uint32_t color);
-void set_snake_font_color(uint32_t color);
-void set_snake_num_color(uint32_t color);
-void set_snake_bg_color(uint32_t color);
 void set_snake_board_color(uint32_t color);
 void set_snake_board_1_color(uint32_t color);
 void set_snake_default_color(uint32_t color);
@@ -195,9 +190,6 @@ uint16_t get_splash_logo_multicolor_3(void);
 uint16_t get_splash_logo_color(void);
 uint16_t get_splash_created_by_color(void);
 uint16_t get_splash_bg_color(void);
-uint16_t get_snake_font_color(void);
-uint16_t get_snake_num_color(void);
-uint16_t get_snake_bg_color(void);
 uint16_t get_snake_default_color(void);
 uint16_t get_snake_board_color(void);
 uint16_t get_snake_board_1_color(void);
@@ -247,16 +239,15 @@ uint16_t get_wpm_font_color(void);
 uint16_t get_wpm_font_1_color(void);
 uint16_t get_wpm_font_bg_color(void);
 
-void clear_screen(void);
-void set_colorscheme(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6);
+void clear_screen(uint16_t color);
+void set_colorscheme(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2);
 void print_string(uint16_t *scaled_bitmap, Character str[], uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len);
 void print_char_array(uint16_t *scaled_bitmap, char *str, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len, uint8_t limit);
 void print_repeat_char(uint16_t *scaled_bitmap, Character c, uint16_t x, uint16_t y, uint16_t scale, uint16_t color, uint16_t bg_color, FontSize font_size, uint16_t gap_pixels, uint8_t str_len, uint8_t limit);
 
 uint8_t get_themes_colors_len(void);
-void set_custom_theme_colors(uint32_t color1, uint32_t color2, uint32_t color3, uint32_t color4, uint32_t color5, uint32_t color6);
+void set_custom_theme_colors(uint32_t primary, uint32_t secondary, uint32_t background1, uint32_t background2);
 void apply_current_theme(uint8_t current_theme);
-uint32_t darken_color(uint32_t rgb, float percentage);
 void set_complete_colors_theme();
 uint32_t hex_string_to_uint(const char *hex_str);
 

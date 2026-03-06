@@ -5,7 +5,7 @@
  */
 
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(app_buzzer, LOG_LEVEL_DBG);
+LOG_MODULE_REGISTER(app_pwm, LOG_LEVEL_DBG);
 
 #include <stdlib.h>
 #include <zephyr/device.h>
@@ -230,10 +230,6 @@ void play_slide_with_vibrato(int start_freq, int end_freq, int duration_ms, floa
 void play_slide_exponential(float start_freq, float end_freq, uint32_t duration_ms) {
     uint32_t elapsed_ms = 0;
     uint32_t step_ms = 10; // Control resolution
-
-    // Linear frequency increment per millisecond
-    float freq_delta = end_freq - start_freq;
-    float freq_step_per_ms = freq_delta / (float)duration_ms;
 
     while (elapsed_ms < duration_ms) {
         float t = elapsed_ms;

@@ -12,7 +12,6 @@ typedef enum {
 	oneup,
 	coin,
 	reversed_coin,
-	coin_polyphonic,
 	crazy_coin,
 	theme_change_song,
 	connected_song,
@@ -35,6 +34,6 @@ void play_disconnected_song(void);
 void play_error_song(void);
 void play_notification_song(void);
 void play_startup_song(void);
-void play_powerd_down_song(void);
+void play_powered_down_song(void);
 void play_snake_eat_sound(void);
 void play_snake_game_intro(void);

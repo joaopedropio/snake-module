@@ -266,15 +266,15 @@ void zmk_widget_peripheral_battery_status_init() {
         battery_widget_slot_x += battery_widget_slot.x;
         battery_widget_slot_y += battery_widget_slot.y;
     }
+    if (battery_widget_slot.number != SLOT_NUMBER_NONE) {
+        uint16_t battery_widget_font_size = (battery_widget_font_width * battery_widget_font_scale) * (battery_widget_font_height * battery_widget_font_scale);
+        scaled_bitmap_battery_widget_font = k_malloc(battery_widget_font_size * 2 * sizeof(uint16_t));
+    }
 
     uint16_t bitmap_size = (font_width * scale) * (font_height * scale);
 
     scaled_bitmap_1 = k_malloc(bitmap_size * 2 * sizeof(uint16_t));
 
-    uint16_t battery_widget_font_size = (battery_widget_font_width * battery_widget_font_scale) * (battery_widget_font_height * battery_widget_font_scale);
-
-    scaled_bitmap_battery_widget_font = k_malloc(battery_widget_font_size * 2 * sizeof(uint16_t));
-    
     widget_battery_status_init();
 }
 

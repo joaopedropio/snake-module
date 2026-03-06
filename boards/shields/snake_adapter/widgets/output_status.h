@@ -4,7 +4,7 @@
  * SPDX-License-Identifier: MIT
  */
  
- #pragma once
+#pragma once
 
 #include <lvgl.h>
 #include <zephyr/kernel.h>

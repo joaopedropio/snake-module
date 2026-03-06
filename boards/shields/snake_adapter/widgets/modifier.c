@@ -1,13 +1,6 @@
-/* 
- * Based on ST7789V sample:
- * Copyright (c) 2019 Marc Reilly
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <stdlib.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(snake_modifier, LOG_LEVEL_INF);
 
 #include <zephyr/kernel.h>
 #include <zephyr/bluetooth/services/bas.h>
@@ -81,7 +74,7 @@ static const uint16_t ctrl_bitmap[] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 };
 
-static const uint16_t shitf_bitmap[] = {
+static const uint16_t shift_bitmap[] = {
     0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0,
     0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0,
     0, 0, 1, 1, 1, 0, 1, 1, 1, 0, 0,
@@ -121,9 +114,9 @@ void print_modifiers() {
     }
 
     if ((modifier_state.modifiers & (MOD_LSFT | MOD_RSFT)) > 0) {
-        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + (char_len * 3), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, shift_bitmap, modifier_x + (char_len * 3), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_selected_color(), get_modifier_bg_color());
     } else {
-        render_bitmap(scaled_bitmap_modifier_font, shitf_bitmap, modifier_x + (char_len * 3), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
+        render_bitmap(scaled_bitmap_modifier_font, shift_bitmap, modifier_x + (char_len * 3), modifier_y, modifier_font_width, modifier_font_height, modifier_font_scale, get_modifier_unselected_color(), get_modifier_bg_color());
     }
 }
 
@@ -158,9 +151,10 @@ void zmk_widget_modifier_init() {
         modifier_x += modifier_slot.x;
         modifier_y += modifier_slot.y;
     }
-
-    uint16_t modifier_font_size = (modifier_font_width * modifier_font_scale) * (modifier_font_height * modifier_font_scale);
-    scaled_bitmap_modifier_font = k_malloc(modifier_font_size * 2 * sizeof(uint16_t));
+    if (modifier_slot.number != SLOT_NUMBER_NONE) {
+        uint16_t modifier_font_size = (modifier_font_width * modifier_font_scale) * (modifier_font_height * modifier_font_scale);
+        scaled_bitmap_modifier_font = k_malloc(modifier_font_size * 2 * sizeof(uint16_t));
+    }
 
     widget_modifiers_init();
     modifier_widget_initialized = true;

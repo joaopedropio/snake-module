@@ -1,13 +1,6 @@
-/* 
- * Based on ST7789V sample:
- * Copyright (c) 2019 Marc Reilly
- *
- * SPDX-License-Identifier: Apache-2.0
- */
-
 #include <stdlib.h>
 #include <zephyr/logging/log.h>
-LOG_MODULE_REGISTER(sample, LOG_LEVEL_INF);
+LOG_MODULE_REGISTER(snake_wpm, LOG_LEVEL_INF);
 
 #include <zephyr/kernel.h>
 #include <zephyr/bluetooth/services/bas.h>
@@ -119,8 +112,10 @@ void zmk_widget_wpm_init() {
         wpm_y += wpm_slot.y;
     }
 
-    uint16_t wpm_font_size = (wpm_font_width * wpm_font_scale) * (wpm_font_height * wpm_font_scale);
-    scaled_bitmap_wpm_font = k_malloc(wpm_font_size * 2 * sizeof(uint16_t));
+    if (wpm_slot.number != SLOT_NUMBER_NONE) {
+        uint16_t wpm_font_size = (wpm_font_width * wpm_font_scale) * (wpm_font_height * wpm_font_scale);
+        scaled_bitmap_wpm_font = k_malloc(wpm_font_size * 2 * sizeof(uint16_t));
+    }
 
     widget_wpm_init();
     wpm_widget_initialized = true;

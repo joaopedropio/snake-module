@@ -130,7 +130,7 @@ uint16_t get_gap(size_t label_len) {
 }
 
 uint16_t get_x(size_t label_len) {
-    uint16_t available_pixels = layer_x_end - layer_x; // 112
+    uint16_t available_pixels = layer_x_end - layer_x;
     uint16_t total_width = ((get_scale(label_len) * layer_font_width) + get_gap(label_len)) * label_len;
     uint16_t offset = (available_pixels - total_width) / 2;
     return layer_x + offset;
@@ -194,9 +194,11 @@ void zmk_widget_layer_init() {
         layer_x_end += layer_slot.x;
         layer_y += layer_slot.y;
     }
+    if (layer_slot.number != SLOT_NUMBER_NONE) {
+        uint16_t layer_font_size = (layer_font_width * layer_font_scale) * (layer_font_height * layer_font_scale);
+        scaled_bitmap_layer_font = k_malloc(layer_font_size * 2 * sizeof(uint16_t));
+    }
 
-    uint16_t layer_font_size = (layer_font_width * layer_font_scale) * (layer_font_height * layer_font_scale);
-    scaled_bitmap_layer_font = k_malloc(layer_font_size * 2 * sizeof(uint16_t));
     last_printed_layer = (struct layer_status_state) {
         .index = 0,
         .label = '\0'

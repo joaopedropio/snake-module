@@ -274,7 +274,7 @@ void play_startup_song(void) {
     k_wakeup(buzzer_tid);
 }
 
-void play_powerd_down_song(void) {
+void play_powered_down_song(void) {
     song = powerd_down_song;
     k_wakeup(buzzer_tid);
 }
@@ -565,13 +565,11 @@ static Sound low_battery_sound[LOW_BATTERY_NOTES] = {
 
 #else
 
-int app_buzzer_init(void)
-{
+int app_buzzer_init(void) {
 	return 0;
 }
 
-void play_once(SongName song_name)
-{
+void play_once(SongName song_name) {
 	return;
 }
 
@@ -599,7 +597,7 @@ void play_startup_song(void) {
     return;
 }
 
-void play_powerd_down_song(void) {
+void play_powered_down_song(void) {
     return;
 }
 
