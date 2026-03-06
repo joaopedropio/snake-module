@@ -92,12 +92,16 @@ void print_frames() {
     }
 
     // battery frames 
-    #ifdef CONFIG_SHOW_SINGLE_BATTERY
-    print_container(buf_frame, 1, 239, 161, 239, thickness);
-    #else
-    print_container(buf_frame, 1, 120, 161, 239, thickness);
-    print_container(buf_frame, 120, 239, 161, 239, thickness);
-    #endif
+    if (get_battery_slots() == 1) {
+        print_container(buf_frame, 1, 239, 161, 239, thickness);
+    } else if (get_battery_slots() == 3) {
+        print_container(buf_frame, 1, 81, 161, 239, thickness);
+        print_container(buf_frame, 81, 159, 161, 239, thickness);
+        print_container(buf_frame, 159, 239, 161, 239, thickness);
+    } else {
+        print_container(buf_frame, 1, 120, 161, 239, thickness);
+        print_container(buf_frame, 120, 239, 161, 239, thickness);
+    }
 }
 
 void print_menu() {
