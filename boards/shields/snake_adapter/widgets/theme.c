@@ -6,6 +6,7 @@ LOG_MODULE_DECLARE(zmk, CONFIG_ZMK_LOG_LEVEL);
 #include <zephyr/device.h>
 #include <zephyr/drivers/display.h>
 #include <zmk/display.h>
+#include <theme/theme_loader.h>
 #include "helpers/display.h"
 #include "helpers/settings.h"
 
@@ -82,6 +83,17 @@ void print_themes() {
     print_string(scaled_bitmap_theme_font, theme_template, theme_x, theme_y, theme_font_scale, get_theme_font_color(), get_theme_font_bg_color(), FONT_SIZE_3x5, char_gap_pixels, 4);
     print_bitmap(scaled_bitmap_theme_font, int_to_num_char(first_num), theme_x + 62, theme_y, theme_font_scale, get_theme_font_color_1(), get_theme_font_bg_color(), FONT_SIZE_3x5);
     print_bitmap(scaled_bitmap_theme_font, int_to_num_char(second_num), theme_x + 76, theme_y, theme_font_scale, get_theme_font_color_1(), get_theme_font_bg_color(), FONT_SIZE_3x5);
+}
+
+const struct custom_theme *theme_find(const char *name)
+{
+    for (size_t i = 0; i < custom_themes_count; i++) {
+        if (strcmp(custom_themes[i].name, name) == 0) {
+            return &custom_themes[i];
+        }
+    }
+
+    return NULL;
 }
 
 void set_next_theme_number() {

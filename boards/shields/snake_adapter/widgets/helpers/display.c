@@ -1,5 +1,6 @@
 #include <zephyr/kernel.h>
 #include <zephyr/drivers/display.h>
+#include <theme/theme_loader.h>
 #include "display.h"
 #include "fonts.h"
 
@@ -124,6 +125,75 @@ Character int_to_num_char(uint8_t i) {
         case 9: return CHAR_9;
     }
     return CHAR_NONE;
+}
+
+void load_theme(uint8_t theme_num) {
+    if (theme_num >= custom_themes_count) {
+        return;
+    }
+
+    struct custom_theme ct = custom_themes[theme_num];
+
+    set_all_colors(
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.background,
+        ct.foreground,
+        ct.accent,
+        ct.warning,
+        ct.success,
+        ct.warning,
+        ct.success
+    );
+
 }
 
 void set_complete_colors_theme() {
@@ -490,7 +560,8 @@ void set_custom_theme_colors(uint32_t primary, uint32_t secondary, uint32_t back
 void apply_current_theme(uint8_t current_theme) {
     #ifdef CONFIG_USE_COMPLETE_CUSTOM_THEME
     if (current_theme == 0) {
-        set_complete_colors_theme();
+        //set_complete_colors_theme();
+        load_theme(0);
     } else {
         set_colorscheme(
             themes_colors[current_theme][0],
